@@ -1,0 +1,1 @@
+../../.spec/commands/finish-objective.md

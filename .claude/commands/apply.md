@@ -1,0 +1,1 @@
+../../.spec/commands/apply.md
