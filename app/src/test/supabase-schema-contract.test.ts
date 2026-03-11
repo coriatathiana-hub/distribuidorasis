@@ -132,6 +132,29 @@ describe("HU-2.1 Scenario 2: SQL migration 002 — RLS policies", () => {
   });
 });
 
+describe("HU-2.2 RLS hardening: profiles recursion fix", () => {
+  const sql = readFileSync(
+    resolve(
+      __dirname,
+      "../../..",
+      "supabase/migrations/004_fix_profiles_policy_recursion.sql",
+    ),
+    "utf-8",
+  );
+
+  it("drops recursive profiles policies from migration 002", () => {
+    expect(sql).toMatch(/drop policy if exists "profiles_admin_select" on public\.profiles/i);
+    expect(sql).toMatch(/drop policy if exists "profiles_admin_update" on public\.profiles/i);
+  });
+
+  it("creates safe authenticated self-select policy on profiles", () => {
+    expect(sql).toMatch(/create policy "profiles_self_select"/i);
+    expect(sql).toMatch(/for select/i);
+    expect(sql).toMatch(/to authenticated/i);
+    expect(sql).toMatch(/using \(id = auth\.uid\(\)\)/i);
+  });
+});
+
 // ──────────────────────────────────────────────
 // TypeScript type contract — Database interface
 // Validates all tables are covered by types

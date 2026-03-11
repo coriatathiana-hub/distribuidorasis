@@ -100,7 +100,9 @@
 |:----------|:------------|:---------|
 | `001_initial_catalog_schema.sql` | Creates `profiles`, `categories`, `products`, `product_images`, `contact_requests` + `set_updated_at` trigger | HU-2.1 |
 | `002_initial_rls_policies.sql` | Enables RLS + anon/admin policies for all catalog tables and `contact_requests` | HU-2.1 |
-| `003_storage_policies.sql` | Adds storage policies for bucket `products` | FEAT-3 (pending) |
+| `003_fix_profiles_self_select.sql` | Adds authenticated self-select policy on `profiles` to support post-OTP role checks | HU-2.2 |
+| `004_fix_profiles_policy_recursion.sql` | Removes recursive `profiles` policies and keeps safe `profiles_self_select` policy | HU-2.2 |
+| `005_storage_policies.sql` | Adds storage policies for bucket `products` | FEAT-3 (pending) |
 
 ### 3.3 Schema Details
 
