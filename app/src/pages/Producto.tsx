@@ -21,7 +21,7 @@ const Producto = () => {
           <p className="mb-6 text-muted-foreground">
             El producto que buscas no existe en nuestro catálogo
           </p>
-          <Button asChild>
+          <Button asChild className="touch-target">
             <Link to="/catalogo">
               <ArrowLeft className="mr-2 h-4 w-4" />
               Volver al catálogo
@@ -31,6 +31,8 @@ const Producto = () => {
       </div>
     );
   }
+
+  const contactPath = `/contacto?origen=detalle&productoId=${encodeURIComponent(product.id)}&producto=${encodeURIComponent(product.name)}`;
 
   return (
     <div className="container px-4 py-8 md:py-12">
@@ -56,7 +58,7 @@ const Producto = () => {
       </Breadcrumb>
 
       {/* Back button */}
-      <Button variant="ghost" size="sm" asChild className="mb-6">
+      <Button variant="ghost" size="sm" asChild className="mb-6 touch-target">
         <Link to="/catalogo">
           <ArrowLeft className="mr-2 h-4 w-4" />
           Volver al catálogo
@@ -90,7 +92,7 @@ const Producto = () => {
             </p>
             <div className="flex flex-col gap-2 sm:flex-row">
               <Button asChild className="flex-1">
-                <Link to="/contacto">
+                <Link to={contactPath}>
                   <Mail className="mr-2 h-4 w-4" />
                   Contactar
                 </Link>

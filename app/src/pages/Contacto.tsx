@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -10,6 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
+import { useSearchParams } from "react-router-dom";
 
 const contactFormSchema = z.object({
   nombre: z.string()
@@ -41,8 +42,16 @@ const contactFormSchema = z.object({
 type ContactFormValues = z.infer<typeof contactFormSchema>;
 
 const Contacto = () => {
+  const [searchParams] = useSearchParams();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
+
+  const selectedProduct = searchParams.get("producto");
+  const selectedProductId = searchParams.get("productoId");
+  const prefilledMessage = useMemo(() => {
+    if (!selectedProduct) return "";
+    return `Hola, me interesa cotizar el producto "${selectedProduct}"${selectedProductId ? ` (ID: ${selectedProductId})` : ""}.`;
+  }, [selectedProduct, selectedProductId]);
 
   const form = useForm<ContactFormValues>({
     resolver: zodResolver(contactFormSchema),
@@ -51,8 +60,8 @@ const Contacto = () => {
       empresa: "",
       telefono: "",
       correo: "",
-      tipoRequerimiento: "",
-      mensaje: "",
+      tipoRequerimiento: selectedProduct ? "cotizacion" : "",
+      mensaje: prefilledMessage,
     },
   });
 
@@ -91,6 +100,11 @@ const Contacto = () => {
         <p className="max-w-2xl text-lg text-muted-foreground">
           Completa el formulario y te responderemos a la brevedad.
         </p>
+        {selectedProduct && (
+          <p className="mt-3 text-sm text-foreground">
+            Producto seleccionado: <strong>{selectedProduct}</strong>
+          </p>
+        )}
       </div>
 
       <div className="grid gap-8 lg:grid-cols-3">
