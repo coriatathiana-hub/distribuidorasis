@@ -9,12 +9,14 @@ import {
 } from "@/components/ui/select";
 import { Search } from "lucide-react";
 import { CATEGORIES } from "@/data/products";
+import { Button } from "@/components/ui/button";
 
 interface ProductFiltersProps {
   searchQuery: string;
   selectedCategory: string;
   onSearchChange: (value: string) => void;
   onCategoryChange: (value: string) => void;
+  onClearFilters: () => void;
 }
 
 const ProductFilters = ({
@@ -22,7 +24,10 @@ const ProductFilters = ({
   selectedCategory,
   onSearchChange,
   onCategoryChange,
+  onClearFilters,
 }: ProductFiltersProps) => {
+  const hasActiveFilters = searchQuery.trim().length > 0 || selectedCategory !== "all";
+
   return (
     <div className="space-y-4">
       <div className="space-y-2">
@@ -60,6 +65,12 @@ const ProductFilters = ({
           </SelectContent>
         </Select>
       </div>
+
+      {hasActiveFilters && (
+        <Button type="button" variant="outline" className="w-full touch-target" onClick={onClearFilters}>
+          Limpiar filtros
+        </Button>
+      )}
     </div>
   );
 };

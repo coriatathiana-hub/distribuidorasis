@@ -1,30 +1,22 @@
-import { useState, useMemo } from "react";
+import { useMemo, useState } from "react";
 import ProductCard from "@/components/ProductCard";
 import ProductFilters from "@/components/ProductFilters";
-import { Skeleton } from "@/components/ui/skeleton";
-import { PRODUCTS, getProductsByCategory, searchProducts } from "@/data/products";
+import { Button } from "@/components/ui/button";
+import { catalogRepository } from "@/lib/catalog-service";
 import { PackageOpen } from "lucide-react";
 
 const Catalogo = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
-  const [isLoading, setIsLoading] = useState(false);
 
-  // Filter products based on search and category
   const filteredProducts = useMemo(() => {
-    let products = selectedCategory === "all" 
-      ? PRODUCTS 
-      : getProductsByCategory(selectedCategory);
-
-    if (searchQuery.trim()) {
-      const searchResults = searchProducts(searchQuery);
-      products = products.filter(p => 
-        searchResults.some(sr => sr.id === p.id)
-      );
-    }
-
-    return products;
+    return catalogRepository.list({ query: searchQuery, category: selectedCategory });
   }, [searchQuery, selectedCategory]);
+
+  const clearFilters = () => {
+    setSearchQuery("");
+    setSelectedCategory("all");
+  };
 
   return (
     <div className="container px-4 py-8 md:py-12">
@@ -47,6 +39,7 @@ const Catalogo = () => {
               selectedCategory={selectedCategory}
               onSearchChange={setSearchQuery}
               onCategoryChange={setSelectedCategory}
+              onClearFilters={clearFilters}
             />
           </div>
           
@@ -60,18 +53,7 @@ const Catalogo = () => {
 
         {/* Product grid */}
         <main>
-          {isLoading ? (
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {Array.from({ length: 6 }).map((_, i) => (
-                <div key={i} className="space-y-3">
-                  <Skeleton className="aspect-square w-full" />
-                  <Skeleton className="h-6 w-3/4" />
-                  <Skeleton className="h-4 w-full" />
-                  <Skeleton className="h-4 w-2/3" />
-                </div>
-              ))}
-            </div>
-          ) : filteredProducts.length > 0 ? (
+          {filteredProducts.length > 0 ? (
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {filteredProducts.map((product) => (
                 <ProductCard key={product.id} product={product} />
@@ -81,9 +63,12 @@ const Catalogo = () => {
             <div className="flex min-h-[400px] flex-col items-center justify-center rounded-lg border-2 border-dashed bg-muted/50 p-8 text-center">
               <PackageOpen className="mb-4 h-16 w-16 text-muted-foreground" />
               <h3 className="mb-2 text-lg font-semibold">No se encontraron productos</h3>
-              <p className="text-sm text-muted-foreground">
+              <p className="mb-4 text-sm text-muted-foreground">
                 Intenta ajustar los filtros o la búsqueda
               </p>
+              <Button type="button" variant="outline" onClick={clearFilters}>
+                Limpiar filtros
+              </Button>
             </div>
           )}
         </main>
