@@ -93,13 +93,14 @@
 
 ### 3.2 Migrations
 
-> List migration files in execution order.
+> List migration files in execution order. Files live in `supabase/migrations/`.
+> Apply via Supabase Dashboard SQL Editor or Supabase CLI (`supabase db push`).
 
 | Migration | Description | Added by |
 |:----------|:------------|:---------|
-| `001_initial_catalog_schema.sql` | Creates `profiles`, `categories`, `products`, `product_images`, `contact_requests` | FEAT-2/3/4 |
-| `002_rls_policies.sql` | Adds RLS policies for public and admin roles | FEAT-2 |
-| `003_storage_policies.sql` | Adds storage policies for bucket `products` | FEAT-3 |
+| `001_initial_catalog_schema.sql` | Creates `profiles`, `categories`, `products`, `product_images`, `contact_requests` + `set_updated_at` trigger | HU-2.1 |
+| `002_initial_rls_policies.sql` | Enables RLS + anon/admin policies for all catalog tables and `contact_requests` | HU-2.1 |
+| `003_storage_policies.sql` | Adds storage policies for bucket `products` | FEAT-3 (pending) |
 
 ### 3.3 Schema Details
 
@@ -145,13 +146,14 @@ Core schema is documented in `docs/TECH_SPEC.md` under Data Model section.
 
 ### 4.3 Files Involved
 
-| File | Role |
-|:-----|:-----|
-| `src/lib/supabase/client.ts` | Browser Supabase client bootstrap |
-| `src/lib/supabase/auth.ts` | OTP request/verify helpers |
-| `src/pages/Admin.tsx` | Protected admin shell and guards |
-| `src/components/admin/ProductManager.tsx` | Product CRUD UI |
-| `src/components/admin/ImageGalleryManager.tsx` | Product image management UI |
+| File | Role | Added by |
+|:-----|:-----|:---------|
+| `app/src/lib/supabase/client.ts` | Browser Supabase client bootstrap with Database types | HU-2.1 |
+| `app/src/types/supabase.ts` | TypeScript Database type contract (Row/Insert/Update per table) | HU-2.1 |
+| `app/src/lib/supabase/auth.ts` | OTP request/verify helpers | HU-2.2 (pending) |
+| `app/src/pages/Admin.tsx` | Protected admin shell and guards | HU-2.2 (pending) |
+| `app/src/components/admin/ProductManager.tsx` | Product CRUD UI | HU-2.3 (pending) |
+| `app/src/components/admin/ImageGalleryManager.tsx` | Product image management UI | FEAT-3 (pending) |
 
 ---
 
@@ -191,22 +193,29 @@ Core schema is documented in `docs/TECH_SPEC.md` under Data Model section.
 ```
 # 1. Clone and install
 git clone <repo-url>
-cd distribuidorasis
-cd app
-bun install
+cd distribuidorasis/app
+npm install        # or: bun install
 
 # 2. Environment variables
 cp .env.example .env.local
-# configure Supabase + email provider variables
+# fill in VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY from Supabase Project Settings > API
 
-# 3. Run the app
-bun run dev
+# 3. Apply database migrations (Supabase Dashboard SQL Editor or CLI)
+# Run in order: 001_initial_catalog_schema.sql → 002_initial_rls_policies.sql
+# Optionally: run supabase/seed.sql for development data
+
+# 4. Run the app
+npm run dev
 ```
 
 ### Infrastructure checklist
 
-- [ ] Supabase project created and API keys configured
-- [ ] Database migrations executed in order
+- [x] Supabase project created (HU-2.1)
+- [x] Migration files created: 001 (schema) + 002 (RLS) (HU-2.1)
+- [ ] API keys configured in `.env.local` (requires manual Supabase dashboard access)
+- [ ] Migrations executed in Supabase (paste SQL in SQL Editor or use CLI)
+- [ ] Seed data applied (`supabase/seed.sql`) for development
+- [ ] Admin user created in Supabase Auth + row inserted in `profiles` (HU-2.2)
 - [ ] Auth OTP flow validated with admin allowlist
 - [ ] Storage bucket `products` created with policies
 - [ ] Transactional email provider configured and tested

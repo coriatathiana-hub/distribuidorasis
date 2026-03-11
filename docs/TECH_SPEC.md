@@ -159,22 +159,28 @@
 ## Project Structure
 
 ```
-src/
+app/src/
 ├── components/              # Shared UI components
 │   ├── admin/               # Admin-specific managers
 │   └── ui/                  # Base UI primitives
 ├── lib/
-│   ├── supabase/            # Supabase client, auth and storage helpers
+│   ├── supabase/
+│   │   ├── client.ts        # [DAL] createClient<Database> bootstrap (HU-2.1)
+│   │   └── auth.ts          # [DAL] OTP helpers (HU-2.2)
 │   ├── api/                 # [DAL] data services for products/contact/admin
+│   ├── catalog-service.ts   # [DAL] mock catalog repository (HU-1.2, migrates to Supabase in HU-2.3)
 │   └── utils.ts             # General utilities
 ├── pages/                   # Route pages (catalog, product, contacto, admin)
-├── types/                   # Domain and API contracts
+├── types/
+│   └── supabase.ts          # Database type contract — Row/Insert/Update per table (HU-2.1)
 └── test/                    # Integration and component tests
 
 supabase/
-├── migrations/              # SQL migrations and RLS policies
-└── seed.sql                 # Development seed data
+├── migrations/
+│   ├── 001_initial_catalog_schema.sql   # Tables: profiles, categories, products, product_images, contact_requests (HU-2.1)
+│   └── 002_initial_rls_policies.sql     # RLS: anon read-only, admin full CRUD (HU-2.1)
+└── seed.sql                             # Development data seed (10 products, 4 categories)
 
 functions/
-└── send-contact-email/      # [API] email delivery endpoint
+└── send-contact-email/      # [API] email delivery endpoint (FEAT-4)
 ```

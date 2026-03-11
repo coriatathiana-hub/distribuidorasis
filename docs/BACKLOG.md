@@ -28,8 +28,11 @@
 ### FEAT-2: Admin real con Supabase, OTP y seguridad RLS
 
 - **Hypothesis:** Si entregamos un panel de administracion autenticado por OTP y persistencia en Supabase con RLS, entonces reduciremos errores operativos y dependencia de cambios manuales, medido por tasa de exito CRUD >=95%.
-- **Status:** Pending
-- **Stories:** _(Se definiran en `@start-feature FEAT-2`)_
+- **Status:** In Progress
+- **Stories:**
+  - [ ] HU-2.1: Provision de Supabase y modelo base con politicas RLS iniciales
+  - [ ] HU-2.2: Autenticacion admin por email OTP y proteccion de rutas
+  - [ ] HU-2.3: Persistencia real de categorias y productos en panel admin
 
 ---
 
