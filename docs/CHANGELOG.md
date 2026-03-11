@@ -80,6 +80,27 @@
 - Se introdujo `ADR-004`: patrón de split DAL público/admin para catálogo.
 **Tests:** 34 nuevos (total: 83 passing / +1 test de error state en catálogo)
 
+## [2026-03-10] — HU-2.4: UX backoffice admin con rutas dedicadas y layout operativo
+
+**Feature:** FEAT-2 — Admin real con Supabase, OTP y seguridad RLS
+**Benefit:** El administrador puede operar el catálogo desde rutas independientes con un layout tipo backoffice — sidebar fija en desktop y menú colapsable en mobile — y eliminar productos y categorías con confirmación y reglas de integridad, sin depender de tabs en una sola pantalla.
+**Changes:**
+- Se introdujo routing anidado con `AdminLayout` (sidebar + Outlet) separando el backoffice del layout público.
+- `AdminSidebar` con navegación activa (Productos / Categorías), email de admin y botón de cierre de sesión.
+- Rutas dedicadas `/admin/productos` y `/admin/categorias` con redirect automático desde `/admin`.
+- `/admin/login` ahora es standalone (sin header/footer público).
+- DAL extendido: `deleteProduct()` (hard delete — cascade sobre `product_images`) y `deleteCategory()` (falla con error accionable si tiene productos, código FK 23503).
+- `AlertDialog` de confirmación antes de cualquier eliminación en `ProductManager` y `CategoryManager`.
+- `docs/TECH_SPEC.md` actualizado con estructura de rutas del backoffice y tabla de routing.
+- `docs/SETUP.md` con 5 nuevos ítems en checklist de validación operativa.
+**Tests:** 21 nuevos (83 → 104 passing); nuevo archivo `admin-layout-routes.test.tsx` (10 tests)
+
+---
+
+**🎯 FEAT-2 Delivered** — Admin real con Supabase, OTP y seguridad RLS (HU-2.1 → HU-2.4, 2026-03-10)
+
+---
+
 ## [2026-03-10] — HU-2.2: Autenticacion admin por email OTP y proteccion de rutas
 
 **Feature:** FEAT-2 — Admin real con Supabase, OTP y seguridad RLS  

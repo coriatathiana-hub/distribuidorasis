@@ -28,12 +28,12 @@
 ### FEAT-2: Admin real con Supabase, OTP y seguridad RLS
 
 - **Hypothesis:** Si entregamos un panel de administracion autenticado por OTP y persistencia en Supabase con RLS, entonces reduciremos errores operativos y dependencia de cambios manuales, medido por tasa de exito CRUD >=95%.
-- **Status:** In Progress
+- **Status:** Delivered ✅ (2026-03-10)
 - **Stories:**
   - [x] HU-2.1: Provision de Supabase y modelo base con politicas RLS iniciales ✅ (2026-03-10, commits `65ca105` + `d2c5af9`, evidencias en `.spec/work/FEAT-2/README.md` y `.spec/history/2026-03-10_HU-2.1_completed.md`)
   - [x] HU-2.2: Autenticacion admin por email OTP y proteccion de rutas ✅ (2026-03-10, commits `d2f4213` + `b6ad7f4` + `f6782b5`, evidencias en `.spec/work/FEAT-2/README.md` y `.spec/history/2026-03-10_HU-2.2_completed.md`)
   - [x] HU-2.3: Persistencia real de categorias y productos en panel admin (sin refactor UX mayor) ✅ (2026-03-10, commits `d337e18` + `28ebcc6` + `880cc2a`, evidencias en `.spec/work/FEAT-2/README.md` y `.spec/history/2026-03-10_HU-2.3_completed.md`)
-  - [ ] HU-2.4: UX backoffice admin con rutas dedicadas y layout operativo (incluye eliminacion controlada: products hard delete, categories sin dependencias)
+  - [x] HU-2.4: UX backoffice admin con rutas dedicadas y layout operativo (incluye eliminacion controlada: products hard delete, categories sin dependencias) ✅ (2026-03-10, commits `f95f046` + `f5d24a6` + `c0926c8` + `8096214`, evidencias en `.spec/work/FEAT-2/README.md` y `.spec/history/2026-03-10_HU-2.4_completed.md`)
 
 ---
 
@@ -58,3 +58,4 @@
 > Stories and Features move here when finished via `@finish-objective`.
 
 - **Feature delivered:** `FEAT-1` — Foundation mobile-first de catalogo y navegacion (2026-03-10)
+- **Feature delivered:** `FEAT-2` — Admin real con Supabase, OTP y seguridad RLS (2026-03-10)

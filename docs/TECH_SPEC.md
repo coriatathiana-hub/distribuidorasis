@@ -159,6 +159,13 @@
 - **Consequences:** Clear boundary between public and admin data access; FEAT-3 (multi-image) and FEAT-4 (contact) should follow the same pattern. Slight duplication in query logic (acceptable for MVP scale). RLS in Supabase remains the authoritative enforcement layer — the `is_active=true` filter in public queries is defense-in-depth, not a replacement for RLS.
 - **Origin:** HU-2.3 (discovered during implementation when connecting the public catalog to Supabase).
 
+### ADR-005: Split public and admin route trees with dedicated Outlet layouts
+
+- **Context:** HU-2.4 introduced a full backoffice shell (`AdminLayout`) with sidebar/topbar patterns that should not inherit public website chrome (`Header`, `Footer`, `WhatsAppButton`). Keeping a single top-level layout around all routes creates coupling and UI regressions when adding new admin modules.
+- **Decision:** Organize routing into two explicit trees in `App.tsx`: public routes wrapped by `PublicLayout` (`Layout` + `Outlet`) and protected admin routes wrapped by `AdminRouteGuard` + `AdminLayout` (`Outlet` for nested admin pages). Use `/admin` index redirect to `/admin/productos` and admin catch-all redirect to the same default module.
+- **Consequences:** Clear separation of concerns between public UX and backoffice UX, easier scaling for future admin modules and future route groups. Requires adding new pages under the correct tree intentionally (public vs admin), but reduces accidental cross-layout regressions.
+- **Origin:** HU-2.4 (discovered during implementation of dedicated backoffice routes and responsive shell).
+
 ---
 
 ## Server/Client Strategy
