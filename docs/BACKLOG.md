@@ -19,7 +19,7 @@
 - **Hypothesis:** Si entregamos una experiencia de catalogo mobile-first con navegacion y filtros optimizados, entonces incrementaremos el consumo de productos desde campo para residentes y compradores, medido por sesiones mobile con >=3 vistas de producto.
 - **Status:** In Progress
 - **Stories:**
-  - [x] HU-1.1: Navegacion mobile-first y estructura base de experiencia ✅ (2026-03-10)
+  - [x] HU-1.1: Navegacion mobile-first y estructura base de experiencia ✅ (2026-03-10, commits `e3d736e` + `57fe235`, evidencias en `.spec/work/FEAT-1/README.md` y `.spec/history/2026-03-10_HU-1.1_completed.md`)
   - [ ] HU-1.2: Catalogo responsive con busqueda, filtros y estados UX
   - [ ] HU-1.3: Detalle de producto con informacion accionable y CTA a contacto
 
