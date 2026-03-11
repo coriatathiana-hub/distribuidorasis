@@ -13,7 +13,7 @@
 | ID | Title | Priority | Status |
 |:---|:------|:---------|:-------|
 | HU-2.1 | Provision de Supabase y modelo base con politicas RLS iniciales | High | [x] Completed ✅ (2026-03-10) |
-| HU-2.2 | Autenticacion admin por email OTP y proteccion de rutas | High | [ ] Pending |
+| HU-2.2 | Autenticacion admin por email OTP y proteccion de rutas | High | [x] Completed ✅ (2026-03-10) |
 | HU-2.3 | Persistencia real de categorias y productos en panel admin | High | [ ] Pending |
 
 ## Story Definitions and BDD Criteria
@@ -89,7 +89,7 @@
 
 ## Acceptance Criteria (Feature Level)
 
-- [ ] El panel admin opera con autenticacion OTP real y control de acceso basado en rol admin activo.
+- [x] El panel admin opera con autenticacion OTP real y control de acceso basado en rol admin activo. ✅ (HU-2.2)
 - [ ] El catalogo administrativo persiste en Supabase con politicas RLS aplicadas y verificables.
 - [ ] Las operaciones de escritura quedan restringidas a admins autenticados; la lectura publica respeta solo contenido activo.
 

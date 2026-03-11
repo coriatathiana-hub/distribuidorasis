@@ -1,3 +1,3 @@
 # Current Objective
 
-> No active objective. Use `@start-objective` to begin a new story.
+> No active objective. Run `@start-objective HU-N.M` to begin.

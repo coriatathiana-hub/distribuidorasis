@@ -65,3 +65,17 @@
 - `docs/SETUP.md` y `docs/TECH_SPEC.md` actualizados con artefactos reales de migracion y estructura de carpetas.
 - Validacion `authenticated admin` diferida a HU-2.2 (requiere Email OTP activo).
 **Tests:** 28 passing tests (`app/src/test/supabase-schema-contract.test.ts`) / 1 archivo de pruebas agregado (37/37 suite total)
+
+## [2026-03-10] — HU-2.2: Autenticacion admin por email OTP y proteccion de rutas
+
+**Feature:** FEAT-2 — Admin real con Supabase, OTP y seguridad RLS  
+**Benefit:** Habilita acceso administrativo real y seguro con OTP por correo y control de rutas por rol activo, eliminando el acceso abierto al panel `/admin`.  
+**Changes:**
+- Se implemento capa de autenticacion en `app/src/lib/supabase/auth.ts` con `requestOtp`, `verifyOtp`, `signOutAdmin` y validacion de perfil admin activo.
+- Se agrego UI de login OTP mobile-first en `app/src/components/admin/AdminOtpLogin.tsx` y ruta `app/src/pages/AdminLogin.tsx`.
+- Se protegieron rutas con `app/src/components/admin/AdminRouteGuard.tsx` y se actualizo `app/src/App.tsx` para separar `/admin/login` de `/admin`.
+- Se reforzo `app/src/pages/Admin.tsx` con cierre de sesion y contexto de usuario autenticado.
+- Se corrigio bloqueo de autorizacion por recursividad de politicas RLS en `profiles` mediante migracion `supabase/migrations/004_fix_profiles_policy_recursion.sql`.
+- Se agrego script operacional `supabase/auth-user.sql` como referencia para alta/upsert de admins en `public.profiles`.
+- Se actualizaron `docs/SETUP.md` y `docs/TECH_SPEC.md` con requisitos OTP y trazabilidad de nuevas migraciones.
+**Tests:** 11 passing tests (`app/src/test/admin-auth.test.tsx` + `app/src/test/admin-route-guard.test.tsx`) y 2 nuevos tests de contrato RLS (49/49 suite total)
