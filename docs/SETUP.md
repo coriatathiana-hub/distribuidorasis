@@ -69,10 +69,10 @@
   4. Validate delivery to `ventas@distribuidorasis.com.mx`.
 - **Added by:** FEAT-4
 
-### 2.3 Hosting Platform (Vercel preferred)
+### 2.3 Hosting Platform (Railway preferred)
 
 - **Purpose:** Host frontend and serverless contact endpoint.
-- **Dashboard:** https://vercel.com/dashboard
+- **Dashboard:** https://railway.com/project
 - **Setup steps:**
   1. Connect repository and configure build for Vite.
   2. Add all environment variables from section 1.
@@ -192,7 +192,7 @@ Core schema is documented in `docs/TECH_SPEC.md` under Data Model section.
 # 1. Clone and install
 git clone <repo-url>
 cd distribuidorasis
-cd prototype
+cd app
 bun install
 
 # 2. Environment variables
@@ -215,7 +215,7 @@ bun run dev
 
 ### Production deployment
 
-- [ ] Hosting project connected (Vercel/Netlify)
+- [ ] Hosting project connected (Railway/Netlify)
 - [ ] Environment variables set in production
 - [ ] Auth redirect URLs updated for production domain
 - [ ] CORS/origin allowlist reviewed for API/function endpoints

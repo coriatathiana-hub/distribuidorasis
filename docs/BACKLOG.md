@@ -17,8 +17,11 @@
 ### FEAT-1: Foundation mobile-first de catalogo y navegacion
 
 - **Hypothesis:** Si entregamos una experiencia de catalogo mobile-first con navegacion y filtros optimizados, entonces incrementaremos el consumo de productos desde campo para residentes y compradores, medido por sesiones mobile con >=3 vistas de producto.
-- **Status:** Pending
-- **Stories:** _(Se definiran en `@start-feature FEAT-1`)_
+- **Status:** In Progress
+- **Stories:**
+  - [x] HU-1.1: Navegacion mobile-first y estructura base de experiencia ✅ (2026-03-10)
+  - [ ] HU-1.2: Catalogo responsive con busqueda, filtros y estados UX
+  - [ ] HU-1.3: Detalle de producto con informacion accionable y CTA a contacto
 
 ---
 
