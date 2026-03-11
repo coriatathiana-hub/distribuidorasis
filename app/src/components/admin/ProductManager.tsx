@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback, useMemo } from "react";
-import { Loader2, Package, PencilLine, Plus, Power, PowerOff } from "lucide-react";
+import { Loader2, Package, PencilLine, Plus, Power, PowerOff, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -17,6 +17,17 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -29,6 +40,7 @@ import {
   createProduct,
   updateProduct,
   toggleProductActive,
+  deleteProduct,
   type ProductWithCategory,
 } from "@/lib/api/admin-catalog-service";
 import { slugify } from "@/lib/utils";
@@ -166,6 +178,16 @@ const ProductManager = () => {
       toast.error(e instanceof Error ? e.message : "Error al guardar.");
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleDelete = async (prod: ProductWithCategory) => {
+    try {
+      await deleteProduct(prod.id);
+      setProducts((prev) => prev.filter((p) => p.id !== prod.id));
+      toast.success("Producto eliminado.");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Error al eliminar.");
     }
   };
 
@@ -313,6 +335,37 @@ const ProductManager = () => {
                               <Power className="h-4 w-4 text-green-600" />
                             )}
                           </Button>
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                aria-label={`Eliminar ${prod.name}`}
+                              >
+                                <Trash2 className="h-4 w-4 text-destructive" />
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>
+                                  ¿Eliminar "{prod.name}"?
+                                </AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Esta acción no se puede deshacer. Se eliminarán también
+                                  los registros de imágenes asociados (Scenario 5).
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                <AlertDialogAction
+                                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                  onClick={() => handleDelete(prod)}
+                                >
+                                  Eliminar
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
                         </div>
                       </TableCell>
                     </TableRow>

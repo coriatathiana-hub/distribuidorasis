@@ -124,3 +124,21 @@ export async function toggleProductActive(id: string, is_active: boolean): Promi
 
   if (error) throw new Error(error.message);
 }
+
+export async function deleteProduct(id: string): Promise<void> {
+  const { error } = await supabase.from("products").delete().eq("id", id);
+  if (error) throw new Error(error.message);
+}
+
+export async function deleteCategory(id: string): Promise<void> {
+  const { error } = await supabase.from("categories").delete().eq("id", id);
+  if (error) {
+    // 23503 = FK violation — category has products assigned (ON DELETE RESTRICT)
+    if (error.code === "23503") {
+      throw new Error(
+        "No se puede eliminar la categoría porque tiene productos asignados."
+      );
+    }
+    throw new Error(error.message);
+  }
+}

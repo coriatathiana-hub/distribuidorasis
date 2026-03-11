@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
-import { Loader2, PencilLine, Plus, PowerOff, Power } from "lucide-react";
+import { Loader2, PencilLine, Plus, PowerOff, Power, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -16,10 +16,22 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import {
   listCategories,
   createCategory,
   updateCategory,
   toggleCategoryActive,
+  deleteCategory,
 } from "@/lib/api/admin-catalog-service";
 import { slugify } from "@/lib/utils";
 import type { Category } from "@/types/supabase";
@@ -120,6 +132,16 @@ const CategoryManager = () => {
       toast.error(e instanceof Error ? e.message : "Error al guardar.");
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleDelete = async (cat: Category) => {
+    try {
+      await deleteCategory(cat.id);
+      setCategories((prev) => prev.filter((c) => c.id !== cat.id));
+      toast.success("Categoría eliminada.");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Error al eliminar.");
     }
   };
 
@@ -229,6 +251,37 @@ const CategoryManager = () => {
                               <Power className="h-4 w-4 text-green-600" />
                             )}
                           </Button>
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                aria-label={`Eliminar ${cat.name}`}
+                              >
+                                <Trash2 className="h-4 w-4 text-destructive" />
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>
+                                  ¿Eliminar "{cat.name}"?
+                                </AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Esta acción no se puede deshacer. Las categorías que tienen
+                                  productos asignados no pueden eliminarse.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                <AlertDialogAction
+                                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                  onClick={() => handleDelete(cat)}
+                                >
+                                  Eliminar
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
                         </div>
                       </TableCell>
                     </TableRow>
