@@ -40,3 +40,14 @@
 - Se simplifico el flujo de resultados en catalogo manteniendo contador coherente por busqueda/categoria.
 - Se añadieron polyfills de test para estabilidad de componentes Radix Select en entorno jsdom.
 **Tests:** 3 passing tests (`app/src/test/catalogo-filters.test.tsx`) / 1 archivo de pruebas agregado
+
+## [2026-03-10] — HU-1.3: Detalle de producto con informacion accionable y CTA a contacto
+
+**Feature:** FEAT-1 — Foundation mobile-first de catalogo y navegacion  
+**Benefit:** Mejora la conversion a contacto desde detalle de producto al llevar contexto directo del item seleccionado y reducir friccion de navegacion.  
+**Changes:**
+- Se reforzo `Producto` con navegacion contextual (breadcrumb + regreso a catalogo) y estado no encontrado accionable.
+- Se implemento CTA a contacto con contexto de producto via query params (`productoId` y `producto`).
+- Se actualizo `Contacto` para reconocer el contexto de origen y precargar tipo de requerimiento/mensaje.
+- Se agrego cobertura de pruebas para detalle valido, breadcrumb y producto inexistente.
+**Tests:** 3 passing tests (`app/src/test/producto-detalle.test.tsx`) / 1 archivo de pruebas agregado

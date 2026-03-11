@@ -14,7 +14,7 @@
 |:---|:------|:---------|:-------|
 | HU-1.1 | Navegacion mobile-first y estructura base de experiencia | High | [x] Completed (2026-03-10) |
 | HU-1.2 | Catalogo responsive con busqueda, filtros y estados UX | High | [x] Completed (2026-03-10) |
-| HU-1.3 | Detalle de producto con informacion accionable y CTA a contacto | High | [ ] Pending |
+| HU-1.3 | Detalle de producto con informacion accionable y CTA a contacto | High | [x] Completed (2026-03-10) |
 
 ## Story Definitions and BDD Criteria
 
@@ -89,9 +89,9 @@
 
 ## Acceptance Criteria (Feature Level)
 
-- [ ] La experiencia mobile-first permite navegar y descubrir productos sin bloqueos de usabilidad.
-- [ ] El catalogo ofrece busqueda/filtros con estados de carga y estado vacio claros.
-- [ ] El detalle de producto conecta de forma directa con los flujos de contacto del negocio.
+- [x] La experiencia mobile-first permite navegar y descubrir productos sin bloqueos de usabilidad.
+- [x] El catalogo ofrece busqueda/filtros con estados de carga y estado vacio claros.
+- [x] El detalle de producto conecta de forma directa con los flujos de contacto del negocio.
 
 ## Technical Notes
 
