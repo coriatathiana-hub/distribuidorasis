@@ -65,80 +65,33 @@
 
 ## Implementation Plan
 
-### Task 1: Definir routing de backoffice y shell de layout operativo (~45 min)
-- **Type:** [CC]
-- **Cycle:** IMPLEMENT → TEST → REFACTOR
-- **Files:**
-  - `app/src/App.tsx`
-  - `app/src/pages/Admin.tsx` (si se convierte en shell o redirect)
-  - `app/src/components/admin/AdminRouteGuard.tsx` (ajuste de nested routes si aplica)
-  - `app/src/components/admin/AdminLayout.tsx` (nuevo)
-- **Verification:** `cd app && npm run test -- admin-route-guard`
+### ~~Task 1: Definir routing de backoffice y shell de layout operativo~~ ✅ DONE
+- **Commit:** `f95f046` — `App.tsx` (nested routes), `AdminLayout.tsx` (nuevo), `AdminLogin.tsx`
 
-### Task 2: Implementar navegacion lateral responsive (desktop sidebar + mobile menu) (~50 min)
-- **Type:** [CC]
-- **Cycle:** IMPLEMENT → TEST → REFACTOR
-- **Files:**
-  - `app/src/components/admin/AdminLayout.tsx`
-  - `app/src/components/admin/AdminSidebar.tsx` (nuevo)
-  - `app/src/components/admin/AdminTopbar.tsx` (nuevo, opcional si simplifica mobile)
-  - `app/src/components/NavLink.tsx` (solo si se reutiliza/adapta)
-- **Verification:** `cd app && npm run test -- navigation`
+### ~~Task 2: Implementar navegacion lateral responsive~~ ✅ DONE
+- **Commit:** `f95f046` — `AdminSidebar.tsx` (nav links, active state, signout, mobile Sheet)
 
-### Task 3: Crear vistas dedicadas `/admin/productos` y `/admin/categorias` (~40 min)
-- **Type:** [CC]
-- **Cycle:** IMPLEMENT → TEST → REFACTOR
-- **Files:**
-  - `app/src/pages/AdminProductos.tsx` (nuevo)
-  - `app/src/pages/AdminCategorias.tsx` (nuevo)
-  - `app/src/components/admin/ProductManager.tsx` (ajustes de props/contexto de ruta)
-  - `app/src/components/admin/CategoryManager.tsx` (ajustes de props/contexto de ruta)
-- **Verification:** `cd app && npm run test -- admin`
+### ~~Task 3: Crear vistas dedicadas /admin/productos y /admin/categorias~~ ✅ DONE
+- **Commit:** `f95f046` — `AdminProductos.tsx`, `AdminCategorias.tsx` (thin wrappers)
 
-### Task 4: Extender DAL admin para eliminacion controlada (~45 min)
-- **Type:** [DAL]
-- **Cycle:** IMPLEMENT → TEST → REFACTOR
-- **Files:**
-  - `app/src/lib/api/admin-catalog-service.ts`
-  - `app/src/types/supabase.ts` (solo si faltan tipos de errores/rows usados)
-- **Verification:** `cd app && npm run test -- admin-catalog-service`
+### ~~Task 4: Extender DAL admin para eliminacion controlada~~ ✅ DONE
+- **Commit:** `f5d24a6` — `admin-catalog-service.ts`: `deleteProduct()`, `deleteCategory()` con mapping 23503
 
-### Task 5: Implementar acciones de eliminar con confirmacion en tablas (~55 min)
-- **Type:** [CC]
-- **Cycle:** IMPLEMENT → TEST → REFACTOR
-- **Files:**
-  - `app/src/components/admin/ProductManager.tsx`
-  - `app/src/components/admin/CategoryManager.tsx`
-  - `app/src/components/ui/alert-dialog.tsx` (reuso, sin cambios esperados)
-- **Verification:** `cd app && npm run test -- admin-products-persistence && npm run test -- admin-categories-persistence`
+### ~~Task 5: Implementar acciones de eliminar con confirmacion en tablas~~ ✅ DONE
+- **Commit:** `f5d24a6` — `CategoryManager.tsx`, `ProductManager.tsx`: `AlertDialog` con botón `Trash2`
 
-### Task 6: Manejo de errores de integridad y mensajes accionables (~35 min)
-- **Type:** [CC]
-- **Cycle:** IMPLEMENT → TEST → REFACTOR
-- **Files:**
-  - `app/src/lib/api/admin-catalog-service.ts` (mapear errores FK/restrict)
-  - `app/src/components/admin/CategoryManager.tsx` (mensaje cuando la categoria tiene productos)
-  - `app/src/components/admin/ProductManager.tsx` (mensaje de delete y fallback de error)
-- **Verification:** `cd app && npm run test -- admin-categories-persistence`
+### ~~Task 6: Manejo de errores de integridad y mensajes accionables~~ ✅ DONE
+- **Commit:** `f5d24a6` — error toast accionable para FK 23503 en categorías
 
-### Task 7: Cobertura de pruebas de rutas, layout y delete (~55 min)
-- **Type:** [TEST]
-- **Cycle:** IMPLEMENT → TEST → REFACTOR
-- **Files:**
-  - `app/src/test/admin-layout-routes.test.tsx` (nuevo)
-  - `app/src/test/admin-catalog-service.test.ts` (actualizar: delete product/category + mapping errors)
-  - `app/src/test/admin-categories-persistence.test.tsx` (actualizar: confirm delete + error FK)
-  - `app/src/test/admin-products-persistence.test.tsx` (actualizar: confirm delete success/error)
-- **Verification:** `cd app && npm run test`
+### ~~Task 7: Cobertura de pruebas de rutas, layout y delete~~ ✅ DONE
+- **Commit:** `c0926c8` — 21 nuevos tests (104 total):
+  - `admin-layout-routes.test.tsx` (10 tests — sidebar nav, active, signout, Outlet)
+  - `admin-catalog-service.test.ts` (+5 — deleteProduct, deleteCategory, 23503)
+  - `admin-categories-persistence.test.tsx` (+3 — dialog, confirm, FK error)
+  - `admin-products-persistence.test.tsx` (+3 — dialog, confirm, error)
 
-### Task 8: Trazabilidad documental y checklist operativo (~25 min)
-- **Type:** [TEST]
-- **Cycle:** IMPLEMENT → TEST → REFACTOR
-- **Files:**
-  - `docs/TECH_SPEC.md` (Project Structure + notas de rutas backoffice)
-  - `docs/SETUP.md` (checklist de validación delete controlado)
-  - `current_objective.md` (marcar tareas completadas durante `@apply`)
-- **Verification:** `cd app && npm run lint`
+### ~~Task 8: Trazabilidad documental y checklist operativo~~ ✅ DONE
+- **Commit:** (este commit) — `docs/TECH_SPEC.md`, `docs/SETUP.md`
 
 ## Database Changes (if applicable)
 
@@ -168,19 +121,19 @@
 ## Manual Testing Checklist
 
 ### Navegación y layout
-- [ ] Login OTP funcional y redirect a backoffice operativo.
-- [ ] `/admin` redirige de forma consistente a módulo por defecto.
-- [ ] `/admin/productos` y `/admin/categorias` son accesibles solo con sesión admin.
-- [ ] Sidebar fija en desktop; menú colapsable funcional en mobile.
-- [ ] Estado activo de navegación correcto al cambiar de módulo.
+- [x] Login OTP funcional y redirect a backoffice operativo.
+- [x] `/admin` redirige de forma consistente a módulo por defecto.
+- [x] `/admin/productos` y `/admin/categorias` son accesibles solo con sesión admin.
+- [x] Sidebar fija en desktop; menú colapsable funcional en mobile.
+- [x] Estado activo de navegación correcto al cambiar de módulo.
 
 ### Operación de catálogo
-- [ ] Crear/editar/toggle en productos desde ruta dedicada.
-- [ ] Crear/editar/toggle en categorías desde ruta dedicada.
-- [ ] Eliminar producto con confirmación y verificar que desaparece del listado.
-- [ ] Eliminar categoría sin productos y verificar éxito.
-- [ ] Intentar eliminar categoría con productos y verificar error accionable (sin romper UI).
-- [ ] Recargar pantalla y confirmar persistencia real en Supabase.
+- [x] Crear/editar/toggle en productos desde ruta dedicada.
+- [x] Crear/editar/toggle en categorías desde ruta dedicada.
+- [x] Eliminar producto con confirmación y verificar que desaparece del listado.
+- [x] Eliminar categoría sin productos y verificar éxito.
+- [x] Intentar eliminar categoría con productos y verificar error accionable (sin romper UI).
+- [x] Recargar pantalla y confirmar persistencia real en Supabase.
 
 ### Integridad y RLS
 - [ ] Verificar que anon no puede acceder a rutas admin.

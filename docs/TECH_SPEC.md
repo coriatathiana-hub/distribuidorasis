@@ -181,20 +181,25 @@ app/src/
 │   ├── admin/
 │   │   ├── AdminOtpLogin.tsx    # [CC] Two-step OTP login form (HU-2.2)
 │   │   ├── AdminRouteGuard.tsx  # [CC] Session+profile auth gate for /admin (HU-2.2)
-│   │   ├── CategoryManager.tsx  # [CC] Category list/create/edit/toggle — real Supabase (HU-2.3)
-│   │   └── ProductManager.tsx   # [CC] Product list/create/edit/toggle — real Supabase (HU-2.3)
+│   │   ├── AdminLayout.tsx      # [CC] Backoffice shell — desktop sidebar + mobile Sheet (HU-2.4)
+│   │   ├── AdminSidebar.tsx     # [CC] Nav links (Productos/Categorías), signout, active state (HU-2.4)
+│   │   ├── CategoryManager.tsx  # [CC] Category list/create/edit/toggle/delete (HU-2.3/2.4)
+│   │   └── ProductManager.tsx   # [CC] Product list/create/edit/toggle/delete (HU-2.3/2.4)
 │   └── ui/                      # Base UI primitives (shadcn/ui)
 ├── lib/
 │   ├── supabase/
 │   │   ├── client.ts            # [DAL] createClient<Database> bootstrap (HU-2.1)
 │   │   └── auth.ts              # [DAL] requestOtp / verifyOtp / signOutAdmin / getAdminProfile (HU-2.2)
 │   ├── api/
-│   │   └── admin-catalog-service.ts  # [DAL] categories + products CRUD via Supabase with RLS (HU-2.3)
-│   ├── catalog-service.ts       # [DAL] mock catalog repository (HU-1.2)
+│   │   ├── admin-catalog-service.ts  # [DAL] categories + products full CRUD + delete (HU-2.3/2.4)
+│   │   └── public-catalog-service.ts # [DAL] anon read-only catalog — active items only (HU-2.3)
+│   ├── catalog-service.ts       # [DAL] mock catalog repository — legacy, not used in prod (HU-1.2)
 │   └── utils.ts                 # cn() + slugify()
 ├── pages/
-│   ├── Admin.tsx                # Protected admin panel with signout (HU-2.2)
-│   ├── AdminLogin.tsx           # /admin/login page wrapper (HU-2.2)
+│   ├── Admin.tsx                # (legacy — superseded by nested backoffice routes, HU-2.4)
+│   ├── AdminLogin.tsx           # /admin/login standalone page (HU-2.2/2.4)
+│   ├── AdminProductos.tsx       # /admin/productos page shell → ProductManager (HU-2.4)
+│   ├── AdminCategorias.tsx      # /admin/categorias page shell → CategoryManager (HU-2.4)
 │   └── ...                      # Catalog, product, contact, etc.
 ├── types/
 │   └── supabase.ts              # Database type contract — Row/Insert/Update per table (HU-2.1)
@@ -203,9 +208,22 @@ app/src/
 supabase/
 ├── migrations/
 │   ├── 001_initial_catalog_schema.sql   # Tables: profiles, categories, products, product_images, contact_requests (HU-2.1)
-│   └── 002_initial_rls_policies.sql     # RLS: anon read-only, admin full CRUD (HU-2.1)
-└── seed.sql                             # Development data seed (10 products, 4 categories)
+│   ├── 002_initial_rls_policies.sql     # RLS: anon read-only, admin full CRUD (HU-2.1)
+│   ├── 003_fix_profiles_self_select.sql # Adds authenticated self-select policy on profiles (HU-2.2)
+│   ├── 004_fix_profiles_policy_recursion.sql # Removes recursive profiles policies (HU-2.2)
+│   └── 005_products_name_unique.sql     # UNIQUE constraint on products.name (HU-2.3)
+└── seed.sql                             # Development data seed (46 products, 4 categories)
 
 functions/
 └── send-contact-email/      # [API] email delivery endpoint (FEAT-4)
 ```
+
+### Admin Routing (HU-2.4)
+
+| Path | Guard | Component | Notes |
+|:-----|:------|:----------|:------|
+| `/admin/login` | None | `AdminLogin` → `AdminOtpLogin` | Standalone, no public Layout |
+| `/admin` | `AdminRouteGuard` | `AdminLayout` (Outlet) | Redirects to `/admin/productos` |
+| `/admin/productos` | Inherited | `AdminProductos` → `ProductManager` | |
+| `/admin/categorias` | Inherited | `AdminCategorias` → `CategoryManager` | |
+| `/admin/*` | Inherited | Redirect to `/admin/productos` | Catch-all |

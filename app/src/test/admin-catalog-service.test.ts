@@ -11,8 +11,8 @@ type QueryResult = { data: unknown; error: { message: string; code?: string } | 
 
 /** Creates a thenable chainable mock that resolves to `result`. */
 function makeChain(result: QueryResult) {
-  let chain: Record<string, unknown>;
-  chain = {
+  // Closures capture `chain` by reference, so self-reference works at call time.
+  const chain: Record<string, unknown> = {
     select: vi.fn(() => chain),
     order: vi.fn(() => chain),
     eq: vi.fn(() => chain),
