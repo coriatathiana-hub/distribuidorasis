@@ -66,6 +66,20 @@
 - Validacion `authenticated admin` diferida a HU-2.2 (requiere Email OTP activo).
 **Tests:** 28 passing tests (`app/src/test/supabase-schema-contract.test.ts`) / 1 archivo de pruebas agregado (37/37 suite total)
 
+## [2026-03-10] — HU-2.3: Persistencia real de categorias y productos en panel admin
+
+**Feature:** FEAT-2 — Admin real con Supabase, OTP y seguridad RLS  
+**Benefit:** El administrador puede crear, editar y activar/desactivar categorías y productos con persistencia real en Supabase, y el catálogo público refleja inmediatamente los cambios sin recompilación, eliminando la dependencia de datos locales estáticos.  
+**Changes:**
+- Se implementó DAL admin (`admin-catalog-service.ts`) con CRUD completo para `categories` y `products` con manejo de errores por código (23505 para duplicados).
+- Se refactorizaron `CategoryManager.tsx` y `ProductManager.tsx` para leer/escribir en Supabase con estados de loading, error, dialogs de creación/edición y toggle optimista.
+- Se implementó DAL público (`public-catalog-service.ts`) con queries `is_active=true` y join con `categories` y `product_images` para cover image.
+- Se conectaron `Catalogo.tsx`, `Producto.tsx`, `ProductCard.tsx` y `ProductFilters.tsx` al datasource real de Supabase, eliminando la dependencia del mock local `data/products.ts`.
+- Se agregó `slugify()` a `utils.ts` (normalización NFD para acentos españoles).
+- Se corrigió omisión del constraint `UNIQUE` en `products.name` (migración `005_products_name_unique.sql`).
+- Se introdujo `ADR-004`: patrón de split DAL público/admin para catálogo.
+**Tests:** 34 nuevos (total: 83 passing / +1 test de error state en catálogo)
+
 ## [2026-03-10] — HU-2.2: Autenticacion admin por email OTP y proteccion de rutas
 
 **Feature:** FEAT-2 — Admin real con Supabase, OTP y seguridad RLS  

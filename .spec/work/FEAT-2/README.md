@@ -14,7 +14,8 @@
 |:---|:------|:---------|:-------|
 | HU-2.1 | Provision de Supabase y modelo base con politicas RLS iniciales | High | [x] Completed ✅ (2026-03-10) |
 | HU-2.2 | Autenticacion admin por email OTP y proteccion de rutas | High | [x] Completed ✅ (2026-03-10) |
-| HU-2.3 | Persistencia real de categorias y productos en panel admin | High | [ ] Pending |
+| HU-2.3 | Persistencia real de categorias y productos en panel admin (sin refactor UX mayor) | High | [ ] Pending |
+| HU-2.4 | UX backoffice admin: rutas dedicadas y layout operativo | Medium | [ ] Pending |
 
 ## Story Definitions and BDD Criteria
 
@@ -64,10 +65,10 @@
    - **Cuando:** Envio la verificacion.
    - **Entonces:** Debe mostrarse error claro y opcion para solicitar un nuevo codigo.
 
-### HU-2.3: Persistencia real de categorias y productos en panel admin
+### HU-2.3: Persistencia real de categorias y productos en panel admin (sin refactor UX mayor)
 
 - **Como:** Administrador comercial SIS.
-- **Quiero:** Crear y editar categorias/productos con almacenamiento real.
+- **Quiero:** Crear, editar y activar/desactivar categorias/productos con almacenamiento real en Supabase.
 - **Para poder:** Mantener catalogo actualizado sin perder cambios entre sesiones.
 
 **Criterios de aceptacion (BDD)**
@@ -77,15 +78,48 @@
    - **Cuando:** Creo o edito una categoria o producto desde el panel.
    - **Entonces:** Los cambios deben guardarse en Supabase y reflejarse en la UI al recargar.
 
-2. Lectura publica consistente del catalogo activo.
+2. Validacion completa de RLS autenticado (cierre pendiente de HU-2.1).
+   - **Dado que:** Estoy autenticado como admin activo.
+   - **Cuando:** Ejecuto operaciones de escritura sobre `categories` y `products`.
+   - **Entonces:** Las operaciones permitidas deben ejecutarse con exito por politicas RLS.
+
+3. Lectura publica consistente del catalogo activo.
    - **Dado que:** Existen productos activos e inactivos en base real.
    - **Cuando:** Un usuario anonimo navega el catalogo publico.
    - **Entonces:** Solo debe visualizar productos/categorias activos permitidos por RLS.
 
-3. Escenario de error: fallo de red o integridad.
+4. Escenario de error: fallo de red o integridad.
    - **Dado que:** Ocurre una falla de conectividad o validacion de datos.
    - **Cuando:** El admin intenta guardar cambios.
    - **Entonces:** Debe mostrarse mensaje de error accionable sin perder el estado del formulario.
+
+### HU-2.4: UX backoffice admin: rutas dedicadas y layout operativo
+
+- **Como:** Administrador comercial SIS.
+- **Quiero:** Navegar el admin con rutas separadas por dominio (`/admin/productos`, `/admin/categorias`) y layout tipo backoffice.
+- **Para poder:** Operar catalogo con mayor velocidad y claridad en desktop y mobile.
+
+**Criterios de aceptacion (BDD)**
+
+1. Navegacion admin dedicada por modulo.
+   - **Dado que:** Estoy autenticado como admin.
+   - **Cuando:** Entro al backoffice.
+   - **Entonces:** Debo disponer de rutas separadas para productos y categorias, sin depender de tabs en una sola pantalla.
+
+2. Layout operativo responsive.
+   - **Dado que:** Uso desktop o mobile.
+   - **Cuando:** Navego entre modulos admin.
+   - **Entonces:** Debe existir sidebar fija en desktop y menu colapsable en mobile.
+
+3. Listados y acciones por fila.
+   - **Dado que:** Visualizo tabla de productos/categorias.
+   - **Cuando:** Uso busqueda/filtros y acciones por fila.
+   - **Entonces:** Debo poder identificar estado y ejecutar acciones disponibles (ver, editar, activar/desactivar, eliminar segun alcance).
+
+4. Alta/edicion con baja friccion.
+   - **Dado que:** Necesito crear o editar un registro.
+   - **Cuando:** Abro el flujo de formulario.
+   - **Entonces:** Debe abrirse en modal o drawer lateral con validaciones y mensajes claros.
 
 ## Acceptance Criteria (Feature Level)
 

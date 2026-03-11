@@ -152,6 +152,13 @@
 - **Decision:** Store images metadata in `product_images` and binary assets in Supabase Storage bucket `products`.
 - **Consequences:** Enables reusable carousel across list/detail/admin; introduces upload lifecycle management (replace/delete/reorder).
 
+### ADR-004: Separate DAL services for public (anon) and admin (authenticated) catalog access
+
+- **Context:** The catalog must be consumed by two very different clients — public visitors (anon, read-only, only active records) and authenticated admins (CRUD, all records). Mixing both concerns in a single service creates ambiguity over RLS enforcement and makes it hard to evolve each surface independently.
+- **Decision:** Maintain two dedicated service files in `src/lib/api/`: `public-catalog-service.ts` (anon queries, `is_active=true` filter, `PublicProduct`/`PublicCategory` types) and `admin-catalog-service.ts` (authenticated CRUD, full record access, admin-specific error mapping). `PublicProduct` and `PublicCategory` are types owned by the presentation layer, decoupled from DB row types.
+- **Consequences:** Clear boundary between public and admin data access; FEAT-3 (multi-image) and FEAT-4 (contact) should follow the same pattern. Slight duplication in query logic (acceptable for MVP scale). RLS in Supabase remains the authoritative enforcement layer — the `is_active=true` filter in public queries is defense-in-depth, not a replacement for RLS.
+- **Origin:** HU-2.3 (discovered during implementation when connecting the public catalog to Supabase).
+
 ---
 
 ## Server/Client Strategy
