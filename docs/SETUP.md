@@ -131,20 +131,53 @@ Core schema is documented in `docs/TECH_SPEC.md` under Data Model section.
 
 ### 4.1 Provider Configuration
 
-1. Enable Email OTP in Supabase Authentication.
-2. Configure allowed redirect URLs for local and production domains.
-3. Disable public signup if admin users are controlled by allowlist process.
-4. Provision admin identities and matching rows in `profiles`.
+> Required baseline for HU-2.2 (OTP code flow, not password login):
 
-### 4.2 Auth Flow Summary
+1. In Supabase Dashboard, go to **Authentication -> Providers -> Email**.
+2. Enable Email provider and activate OTP sign-in.
+3. Disable password-based login for admin flow (keep OTP-only policy for MVP).
+4. Set email template to include one-time code token (6 digits) and clear expiration notice.
+5. Configure URL allowlist in **Authentication -> URL Configuration**:
+   - `Site URL` (dev): `http://localhost:5173`
+   - `Redirect URLs` (dev): `http://localhost:5173/**`
+   - Add production domain equivalents when available.
+6. Disable open public signup for admin if users are controlled by allowlist.
+7. Create admin users in Supabase Auth and ensure matching rows in `public.profiles`:
+   - `id = auth.users.id`
+   - `email` normalized in lowercase
+   - `role = 'admin'`
+   - `is_active = true`
+
+### 4.2 OTP Code Flow Contract (HU-2.2)
+
+1. **Request OTP:** `signInWithOtp({ email, options: { shouldCreateUser: false } })`
+2. **Verify OTP:** `verifyOtp({ email, token, type: 'email' })`
+3. **Authorize access:** session is valid only if `profiles.role='admin' AND is_active=true`
+4. **Reject access:** invalid/expired code, non-allowlisted email, or inactive profile
+
+### 4.3 Security Requirements for OTP
+
+- Do not expose `SUPABASE_SERVICE_ROLE_KEY` in frontend runtime.
+- Keep OTP expiration short (recommended default from Supabase Auth).
+- Enforce rate-limit behavior from Supabase defaults; UI must show cooldown/retry messaging.
+- Avoid revealing whether an email exists in allowlist through detailed error responses.
+
+### 4.4 Operational Validation Checklist (pre-`@apply HU-2.2`)
+
+- [ ] OTP email is delivered to test admin mailbox.
+- [ ] OTP code can be verified from `/admin/login`.
+- [ ] Non-admin authenticated user is denied access to `/admin`.
+- [ ] Inactive admin (`is_active=false`) is denied access to `/admin`.
+- [ ] Session refresh keeps admin inside `/admin` while token is valid.
+- [ ] Sign-out invalidates protected route access.
+### 4.5 Auth Flow Summary
 
 1. Admin enters email on `/admin/login`.
 2. System requests OTP to Supabase.
 3. Admin submits OTP code.
 4. Session is created and validated against `profiles` role.
 5. Admin can access `/admin`; non-admin or inactive users are rejected.
-
-### 4.3 Files Involved
+### 4.6 Files Involved
 
 | File | Role | Added by |
 |:-----|:-----|:---------|
@@ -212,15 +245,18 @@ npm run dev
 
 - [x] Supabase project created (HU-2.1)
 - [x] Migration files created: 001 (schema) + 002 (RLS) (HU-2.1)
-- [ ] API keys configured in `.env.local` (requires manual Supabase dashboard access)
-- [ ] Migrations executed in Supabase (paste SQL in SQL Editor or use CLI)
-- [ ] Seed data applied (`supabase/seed.sql`) for development
-- [ ] Admin user created in Supabase Auth + row inserted in `profiles` (HU-2.2)
-- [ ] Auth OTP flow validated with admin allowlist
-- [ ] Storage bucket `products` created with policies
-- [ ] Transactional email provider configured and tested
-- [ ] Contact form sends to `ventas@distribuidorasis.com.mx`
-- [ ] WhatsApp CTA tested on mobile and desktop
+- [x] API keys configured in `.env.local` (HU-2.1)
+- [x] Migrations executed in Supabase SQL Editor (HU-2.1)
+- [x] Seed data applied (`supabase/seed.sql`) for development (HU-2.1)
+- [x] Admin user created in Supabase Auth > Users (HU-2.2)
+- [x] Admin profile row inserted in `public.profiles` with `role='admin'`, `is_active=true` (HU-2.2)
+- [x] Email OTP provider enabled in Supabase Auth (HU-2.2)
+- [x] Redirect URLs configured: `http://localhost:5173` and `http://localhost:5173/**` (HU-2.2)
+- [x] OTP flow validated: email received, code verified, access to `/admin` confirmed (HU-2.2)
+- [ ] Storage bucket `products` created with policies (FEAT-3)
+- [ ] Transactional email provider configured and tested (FEAT-4)
+- [ ] Contact form sends to `ventas@distribuidorasis.com.mx` (FEAT-4)
+- [ ] WhatsApp CTA tested on mobile and desktop (FEAT-4)
 
 ### Production deployment
 

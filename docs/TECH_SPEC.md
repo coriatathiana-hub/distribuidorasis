@@ -103,6 +103,16 @@
 - **Protected routes:** `/admin`, `/admin/*`, server mutations to products/categories/images.
 - **Identity rule:** Only emails allowlisted in `profiles` with role `admin` can access admin actions.
 
+### OTP Configuration Requirements (HU-2.2)
+
+- OTP flow must be code-based (`signInWithOtp` + `verifyOtp`) with `shouldCreateUser: false` for admin login.
+- Supabase Auth must have Email OTP enabled with explicit local/prod redirect URL allowlist.
+- Authentication (who you are) and authorization (what you can do) are separated:
+  - Auth: valid Supabase session after OTP verification.
+  - AuthZ: `profiles.role='admin'` and `profiles.is_active=true`.
+- UI and API must deny access to admin routes/actions when session is missing, expired, non-admin, or inactive.
+- Error messages should be generic enough to avoid leaking allowlist membership.
+
 ---
 
 ## Security (RLS Policies)
@@ -160,20 +170,27 @@
 
 ```
 app/src/
-├── components/              # Shared UI components
-│   ├── admin/               # Admin-specific managers
-│   └── ui/                  # Base UI primitives
+├── components/
+│   ├── admin/
+│   │   ├── AdminOtpLogin.tsx    # [CC] Two-step OTP login form (HU-2.2)
+│   │   ├── AdminRouteGuard.tsx  # [CC] Session+profile auth gate for /admin (HU-2.2)
+│   │   ├── CategoryManager.tsx  # [CC] Category CRUD UI (HU-2.3)
+│   │   └── ProductManager.tsx   # [CC] Product CRUD UI (HU-2.3)
+│   └── ui/                      # Base UI primitives (shadcn/ui)
 ├── lib/
 │   ├── supabase/
-│   │   ├── client.ts        # [DAL] createClient<Database> bootstrap (HU-2.1)
-│   │   └── auth.ts          # [DAL] OTP helpers (HU-2.2)
-│   ├── api/                 # [DAL] data services for products/contact/admin
-│   ├── catalog-service.ts   # [DAL] mock catalog repository (HU-1.2, migrates to Supabase in HU-2.3)
-│   └── utils.ts             # General utilities
-├── pages/                   # Route pages (catalog, product, contacto, admin)
+│   │   ├── client.ts            # [DAL] createClient<Database> bootstrap (HU-2.1)
+│   │   └── auth.ts              # [DAL] requestOtp / verifyOtp / signOutAdmin / getAdminProfile (HU-2.2)
+│   ├── api/                     # [DAL] data services for products/contact/admin
+│   ├── catalog-service.ts       # [DAL] mock catalog repository (HU-1.2, migrates to Supabase in HU-2.3)
+│   └── utils.ts
+├── pages/
+│   ├── Admin.tsx                # Protected admin panel with signout (HU-2.2)
+│   ├── AdminLogin.tsx           # /admin/login page wrapper (HU-2.2)
+│   └── ...                      # Catalog, product, contact, etc.
 ├── types/
-│   └── supabase.ts          # Database type contract — Row/Insert/Update per table (HU-2.1)
-└── test/                    # Integration and component tests
+│   └── supabase.ts              # Database type contract — Row/Insert/Update per table (HU-2.1)
+└── test/                        # Integration and component tests
 
 supabase/
 ├── migrations/
