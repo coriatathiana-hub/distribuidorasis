@@ -18,6 +18,7 @@ function makeChain(result: QueryResult) {
     eq: vi.fn(() => chain),
     insert: vi.fn(() => chain),
     update: vi.fn(() => chain),
+    delete: vi.fn(() => chain),
     ilike: vi.fn(() => chain),
     single: vi.fn(() => Promise.resolve(result)),
     then: (onFulfilled: (v: QueryResult) => unknown) =>
@@ -141,5 +142,57 @@ describe("createProduct", () => {
     await expect(service.createProduct(payload)).rejects.toThrow(
       "Ya existe un producto con ese nombre o slug."
     );
+  });
+});
+
+// ── Delete ────────────────────────────────────────────────────────────────────
+
+describe("deleteProduct", () => {
+  it("resolves without error on successful delete", async () => {
+    const sb = await getSupabase();
+    vi.mocked(sb.from).mockReturnValue(makeChain({ data: null, error: null }) as ReturnType<typeof sb.from>);
+
+    await expect(service.deleteProduct("p-1")).resolves.toBeUndefined();
+  });
+
+  it("throws Error when Supabase returns an error", async () => {
+    const sb = await getSupabase();
+    vi.mocked(sb.from).mockReturnValue(
+      makeChain({ data: null, error: { message: "RLS denied" } }) as ReturnType<typeof sb.from>
+    );
+
+    await expect(service.deleteProduct("p-1")).rejects.toThrow("RLS denied");
+  });
+});
+
+describe("deleteCategory", () => {
+  it("resolves without error on successful delete", async () => {
+    const sb = await getSupabase();
+    vi.mocked(sb.from).mockReturnValue(makeChain({ data: null, error: null }) as ReturnType<typeof sb.from>);
+
+    await expect(service.deleteCategory("c-1")).resolves.toBeUndefined();
+  });
+
+  it("throws actionable message on FK violation (23503 — category has products)", async () => {
+    const sb = await getSupabase();
+    vi.mocked(sb.from).mockReturnValue(
+      makeChain({
+        data: null,
+        error: { message: "fk constraint", code: "23503" },
+      }) as ReturnType<typeof sb.from>
+    );
+
+    await expect(service.deleteCategory("c-1")).rejects.toThrow(
+      "No se puede eliminar la categoría porque tiene productos asignados."
+    );
+  });
+
+  it("throws generic Error for other Supabase errors", async () => {
+    const sb = await getSupabase();
+    vi.mocked(sb.from).mockReturnValue(
+      makeChain({ data: null, error: { message: "DB error" } }) as ReturnType<typeof sb.from>
+    );
+
+    await expect(service.deleteCategory("c-1")).rejects.toThrow("DB error");
   });
 });

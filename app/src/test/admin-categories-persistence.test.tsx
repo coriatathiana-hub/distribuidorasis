@@ -14,6 +14,8 @@ vi.mock("sonner", () => ({
   toast: { success: vi.fn(), error: vi.fn() },
 }));
 
+// AlertDialog portals need a full DOM body (jsdom provides it by default)
+
 const MOCK_CATEGORIES: Category[] = [
   { id: "cat-1", name: "EPP", slug: "epp", sort_order: 1, is_active: true, created_at: "2024-01-01" },
   { id: "cat-2", name: "Calzado", slug: "calzado", sort_order: 2, is_active: false, created_at: "2024-01-01" },
@@ -22,6 +24,7 @@ const MOCK_CATEGORIES: Category[] = [
 describe("CategoryManager — persistence (HU-2.3)", () => {
   beforeEach(() => {
     vi.mocked(service.listCategories).mockResolvedValue(MOCK_CATEGORIES);
+    vi.mocked(service.deleteCategory).mockResolvedValue(undefined);
     vi.mocked(service.createCategory).mockResolvedValue({
       id: "cat-3",
       name: "Guantes",
@@ -124,6 +127,43 @@ describe("CategoryManager — persistence (HU-2.3)", () => {
     await waitFor(() =>
       expect(service.toggleCategoryActive).toHaveBeenCalledWith("cat-1", false)
     );
+  });
+
+  it("opens delete confirmation dialog when Eliminar button is clicked", async () => {
+    render(<CategoryManager />);
+    await waitFor(() => screen.getByText("EPP"));
+    await userEvent.click(screen.getByRole("button", { name: /eliminar epp/i }));
+    expect(await screen.findByRole("alertdialog")).toBeInTheDocument();
+    expect(screen.getByText(/¿Eliminar "EPP"\?/i)).toBeInTheDocument();
+  });
+
+  it("calls deleteCategory and removes row from list on confirm", async () => {
+    render(<CategoryManager />);
+    await waitFor(() => screen.getByText("EPP"));
+    await userEvent.click(screen.getByRole("button", { name: /eliminar epp/i }));
+    await screen.findByRole("alertdialog");
+    await userEvent.click(screen.getByRole("button", { name: /^eliminar$/i }));
+    await waitFor(() => expect(service.deleteCategory).toHaveBeenCalledWith("cat-1"));
+    await waitFor(() => expect(screen.queryByText("EPP")).not.toBeInTheDocument());
+  });
+
+  it("shows error toast when deleteCategory rejects with FK constraint", async () => {
+    const { toast } = await import("sonner");
+    vi.mocked(service.deleteCategory).mockRejectedValue(
+      new Error("No se puede eliminar la categoría porque tiene productos asignados.")
+    );
+    render(<CategoryManager />);
+    await waitFor(() => screen.getByText("EPP"));
+    await userEvent.click(screen.getByRole("button", { name: /eliminar epp/i }));
+    await screen.findByRole("alertdialog");
+    await userEvent.click(screen.getByRole("button", { name: /^eliminar$/i }));
+    await waitFor(() =>
+      expect(toast.error).toHaveBeenCalledWith(
+        "No se puede eliminar la categoría porque tiene productos asignados."
+      )
+    );
+    // Row should remain in the list
+    expect(screen.getByText("EPP")).toBeInTheDocument();
   });
 
   it("reverts optimistic toggle when service throws", async () => {

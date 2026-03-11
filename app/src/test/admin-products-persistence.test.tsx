@@ -52,6 +52,7 @@ describe("ProductManager — persistence (HU-2.3)", () => {
   beforeEach(() => {
     vi.mocked(service.listProducts).mockResolvedValue(MOCK_PRODUCTS);
     vi.mocked(service.listCategories).mockResolvedValue(MOCK_CATEGORIES);
+    vi.mocked(service.deleteProduct).mockResolvedValue(undefined);
     vi.mocked(service.createProduct).mockResolvedValue({
       id: "p-3",
       category_id: "cat-1",
@@ -164,6 +165,37 @@ describe("ProductManager — persistence (HU-2.3)", () => {
     await waitFor(() =>
       expect(service.toggleProductActive).toHaveBeenCalledWith("p-1", false)
     );
+  });
+
+  it("opens delete confirmation dialog when Eliminar button is clicked", async () => {
+    render(<ProductManager />);
+    await waitFor(() => screen.getByText("Casco MSA"));
+    await userEvent.click(screen.getByRole("button", { name: /eliminar casco msa/i }));
+    expect(await screen.findByRole("alertdialog")).toBeInTheDocument();
+    expect(screen.getByText(/¿Eliminar "Casco MSA"\?/i)).toBeInTheDocument();
+  });
+
+  it("calls deleteProduct and removes row from list on confirm", async () => {
+    render(<ProductManager />);
+    await waitFor(() => screen.getByText("Casco MSA"));
+    await userEvent.click(screen.getByRole("button", { name: /eliminar casco msa/i }));
+    await screen.findByRole("alertdialog");
+    await userEvent.click(screen.getByRole("button", { name: /^eliminar$/i }));
+    await waitFor(() => expect(service.deleteProduct).toHaveBeenCalledWith("p-1"));
+    await waitFor(() => expect(screen.queryByText("Casco MSA")).not.toBeInTheDocument());
+  });
+
+  it("shows error toast when deleteProduct rejects", async () => {
+    const { toast } = await import("sonner");
+    vi.mocked(service.deleteProduct).mockRejectedValue(new Error("RLS denied"));
+    render(<ProductManager />);
+    await waitFor(() => screen.getByText("Casco MSA"));
+    await userEvent.click(screen.getByRole("button", { name: /eliminar casco msa/i }));
+    await screen.findByRole("alertdialog");
+    await userEvent.click(screen.getByRole("button", { name: /^eliminar$/i }));
+    await waitFor(() => expect(toast.error).toHaveBeenCalledWith("RLS denied"));
+    // Row should remain (no optimistic remove on error)
+    expect(screen.getByText("Casco MSA")).toBeInTheDocument();
   });
 
   it("reverts optimistic toggle when service throws", async () => {
