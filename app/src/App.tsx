@@ -10,8 +10,10 @@ import Producto from "./pages/Producto";
 import Nosotros from "./pages/Nosotros";
 import Contacto from "./pages/Contacto";
 import Admin from "./pages/Admin";
+import AdminLogin from "./pages/AdminLogin";
 import Privacidad from "./pages/Privacidad";
 import NotFound from "./pages/NotFound";
+import AdminRouteGuard from "./components/admin/AdminRouteGuard";
 
 const queryClient = new QueryClient();
 
@@ -28,7 +30,15 @@ const App = () => (
             <Route path="/producto/:id" element={<Producto />} />
             <Route path="/nosotros" element={<Nosotros />} />
             <Route path="/contacto" element={<Contacto />} />
-            <Route path="/admin" element={<Admin />} />
+            <Route path="/admin/login" element={<AdminLogin />} />
+            <Route
+              path="/admin"
+              element={
+                <AdminRouteGuard>
+                  <Admin />
+                </AdminRouteGuard>
+              }
+            />
             <Route path="/privacidad" element={<Privacidad />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
