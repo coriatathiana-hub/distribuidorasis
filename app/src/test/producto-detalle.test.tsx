@@ -1,36 +1,68 @@
-import { describe, expect, it } from "vitest";
+/**
+ * HU-1.3 + HU-2.3 Scenario 3 — Product detail with real Supabase service
+ * Service is mocked; tests verify product rendering, navigation, and not-found state.
+ */
+import { describe, expect, it, vi, beforeEach } from "vitest";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import Producto from "@/pages/Producto";
+import * as service from "@/lib/api/public-catalog-service";
+import type { PublicProduct } from "@/lib/api/public-catalog-service";
+
+vi.mock("@/lib/api/public-catalog-service");
+
+const MOCK_PRODUCT: PublicProduct = {
+  id: "uuid-arnes",
+  slug: "arnes-3-aros",
+  name: "Arnés de Seguridad 3 Aros",
+  category_id: "cat-epp",
+  category_name: "EPP",
+  short_description: "Arnés tipo completo para trabajos en altura",
+  description: "Descripción detallada del arnés con certificaciones NOM.",
+  specs_json: {},
+  cover_image_url: null,
+};
+
+function renderProducto(slug: string) {
+  return render(
+    <MemoryRouter initialEntries={[`/producto/${slug}`]}>
+      <Routes>
+        <Route path="/producto/:id" element={<Producto />} />
+      </Routes>
+    </MemoryRouter>,
+  );
+}
 
 describe("HU-1.3 detalle de producto", () => {
-  it("muestra datos clave y CTA de contacto con contexto del producto", () => {
-    render(
-      <MemoryRouter initialEntries={["/producto/1"]}>
-        <Routes>
-          <Route path="/producto/:id" element={<Producto />} />
-        </Routes>
-      </MemoryRouter>,
-    );
-
-    expect(
-      screen.getByRole("heading", { name: "Arnés de Seguridad 3 Aros" }),
-    ).toBeInTheDocument();
-    expect(screen.getByText("EPP")).toBeInTheDocument();
-    expect(screen.getByText("Seguridad en Alturas")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Contactar" })).toHaveAttribute(
-      "href",
-      "/contacto?origen=detalle&productoId=1&producto=Arn%C3%A9s%20de%20Seguridad%203%20Aros",
+  beforeEach(() => {
+    vi.mocked(service.getProductBySlug).mockImplementation(async (slug) =>
+      slug === "arnes-3-aros" ? MOCK_PRODUCT : null
     );
   });
 
-  it("expone navegacion contextual por breadcrumb y boton de retorno", () => {
-    render(
-      <MemoryRouter initialEntries={["/producto/1"]}>
-        <Routes>
-          <Route path="/producto/:id" element={<Producto />} />
-        </Routes>
-      </MemoryRouter>,
+  it("muestra datos clave y CTA de contacto con contexto del producto", async () => {
+    renderProducto("arnes-3-aros");
+
+    await waitFor(() =>
+      expect(
+        screen.getByRole("heading", { name: "Arnés de Seguridad 3 Aros" })
+      ).toBeInTheDocument()
+    );
+
+    expect(screen.getByText("EPP")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Contactar" })).toHaveAttribute(
+      "href",
+      "/contacto?origen=detalle&productoId=arnes-3-aros&producto=Arn%C3%A9s%20de%20Seguridad%203%20Aros",
+    );
+  });
+
+  it("expone navegacion contextual por breadcrumb y boton de retorno", async () => {
+    renderProducto("arnes-3-aros");
+
+    await waitFor(() =>
+      expect(
+        screen.getByRole("heading", { name: "Arnés de Seguridad 3 Aros" })
+      ).toBeInTheDocument()
     );
 
     expect(screen.getByRole("link", { name: "Inicio" })).toHaveAttribute("href", "/");
@@ -44,16 +76,15 @@ describe("HU-1.3 detalle de producto", () => {
     );
   });
 
-  it("muestra estado no encontrado para producto inexistente", () => {
-    render(
-      <MemoryRouter initialEntries={["/producto/99999"]}>
-        <Routes>
-          <Route path="/producto/:id" element={<Producto />} />
-        </Routes>
-      </MemoryRouter>,
+  it("muestra estado no encontrado para producto inexistente", async () => {
+    renderProducto("slug-que-no-existe");
+
+    await waitFor(() =>
+      expect(
+        screen.getByRole("heading", { name: "Producto no encontrado" })
+      ).toBeInTheDocument()
     );
 
-    expect(screen.getByRole("heading", { name: "Producto no encontrado" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Volver al catálogo" })).toHaveAttribute(
       "href",
       "/catalogo",

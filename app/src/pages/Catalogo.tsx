@@ -1,17 +1,58 @@
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { Loader2, PackageOpen } from "lucide-react";
 import ProductCard from "@/components/ProductCard";
 import ProductFilters from "@/components/ProductFilters";
 import { Button } from "@/components/ui/button";
-import { catalogRepository } from "@/lib/catalog-service";
-import { PackageOpen } from "lucide-react";
+import {
+  listActiveCategories,
+  listActiveProducts,
+  type PublicCategory,
+  type PublicProduct,
+} from "@/lib/api/public-catalog-service";
 
 const Catalogo = () => {
+  const [products, setProducts] = useState<PublicProduct[]>([]);
+  const [categories, setCategories] = useState<PublicCategory[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
 
+  const load = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const [cats, prods] = await Promise.all([
+        listActiveCategories(),
+        listActiveProducts(),
+      ]);
+      setCategories(cats);
+      setProducts(prods);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Error al cargar el catálogo.");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    load();
+  }, [load]);
+
   const filteredProducts = useMemo(() => {
-    return catalogRepository.list({ query: searchQuery, category: selectedCategory });
-  }, [searchQuery, selectedCategory]);
+    const q = searchQuery.toLowerCase().trim();
+    return products.filter((p) => {
+      const matchSearch =
+        !q ||
+        p.name.toLowerCase().includes(q) ||
+        (p.short_description ?? "").toLowerCase().includes(q) ||
+        (p.description ?? "").toLowerCase().includes(q);
+      const matchCat =
+        selectedCategory === "all" || p.category_id === selectedCategory;
+      return matchSearch && matchCat;
+    });
+  }, [products, searchQuery, selectedCategory]);
 
   const clearFilters = () => {
     setSearchQuery("");
@@ -35,6 +76,7 @@ const Catalogo = () => {
         <aside className="space-y-4">
           <div className="rounded-lg border bg-card p-4">
             <ProductFilters
+              categories={categories}
               searchQuery={searchQuery}
               selectedCategory={selectedCategory}
               onSearchChange={setSearchQuery}
@@ -42,24 +84,35 @@ const Catalogo = () => {
               onClearFilters={clearFilters}
             />
           </div>
-          
-          <div className="rounded-lg border bg-muted/50 p-4">
-            <p className="text-sm text-muted-foreground">
-              <strong className="text-foreground">{filteredProducts.length}</strong>{" "}
-              {filteredProducts.length === 1 ? "producto encontrado" : "productos encontrados"}
-            </p>
-          </div>
+
+          {!loading && !error && (
+            <div className="rounded-lg border bg-muted/50 p-4">
+              <p className="text-sm text-muted-foreground">
+                <strong className="text-foreground">{filteredProducts.length}</strong>{" "}
+                {filteredProducts.length === 1 ? "producto encontrado" : "productos encontrados"}
+              </p>
+            </div>
+          )}
         </aside>
 
         {/* Product grid */}
         <main>
-          {filteredProducts.length > 0 ? (
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {filteredProducts.map((product) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
+          {loading && (
+            <div className="flex min-h-[400px] items-center justify-center">
+              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
             </div>
-          ) : (
+          )}
+
+          {!loading && error && (
+            <div className="flex min-h-[400px] flex-col items-center justify-center rounded-lg border-2 border-dashed bg-muted/50 p-8 text-center">
+              <p className="mb-4 text-sm text-muted-foreground">{error}</p>
+              <Button variant="outline" onClick={load}>
+                Reintentar
+              </Button>
+            </div>
+          )}
+
+          {!loading && !error && filteredProducts.length === 0 && (
             <div className="flex min-h-[400px] flex-col items-center justify-center rounded-lg border-2 border-dashed bg-muted/50 p-8 text-center">
               <PackageOpen className="mb-4 h-16 w-16 text-muted-foreground" />
               <h3 className="mb-2 text-lg font-semibold">No se encontraron productos</h3>
@@ -69,6 +122,14 @@ const Catalogo = () => {
               <Button type="button" variant="outline" onClick={clearFilters}>
                 Limpiar filtros
               </Button>
+            </div>
+          )}
+
+          {!loading && !error && filteredProducts.length > 0 && (
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {filteredProducts.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
             </div>
           )}
         </main>

@@ -2,20 +2,20 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
 import { Package } from "lucide-react";
-import type { Product } from "@/data/products";
+import type { PublicProduct } from "@/lib/api/public-catalog-service";
 
 interface ProductCardProps {
-  product: Product;
+  product: PublicProduct;
 }
 
 const ProductCard = ({ product }: ProductCardProps) => {
   return (
-    <Link to={`/producto/${product.id}`} className="block touch-target">
+    <Link to={`/producto/${product.slug}`} className="block touch-target">
       <Card className="h-full transition-all hover:shadow-lg hover:border-primary/50 overflow-hidden">
         <div className="aspect-square w-full overflow-hidden bg-muted">
-          {product.image ? (
+          {product.cover_image_url ? (
             <img
-              src={product.image}
+              src={product.cover_image_url}
               alt={product.name}
               className="h-full w-full object-cover transition-transform duration-300 hover:scale-105"
               loading="lazy"
@@ -30,13 +30,13 @@ const ProductCard = ({ product }: ProductCardProps) => {
           <CardTitle className="line-clamp-2 text-lg leading-tight">{product.name}</CardTitle>
           <div className="flex flex-wrap gap-1">
             <Badge variant="secondary" className="text-xs">
-              {product.subcategory}
+              {product.category_name}
             </Badge>
           </div>
         </CardHeader>
         <CardContent className="pb-4 pt-0">
           <p className="line-clamp-3 text-sm text-muted-foreground">
-            {product.description}
+            {product.short_description ?? product.description ?? ""}
           </p>
         </CardContent>
       </Card>

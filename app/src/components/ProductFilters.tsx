@@ -8,10 +8,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Search } from "lucide-react";
-import { CATEGORIES } from "@/data/products";
 import { Button } from "@/components/ui/button";
+import type { PublicCategory } from "@/lib/api/public-catalog-service";
 
 interface ProductFiltersProps {
+  categories: PublicCategory[];
   searchQuery: string;
   selectedCategory: string;
   onSearchChange: (value: string) => void;
@@ -20,6 +21,7 @@ interface ProductFiltersProps {
 }
 
 const ProductFilters = ({
+  categories,
   searchQuery,
   selectedCategory,
   onSearchChange,
@@ -57,9 +59,9 @@ const ProductFilters = ({
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Todas las categorías</SelectItem>
-            {Object.entries(CATEGORIES).map(([key, value]) => (
-              <SelectItem key={key} value={key}>
-                {value}
+            {categories.map((cat) => (
+              <SelectItem key={cat.id} value={cat.id}>
+                {cat.name}
               </SelectItem>
             ))}
           </SelectContent>
@@ -67,7 +69,12 @@ const ProductFilters = ({
       </div>
 
       {hasActiveFilters && (
-        <Button type="button" variant="outline" className="w-full touch-target" onClick={onClearFilters}>
+        <Button
+          type="button"
+          variant="outline"
+          className="w-full touch-target"
+          onClick={onClearFilters}
+        >
           Limpiar filtros
         </Button>
       )}
