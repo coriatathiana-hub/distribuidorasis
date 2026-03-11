@@ -102,7 +102,8 @@
 | `002_initial_rls_policies.sql` | Enables RLS + anon/admin policies for all catalog tables and `contact_requests` | HU-2.1 |
 | `003_fix_profiles_self_select.sql` | Adds authenticated self-select policy on `profiles` to support post-OTP role checks | HU-2.2 |
 | `004_fix_profiles_policy_recursion.sql` | Removes recursive `profiles` policies and keeps safe `profiles_self_select` policy | HU-2.2 |
-| `005_storage_policies.sql` | Adds storage policies for bucket `products` | FEAT-3 (pending) |
+| `005_products_name_unique.sql` | Adds `UNIQUE` constraint on `products.name` (omission in 001; `categories.name` was already unique) | HU-2.3 |
+| `006_storage_policies.sql` | Adds storage policies for bucket `products` | FEAT-3 (pending) |
 
 ### 3.3 Schema Details
 
