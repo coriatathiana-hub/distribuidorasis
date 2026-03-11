@@ -2,17 +2,9 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { LogOut, Shield } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import CategoryManager from "@/components/admin/CategoryManager";
 import ProductManager from "@/components/admin/ProductManager";
-import { PRODUCTS, CATEGORIES } from "@/data/products";
 import { getAdminProfile, signOutAdmin } from "@/lib/supabase/auth";
 
 const Admin = () => {
@@ -59,19 +51,6 @@ const Admin = () => {
         </Button>
       </div>
 
-      {/* Info Card — will be replaced by real CRUD in HU-2.3 */}
-      <Card className="mb-6 border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-950">
-        <CardHeader>
-          <CardTitle className="text-base text-amber-800 dark:text-amber-300">
-            Vista de demostración
-          </CardTitle>
-          <CardDescription className="text-amber-700 dark:text-amber-400">
-            Autenticación real activa. El catálogo aún usa datos locales — la
-            persistencia en Supabase se habilita en la siguiente historia (HU-2.3).
-          </CardDescription>
-        </CardHeader>
-      </Card>
-
       {/* Main Tabs */}
       <Tabs defaultValue="products" className="space-y-6">
         <TabsList className="grid w-full grid-cols-2 lg:w-[400px]">
@@ -92,34 +71,6 @@ const Admin = () => {
         </TabsContent>
       </Tabs>
 
-      {/* Stats Card */}
-      <Card className="mt-8">
-        <CardHeader>
-          <CardTitle>Información del Sistema</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-4 sm:grid-cols-3">
-            <div className="rounded-lg border bg-card p-4">
-              <div className="text-2xl font-bold text-primary">
-                {PRODUCTS.length}
-              </div>
-              <div className="text-sm text-muted-foreground">Productos</div>
-            </div>
-            <div className="rounded-lg border bg-card p-4">
-              <div className="text-2xl font-bold text-primary">
-                {Object.keys(CATEGORIES).length}
-              </div>
-              <div className="text-sm text-muted-foreground">Categorías</div>
-            </div>
-            <div className="rounded-lg border bg-card p-4">
-              <div className="text-2xl font-bold text-primary">
-                {PRODUCTS.filter((p) => p.image).length}
-              </div>
-              <div className="text-sm text-muted-foreground">Imágenes Total</div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
     </div>
   );
 };

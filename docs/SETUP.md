@@ -255,6 +255,8 @@ npm run dev
 - [x] Email OTP provider enabled in Supabase Auth (HU-2.2)
 - [x] Redirect URLs configured: `http://localhost:5173` and `http://localhost:5173/**` (HU-2.2)
 - [x] OTP flow validated: email received, code verified, access to `/admin` confirmed (HU-2.2)
+- [ ] Admin CRUD validated: create/edit/toggle categories and products via real Supabase panel (HU-2.3)
+- [ ] RLS CRUD autenticado validado manualmente: escritura a `categories` + `products` confirmada (HU-2.3)
 - [ ] Storage bucket `products` created with policies (FEAT-3)
 - [ ] Transactional email provider configured and tested (FEAT-4)
 - [ ] Contact form sends to `ventas@distribuidorasis.com.mx` (FEAT-4)

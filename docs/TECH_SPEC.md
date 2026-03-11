@@ -174,16 +174,17 @@ app/src/
 │   ├── admin/
 │   │   ├── AdminOtpLogin.tsx    # [CC] Two-step OTP login form (HU-2.2)
 │   │   ├── AdminRouteGuard.tsx  # [CC] Session+profile auth gate for /admin (HU-2.2)
-│   │   ├── CategoryManager.tsx  # [CC] Category CRUD UI (HU-2.3)
-│   │   └── ProductManager.tsx   # [CC] Product CRUD UI (HU-2.3)
+│   │   ├── CategoryManager.tsx  # [CC] Category list/create/edit/toggle — real Supabase (HU-2.3)
+│   │   └── ProductManager.tsx   # [CC] Product list/create/edit/toggle — real Supabase (HU-2.3)
 │   └── ui/                      # Base UI primitives (shadcn/ui)
 ├── lib/
 │   ├── supabase/
 │   │   ├── client.ts            # [DAL] createClient<Database> bootstrap (HU-2.1)
 │   │   └── auth.ts              # [DAL] requestOtp / verifyOtp / signOutAdmin / getAdminProfile (HU-2.2)
-│   ├── api/                     # [DAL] data services for products/contact/admin
-│   ├── catalog-service.ts       # [DAL] mock catalog repository (HU-1.2, migrates to Supabase in HU-2.3)
-│   └── utils.ts
+│   ├── api/
+│   │   └── admin-catalog-service.ts  # [DAL] categories + products CRUD via Supabase with RLS (HU-2.3)
+│   ├── catalog-service.ts       # [DAL] mock catalog repository (HU-1.2)
+│   └── utils.ts                 # cn() + slugify()
 ├── pages/
 │   ├── Admin.tsx                # Protected admin panel with signout (HU-2.2)
 │   ├── AdminLogin.tsx           # /admin/login page wrapper (HU-2.2)
