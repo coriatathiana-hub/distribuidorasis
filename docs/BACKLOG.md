@@ -30,7 +30,7 @@
 - **Hypothesis:** Si entregamos un panel de administracion autenticado por OTP y persistencia en Supabase con RLS, entonces reduciremos errores operativos y dependencia de cambios manuales, medido por tasa de exito CRUD >=95%.
 - **Status:** In Progress
 - **Stories:**
-  - [ ] HU-2.1: Provision de Supabase y modelo base con politicas RLS iniciales
+  - [x] HU-2.1: Provision de Supabase y modelo base con politicas RLS iniciales ✅ (2026-03-10, commits `65ca105` + `d2c5af9`, evidencias en `.spec/work/FEAT-2/README.md` y `.spec/history/2026-03-10_HU-2.1_completed.md`)
   - [ ] HU-2.2: Autenticacion admin por email OTP y proteccion de rutas
   - [ ] HU-2.3: Persistencia real de categorias y productos en panel admin
 

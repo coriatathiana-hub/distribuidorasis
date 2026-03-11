@@ -12,7 +12,7 @@
 
 | ID | Title | Priority | Status |
 |:---|:------|:---------|:-------|
-| HU-2.1 | Provision de Supabase y modelo base con politicas RLS iniciales | High | [ ] Pending |
+| HU-2.1 | Provision de Supabase y modelo base con politicas RLS iniciales | High | [x] Completed ✅ (2026-03-10) |
 | HU-2.2 | Autenticacion admin por email OTP y proteccion de rutas | High | [ ] Pending |
 | HU-2.3 | Persistencia real de categorias y productos en panel admin | High | [ ] Pending |
 

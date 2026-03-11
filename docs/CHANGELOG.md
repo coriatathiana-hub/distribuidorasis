@@ -51,3 +51,17 @@
 - Se actualizo `Contacto` para reconocer el contexto de origen y precargar tipo de requerimiento/mensaje.
 - Se agrego cobertura de pruebas para detalle valido, breadcrumb y producto inexistente.
 **Tests:** 3 passing tests (`app/src/test/producto-detalle.test.tsx`) / 1 archivo de pruebas agregado
+
+## [2026-03-10] — HU-2.1: Provision de Supabase y modelo base con politicas RLS iniciales
+
+**Feature:** FEAT-2 — Admin real con Supabase, OTP y seguridad RLS  
+**Benefit:** Establece la base de persistencia y seguridad real del producto: esquema versionado en migraciones, RLS activo por defecto y cliente tipado listo para las siguientes historias.  
+**Changes:**
+- Migraciones SQL `001` (schema) y `002` (RLS) creadas en `supabase/migrations/` con tablas `profiles`, `categories`, `products`, `product_images` y `contact_requests`.
+- Politicas RLS: `anon` con acceso de solo lectura a catalogo activo e insert en `contact_requests`; `authenticated admin` con CRUD completo validado por `profiles.role='admin'`.
+- Cliente Supabase tipado (`app/src/lib/supabase/client.ts`) con contrato Database en `app/src/types/supabase.ts`.
+- Seed de desarrollo (`supabase/seed.sql`) con 46 productos y 4 categorias usando subqueries por slug (portable entre entornos).
+- `.env.example` documentado con todas las variables requeridas por FEAT-2/4.
+- `docs/SETUP.md` y `docs/TECH_SPEC.md` actualizados con artefactos reales de migracion y estructura de carpetas.
+- Validacion `authenticated admin` diferida a HU-2.2 (requiere Email OTP activo).
+**Tests:** 28 passing tests (`app/src/test/supabase-schema-contract.test.ts`) / 1 archivo de pruebas agregado (37/37 suite total)
