@@ -24,7 +24,7 @@
 
 | Setting | Value | Options |
 |:--------|:------|:--------|
-| **tdd_mode** | `strict` | `strict` / `flexible` / `off` |
+| **tdd_mode** | `flexible` | `strict` / `flexible` / `off` |
 
 - **`strict`** (default): RED phase is mandatory before GREEN. Tests must be written
   *before* implementation code. Cycle markers: `RED → GREEN → REFACTOR`.

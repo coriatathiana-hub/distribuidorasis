@@ -10,37 +10,39 @@
 
 ## Epic: distribuidorasis MVP
 
-> [One-line description of the overall epic / product goal]
+> Convertir el sitio corporativo en una aplicacion mobile-first operable en produccion que capture y gestione oportunidades comerciales con seguridad y persistencia real.
 
 ---
 
-### FEAT-1: [Feature Name]
+### FEAT-1: Foundation mobile-first de catalogo y navegacion
 
-- **Hypothesis:** Si entregamos [capacidad], entonces [resultado] para [usuario], medido por [KPI]
+- **Hypothesis:** Si entregamos una experiencia de catalogo mobile-first con navegacion y filtros optimizados, entonces incrementaremos el consumo de productos desde campo para residentes y compradores, medido por sesiones mobile con >=3 vistas de producto.
 - **Status:** Pending
-- **Stories:**
-  - [ ] HU-1.1: [Story title]
-  - [ ] HU-1.2: [Story title]
-  - [ ] HU-1.3: [Story title]
+- **Stories:** _(Se definiran en `@start-feature FEAT-1`)_
 
 ---
 
-### FEAT-2: [Feature Name]
+### FEAT-2: Admin real con Supabase, OTP y seguridad RLS
 
-- **Hypothesis:** Si entregamos [capacidad], entonces [resultado] para [usuario], medido por [KPI]
+- **Hypothesis:** Si entregamos un panel de administracion autenticado por OTP y persistencia en Supabase con RLS, entonces reduciremos errores operativos y dependencia de cambios manuales, medido por tasa de exito CRUD >=95%.
 - **Status:** Pending
-- **Stories:**
-  - [ ] HU-2.1: [Story title]
-  - [ ] HU-2.2: [Story title]
+- **Stories:** _(Se definiran en `@start-feature FEAT-2`)_
 
 ---
 
-### FEAT-3: [Feature Name]
+### FEAT-3: Gestion multi-imagen por producto y carrusel en catalogo
 
-- **Hypothesis:** Si entregamos [capacidad], entonces [resultado] para [usuario], medido por [KPI]
+- **Hypothesis:** Si entregamos soporte multi-imagen ordenable por producto y carrusel visual en listados/detalle, entonces mejoraremos la evaluacion de producto y calidad de lead, medido por aumento de clicks a contacto desde paginas de producto.
 - **Status:** Pending
-- **Stories:**
-  - [ ] HU-3.1: [Story title]
+- **Stories:** _(Se definiran en `@start-feature FEAT-3`)_
+
+---
+
+### FEAT-4: Contacto omnicanal con envio real (Email + WhatsApp)
+
+- **Hypothesis:** Si entregamos un flujo de contacto que envíe solicitudes por correo a ventas y habilite WhatsApp con mensaje contextual, entonces aumentaremos la conversion de interesados a prospectos atendidos, medido por >=40 solicitudes calificadas al mes.
+- **Status:** Pending
+- **Stories:** _(Se definiran en `@start-feature FEAT-4`)_
 
 ---
 
