@@ -20,7 +20,7 @@
 - **Status:** In Progress
 - **Stories:**
   - [x] HU-1.1: Navegacion mobile-first y estructura base de experiencia ✅ (2026-03-10, commits `e3d736e` + `57fe235`, evidencias en `.spec/work/FEAT-1/README.md` y `.spec/history/2026-03-10_HU-1.1_completed.md`)
-  - [ ] HU-1.2: Catalogo responsive con busqueda, filtros y estados UX
+  - [x] HU-1.2: Catalogo responsive con busqueda, filtros y estados UX ✅ (2026-03-10, commits `48e0118` + cierre docs, evidencias en `.spec/work/FEAT-1/README.md` y `.spec/history/2026-03-10_HU-1.2_completed.md`)
   - [ ] HU-1.3: Detalle de producto con informacion accionable y CTA a contacto
 
 ---

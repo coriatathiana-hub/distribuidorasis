@@ -29,3 +29,14 @@
 - Se fijo el tema corporativo `theme-1` y se removio el selector de temas por decision de producto.
 - Se renombro la carpeta base de trabajo de `prototype` a `app` y se ajustaron referencias documentales.
 **Tests:** 3 passing tests (`app/src/test/navigation.test.tsx`) / 1 archivo de pruebas agregado
+
+## [2026-03-10] — HU-1.2: Catalogo responsive con busqueda, filtros y estados UX
+
+**Feature:** FEAT-1 — Foundation mobile-first de catalogo y navegacion  
+**Benefit:** Acelera descubrimiento de productos con filtros claros y busqueda usable en mobile/desktop, reduciendo friccion antes de contacto comercial.  
+**Changes:**
+- Se introdujo `catalog-service` para desacoplar la UI del dataset estatico y facilitar migracion a Supabase.
+- Se mejoro la experiencia de filtros con accion de `Limpiar filtros` y estado vacio accionable.
+- Se simplifico el flujo de resultados en catalogo manteniendo contador coherente por busqueda/categoria.
+- Se añadieron polyfills de test para estabilidad de componentes Radix Select en entorno jsdom.
+**Tests:** 3 passing tests (`app/src/test/catalogo-filters.test.tsx`) / 1 archivo de pruebas agregado

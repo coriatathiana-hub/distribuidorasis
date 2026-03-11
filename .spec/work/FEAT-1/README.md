@@ -13,7 +13,7 @@
 | ID | Title | Priority | Status |
 |:---|:------|:---------|:-------|
 | HU-1.1 | Navegacion mobile-first y estructura base de experiencia | High | [x] Completed (2026-03-10) |
-| HU-1.2 | Catalogo responsive con busqueda, filtros y estados UX | High | [ ] Pending |
+| HU-1.2 | Catalogo responsive con busqueda, filtros y estados UX | High | [x] Completed (2026-03-10) |
 | HU-1.3 | Detalle de producto con informacion accionable y CTA a contacto | High | [ ] Pending |
 
 ## Story Definitions and BDD Criteria
