@@ -4,7 +4,9 @@ import AdminOtpLogin from "@/components/admin/AdminOtpLogin";
 const AdminLogin = () => {
   const navigate = useNavigate();
   return (
-    <AdminOtpLogin onSuccess={() => navigate("/admin", { replace: true })} />
+    <div className="min-h-screen bg-background">
+      <AdminOtpLogin onSuccess={() => navigate("/admin", { replace: true })} />
+    </div>
   );
 };
 

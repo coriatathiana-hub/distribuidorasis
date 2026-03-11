@@ -33,7 +33,7 @@
   - [x] HU-2.1: Provision de Supabase y modelo base con politicas RLS iniciales ✅ (2026-03-10, commits `65ca105` + `d2c5af9`, evidencias en `.spec/work/FEAT-2/README.md` y `.spec/history/2026-03-10_HU-2.1_completed.md`)
   - [x] HU-2.2: Autenticacion admin por email OTP y proteccion de rutas ✅ (2026-03-10, commits `d2f4213` + `b6ad7f4` + `f6782b5`, evidencias en `.spec/work/FEAT-2/README.md` y `.spec/history/2026-03-10_HU-2.2_completed.md`)
   - [x] HU-2.3: Persistencia real de categorias y productos en panel admin (sin refactor UX mayor) ✅ (2026-03-10, commits `d337e18` + `28ebcc6` + `880cc2a`, evidencias en `.spec/work/FEAT-2/README.md` y `.spec/history/2026-03-10_HU-2.3_completed.md`)
-  - [ ] HU-2.4: UX backoffice admin con rutas dedicadas y layout operativo
+  - [ ] HU-2.4: UX backoffice admin con rutas dedicadas y layout operativo (incluye eliminacion controlada: products hard delete, categories sin dependencias)
 
 ---
 

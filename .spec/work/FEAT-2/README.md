@@ -14,8 +14,8 @@
 |:---|:------|:---------|:-------|
 | HU-2.1 | Provision de Supabase y modelo base con politicas RLS iniciales | High | [x] Completed ✅ (2026-03-10) |
 | HU-2.2 | Autenticacion admin por email OTP y proteccion de rutas | High | [x] Completed ✅ (2026-03-10) |
-| HU-2.3 | Persistencia real de categorias y productos en panel admin (sin refactor UX mayor) | High | [ ] Pending |
-| HU-2.4 | UX backoffice admin: rutas dedicadas y layout operativo | Medium | [ ] Pending |
+| HU-2.3 | Persistencia real de categorias y productos en panel admin (sin refactor UX mayor) | High | [x] Completed ✅ (2026-03-10) |
+| HU-2.4 | UX backoffice admin: rutas dedicadas y layout operativo (incluye eliminacion controlada) | Medium | [ ] Pending |
 
 ## Story Definitions and BDD Criteria
 
@@ -114,12 +114,20 @@
 3. Listados y acciones por fila.
    - **Dado que:** Visualizo tabla de productos/categorias.
    - **Cuando:** Uso busqueda/filtros y acciones por fila.
-   - **Entonces:** Debo poder identificar estado y ejecutar acciones disponibles (ver, editar, activar/desactivar, eliminar segun alcance).
+   - **Entonces:** Debo poder identificar estado y ejecutar acciones disponibles (ver, editar, activar/desactivar, eliminar).
 
 4. Alta/edicion con baja friccion.
    - **Dado que:** Necesito crear o editar un registro.
    - **Cuando:** Abro el flujo de formulario.
    - **Entonces:** Debe abrirse en modal o drawer lateral con validaciones y mensajes claros.
+
+5. Eliminacion controlada por reglas de integridad.
+   - **Dado que:** Estoy autenticado como admin y necesito eliminar datos de prueba o registros obsoletos.
+   - **Cuando:** Elimino un producto o una categoria desde su accion por fila.
+   - **Entonces:** Debe cumplirse lo siguiente:
+     - Producto: se permite hard delete y deben eliminarse en cascada los registros de `product_images` relacionados.
+     - Categoria: solo se permite eliminar si no tiene productos asociados; si tiene dependencias, la UI debe mostrar error accionable y no romper el flujo.
+     - Nota de alcance HU-2.4: el borrado de objetos binarios en Supabase Storage (`products` bucket) se atiende en FEAT-3.
 
 ## Acceptance Criteria (Feature Level)
 
@@ -132,8 +140,10 @@
 - **Data model impact:** Implementacion inicial de tablas y constraints para `profiles`, `categories`, `products` (+ base para evolucion FEAT-3/4).
 - **Security considerations:** RLS obligatorio desde la primera migracion, validacion de `profiles.role='admin'` y `is_active=true`.
 - **Dependencies:** Proyecto Supabase creado, claves (`VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`) y habilitacion de Email OTP/redirect URLs.
+- **HU-2.4 decision (Option A):** incluir eliminacion controlada en UI admin con reglas de integridad (products hard delete; categories only if no dependencies).
 
 ## Out of Scope
 
 - Gestion avanzada de imagenes por producto y reordenamiento de galeria (FEAT-3).
+- Limpieza de archivos fisicos en Supabase Storage al eliminar productos (FEAT-3).
 - Envio de contacto por email productivo y trazabilidad omnicanal completa (FEAT-4).
