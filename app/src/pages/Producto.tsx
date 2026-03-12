@@ -120,7 +120,7 @@ const Producto = () => {
         <div>
           <ProductGallery
             productName={product.name}
-            imageUrl={product.cover_image_url ?? undefined}
+            images={product.images}
           />
         </div>
 
