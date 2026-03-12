@@ -43,7 +43,7 @@
 - **Status:** In Progress
 - **Stories:**
   - [x] HU-3.1: Persistencia y reglas de negocio para galerias multi-imagen por producto ✅ (2026-03-11, commits `b93f5e8` + `08101ae` + `7b75860` + `1cd3961` + `33b8193`, evidencias en `.spec/history/2026-03-11_HU-3.1_completed.md`)
-  - [ ] HU-3.2: Flujo admin para cargar, ordenar y marcar portada de imagenes
+  - [x] HU-3.2: Flujo admin para cargar, ordenar y marcar portada de imagenes ✅ (2026-03-11, commits `640a0f4` + cierre docs, evidencias en `.spec/history/2026-03-11_HU-3.2_completed.md`)
   - [ ] HU-3.3: Carrusel publico en listado y detalle con enfoque mobile-first
 
 ---

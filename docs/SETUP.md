@@ -204,6 +204,7 @@ Core schema is documented in `docs/TECH_SPEC.md` under Data Model section.
 - **Size limit:** 5 MB per image (recommended MVP limit).
 - **Allowed types:** `image/jpeg`, `image/png`, `image/webp`.
 - **Policies:** Public read for active catalog images; write/update/delete only for authenticated admin users.
+- **Critical prerequisite (HU-3.2):** Before testing gallery uploads, `storage.objects` must include admin-write policies for bucket `products`. Missing policies causes `new row violates row-level security policy` during upload/insert flow.
 - **Added by:** FEAT-3
 
 ---
@@ -264,7 +265,7 @@ npm run dev
 - [ ] Delete category with products blocked: actionable error toast shown, UI remains stable (HU-2.4)
 - [ ] Mobile sidebar confirmed: hamburger opens Sheet on mobile viewport, closes on nav click (HU-2.4)
 - [x] Migration 006 applied: gallery business rules (check constraints + unique indexes on product_images) (HU-3.1)
-- [ ] Storage bucket `products` created with public-read + admin-write policies (HU-3.2)
+- [x] Storage bucket `products` created with public-read + admin-write policies (HU-3.2)
 - [ ] Transactional email provider configured and tested (FEAT-4)
 - [ ] Contact form sends to `ventas@distribuidorasis.com.mx` (FEAT-4)
 - [ ] WhatsApp CTA tested on mobile and desktop (FEAT-4)

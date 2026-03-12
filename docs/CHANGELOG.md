@@ -126,3 +126,16 @@
 - Se actualizaron tipos en `supabase.ts` (`InsertProductImage`, `UpdateProductImage`) y pruebas existentes para mantener compatibilidad del contrato `PublicProduct`.
 - Se actualizo `docs/SETUP.md` con la migracion 006 y su trazabilidad de infraestructura.
 **Tests:** 24 nuevos tests de contrato (12 en `supabase-schema-contract.test.ts` + 12 en `admin-catalog-service.test.ts`), suite total en verde: 126/126.
+
+## [2026-03-11] — HU-3.2: Flujo admin para cargar, ordenar y marcar portada de imagenes
+
+**Feature:** FEAT-3 — Gestion multi-imagen por producto y carrusel en catalogo  
+**Benefit:** El equipo comercial ya puede gestionar galerias visuales reales desde el backoffice (carga, orden y portada) con validaciones accionables, reduciendo dependencia de operaciones manuales en base de datos y mejorando consistencia del catalogo.  
+**Changes:**
+- Se integró `ImageGalleryManager` en el flujo de edición de `ProductManager` para operar imágenes por producto desde la UI admin.
+- Se implementó carga real a Supabase Storage + persistencia en `product_images` con rollback best-effort de objetos huérfanos si falla el insert.
+- Se agregó verificación explícita de sesión/perfil admin antes de upload y mapeo de errores RLS (`42501`) a mensajes accionables para operación.
+- Se implementó persistencia de reordenamiento y portada con operaciones idempotentes y normalización de posiciones después de eliminación.
+- Se añadió cobertura de pruebas para escenarios de carga inválida/válida mixta, reordenamiento, portada, eliminación y contratos DAL.
+- Se documentó en `SETUP.md` el prerrequisito crítico de políticas `storage.objects` del bucket `products` para evitar bloqueos por RLS en ambiente.
+**Tests:** 26 nuevos tests (suite total: 152/152 en verde).
