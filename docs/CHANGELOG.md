@@ -19,6 +19,19 @@
 
 ---
 
+## [2026-03-11] — HU-4.2: Formulario publico de contacto con validaciones y feedback UX mobile-first
+
+**Feature:** FEAT-4 — Contacto omnicanal con envio real (Email + WhatsApp)  
+**Benefit:** La experiencia de solicitud ahora es mas robusta en mobile y desktop, con validaciones accionables, proteccion contra envios duplicados y manejo recuperable de fallos/timeout sin perder datos del usuario.  
+**Changes:**
+- Se robustecio `contact-service` con timeout explicito de envio y mapeo de errores de gateway/timeout/red a mensajes accionables.
+- Se reforzo `Contacto.tsx` con guard de doble submit y estado de formulario `aria-busy` durante requests en vuelo.
+- Se amplio la matriz de pruebas de contacto para cubrir validaciones invalidas, comportamiento en error recuperable y bloqueo de submit duplicado.
+- Se alinearon colores de error del sistema de formularios a `amber` del tema para mantener consistencia visual corporativa.
+**Tests:** 12 passing tests en suite de contacto (`app/src/test/contact-service.test.ts` + `app/src/test/contacto-submit.test.tsx`) / +4 escenarios sobre la base de HU-4.1
+
+---
+
 ## [2026-03-11] — HU-4.1: Envio real de solicitudes por email con persistencia y trazabilidad en `contact_requests`
 
 **Feature:** FEAT-4 — Contacto omnicanal con envio real (Email + WhatsApp)  
