@@ -103,7 +103,7 @@
 | `003_fix_profiles_self_select.sql` | Adds authenticated self-select policy on `profiles` to support post-OTP role checks | HU-2.2 |
 | `004_fix_profiles_policy_recursion.sql` | Removes recursive `profiles` policies and keeps safe `profiles_self_select` policy | HU-2.2 |
 | `005_products_name_unique.sql` | Adds `UNIQUE` constraint on `products.name` (omission in 001; `categories.name` was already unique) | HU-2.3 |
-| `006_storage_policies.sql` | Adds storage policies for bucket `products` | FEAT-3 (pending) |
+| `006_product_images_gallery_rules.sql` | Adds check constraints + unique indexes to `product_images` (sort_order ≥ 0, non-empty URLs, unique sort slot per product, single cover per product) | HU-3.1 |
 
 ### 3.3 Schema Details
 
@@ -263,7 +263,8 @@ npm run dev
 - [ ] Delete empty category confirmed: category removed from list and from public catalog filters (HU-2.4)
 - [ ] Delete category with products blocked: actionable error toast shown, UI remains stable (HU-2.4)
 - [ ] Mobile sidebar confirmed: hamburger opens Sheet on mobile viewport, closes on nav click (HU-2.4)
-- [ ] Storage bucket `products` created with policies (FEAT-3)
+- [x] Migration 006 applied: gallery business rules (check constraints + unique indexes on product_images) (HU-3.1)
+- [ ] Storage bucket `products` created with public-read + admin-write policies (HU-3.2)
 - [ ] Transactional email provider configured and tested (FEAT-4)
 - [ ] Contact form sends to `ventas@distribuidorasis.com.mx` (FEAT-4)
 - [ ] WhatsApp CTA tested on mobile and desktop (FEAT-4)
