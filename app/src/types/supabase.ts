@@ -189,8 +189,10 @@ export type ContactRequest = Database["public"]["Tables"]["contact_requests"]["R
 /** Insert types */
 export type InsertCategory = Database["public"]["Tables"]["categories"]["Insert"];
 export type InsertProduct = Database["public"]["Tables"]["products"]["Insert"];
+export type InsertProductImage = Database["public"]["Tables"]["product_images"]["Insert"];
 export type InsertContactRequest = Database["public"]["Tables"]["contact_requests"]["Insert"];
 
 /** Update types */
 export type UpdateCategory = Database["public"]["Tables"]["categories"]["Update"];
 export type UpdateProduct = Database["public"]["Tables"]["products"]["Update"];
+export type UpdateProductImage = Database["public"]["Tables"]["product_images"]["Update"];
