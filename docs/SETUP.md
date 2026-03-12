@@ -302,6 +302,8 @@ npm run dev
 - [x] Contact form sends to `ventas@distribuidorasis.com.mx` via real endpoint/function (FEAT-4 post-implementation)
 - [ ] Migration `007_whatsapp_cta_attempts.sql` applied and RLS verified (`anon` insert + admin select) (HU-4.3)
 - [ ] WhatsApp CTA tested on mobile and desktop with contextual message behavior (FEAT-4 post-implementation)
+- [ ] Dashboard admin de conversion validado en `/admin/conversion` (cards KPI + tabla + filtros por fecha/canal/estado) (HU-4.4)
+- [ ] Sidebar admin validado: `Cerrar sesion` visible en cabecera junto al correo del admin (HU-4.4)
 
 ### Production deployment
 

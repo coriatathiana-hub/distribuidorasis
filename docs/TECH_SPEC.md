@@ -87,6 +87,19 @@
 | `status` | `text` | NOT NULL, default `'new'` | Workflow state |
 | `created_at` | `timestamptz` | NOT NULL, default `now()` | Creation timestamp |
 
+#### `whatsapp_cta_attempts`
+
+| Column | Type | Constraints | Description |
+|:-------|:-----|:------------|:------------|
+| `id` | `uuid` | PK, default `gen_random_uuid()` | Primary key |
+| `source` | `text` | NOT NULL | Origin route/context (`/`, `/contacto`, `/producto`) |
+| `context_type` | `text` | NOT NULL | CTA context (`floating_button`, `contact_card`, `product_detail`) |
+| `product_slug` | `text` | NULL | Product slug when CTA comes from detail |
+| `product_name` | `text` | NULL | Product name snapshot for operational traceability |
+| `prefilled_message` | `text` | NOT NULL | Message sent to `wa.me` deeplink |
+| `opened_successfully` | `boolean` | NOT NULL, default `false` | Whether browser allowed opening WhatsApp |
+| `created_at` | `timestamptz` | NOT NULL, default `now()` | Creation timestamp |
+
 ### Relationships
 
 - `products.category_id` -> `categories.id` (FK, ON DELETE RESTRICT)
@@ -123,10 +136,12 @@
 | `products` | anon | Yes (`is_active=true`) | No | No | No | Public listing only active products |
 | `product_images` | anon | Yes | No | No | No | Public can read image metadata for active products |
 | `contact_requests` | anon | No | Yes | No | No | Public can create lead requests only |
+| `whatsapp_cta_attempts` | anon | No | Yes | No | No | Public can log minimal WhatsApp CTA attempts |
 | `categories` | authenticated admin | Yes | Yes | Yes | Yes | `exists(select 1 from profiles p where p.id=auth.uid() and p.role='admin' and p.is_active=true)` |
 | `products` | authenticated admin | Yes | Yes | Yes | Yes | Same admin policy check |
 | `product_images` | authenticated admin | Yes | Yes | Yes | Yes | Same admin policy check |
 | `contact_requests` | authenticated admin | Yes | Yes | Yes | Yes | Admin can manage lead pipeline |
+| `whatsapp_cta_attempts` | authenticated admin | Yes | No | No | No | Admin can inspect conversion telemetry from WhatsApp CTA events |
 | `profiles` | anon | No | No | No | No | Not visible to anonymous users |
 | `profiles` | authenticated admin | Yes | No | Limited | No | Admin can view profiles and update activation state |
 
@@ -191,7 +206,8 @@ app/src/
 │   │   ├── AdminLayout.tsx      # [CC] Backoffice shell — desktop sidebar + mobile Sheet (HU-2.4)
 │   │   ├── AdminSidebar.tsx     # [CC] Nav links (Productos/Categorías), signout, active state (HU-2.4)
 │   │   ├── CategoryManager.tsx  # [CC] Category list/create/edit/toggle/delete (HU-2.3/2.4)
-│   │   └── ProductManager.tsx   # [CC] Product list/create/edit/toggle/delete (HU-2.3/2.4)
+│   │   ├── ProductManager.tsx   # [CC] Product list/create/edit/toggle/delete (HU-2.3/2.4)
+│   │   └── ConversionDashboard.tsx # [CC] Omnichannel conversion KPIs + events table (HU-4.4)
 │   └── ui/                      # Base UI primitives (shadcn/ui)
 ├── lib/
 │   ├── supabase/
@@ -199,6 +215,7 @@ app/src/
 │   │   └── auth.ts              # [DAL] requestOtp / verifyOtp / signOutAdmin / getAdminProfile (HU-2.2)
 │   ├── api/
 │   │   ├── admin-catalog-service.ts  # [DAL] categories + products full CRUD + delete (HU-2.3/2.4)
+│   │   ├── admin-conversion-service.ts # [DAL] admin read models for contact + WhatsApp conversion metrics (HU-4.4)
 │   │   └── public-catalog-service.ts # [DAL] anon read-only catalog — active items only (HU-2.3)
 │   ├── catalog-service.ts       # [DAL] mock catalog repository — legacy, not used in prod (HU-1.2)
 │   └── utils.ts                 # cn() + slugify()
@@ -207,6 +224,7 @@ app/src/
 │   ├── AdminLogin.tsx           # /admin/login standalone page (HU-2.2/2.4)
 │   ├── AdminProductos.tsx       # /admin/productos page shell → ProductManager (HU-2.4)
 │   ├── AdminCategorias.tsx      # /admin/categorias page shell → CategoryManager (HU-2.4)
+│   ├── AdminConversion.tsx      # /admin/conversion page shell → ConversionDashboard (HU-4.4)
 │   └── ...                      # Catalog, product, contact, etc.
 ├── types/
 │   └── supabase.ts              # Database type contract — Row/Insert/Update per table (HU-2.1)
@@ -218,7 +236,9 @@ supabase/
 │   ├── 002_initial_rls_policies.sql     # RLS: anon read-only, admin full CRUD (HU-2.1)
 │   ├── 003_fix_profiles_self_select.sql # Adds authenticated self-select policy on profiles (HU-2.2)
 │   ├── 004_fix_profiles_policy_recursion.sql # Removes recursive profiles policies (HU-2.2)
-│   └── 005_products_name_unique.sql     # UNIQUE constraint on products.name (HU-2.3)
+│   ├── 005_products_name_unique.sql     # UNIQUE constraint on products.name (HU-2.3)
+│   ├── 006_product_images_gallery_rules.sql # Product gallery constraints and uniqueness guards (HU-3.1)
+│   └── 007_whatsapp_cta_attempts.sql    # WhatsApp CTA telemetry table + RLS (HU-4.3)
 └── seed.sql                             # Development data seed (46 products, 4 categories)
 
 functions/
@@ -233,4 +253,5 @@ functions/
 | `/admin` | `AdminRouteGuard` | `AdminLayout` (Outlet) | Redirects to `/admin/productos` |
 | `/admin/productos` | Inherited | `AdminProductos` → `ProductManager` | |
 | `/admin/categorias` | Inherited | `AdminCategorias` → `CategoryManager` | |
+| `/admin/conversion` | Inherited | `AdminConversion` → `ConversionDashboard` | KPI cards + unified omnichannel conversion table |
 | `/admin/*` | Inherited | Redirect to `/admin/productos` | Catch-all |
