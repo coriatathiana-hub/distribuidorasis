@@ -189,12 +189,6 @@ const Producto = () => {
                   Contactar
                 </Link>
               </Button>
-              <Button variant="outline" asChild className="flex-1">
-                <a href="tel:+525555555555">
-                  <Phone className="mr-2 h-4 w-4" />
-                  Llamar
-                </a>
-              </Button>
               <Button
                 type="button"
                 variant="outline"
