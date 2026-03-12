@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { Loader2, ArrowLeft, Phone, Mail } from "lucide-react";
+import { Loader2, ArrowLeft, Phone, Mail, MessageCircle } from "lucide-react";
 import ProductGallery from "@/components/ProductGallery";
 import SpecificationsTable from "@/components/SpecificationsTable";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { useToast } from "@/hooks/use-toast";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -14,6 +15,16 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { getProductBySlug, type PublicProduct } from "@/lib/api/public-catalog-service";
+import {
+  buildWhatsAppDeepLink,
+  buildWhatsAppPrefilledMessage,
+  getWhatsAppPhoneNumber,
+  tryOpenWhatsApp,
+} from "@/lib/contact/whatsapp-cta";
+import {
+  buildIntentInputFromContext,
+  trackWhatsAppIntent,
+} from "@/lib/api/whatsapp-intent-service";
 
 const Producto = () => {
   // Route param `:id` is treated as a slug — no App.tsx route change needed.
@@ -22,6 +33,7 @@ const Producto = () => {
   // undefined = loading, null = not found, PublicProduct = loaded
   const [product, setProduct] = useState<PublicProduct | null | undefined>(undefined);
   const [error, setError] = useState<string | null>(null);
+  const { toast } = useToast();
 
   useEffect(() => {
     if (!slug) {
@@ -83,6 +95,31 @@ const Producto = () => {
   }
 
   const contactPath = `/contacto?origen=detalle&productoId=${encodeURIComponent(product.slug)}&producto=${encodeURIComponent(product.name)}`;
+
+  const handleWhatsAppClick = () => {
+    const context = {
+      source: "/producto",
+      contextType: "product_detail" as const,
+      productSlug: product.slug,
+      productName: product.name,
+    };
+    const message = buildWhatsAppPrefilledMessage(context);
+    const url = buildWhatsAppDeepLink(getWhatsAppPhoneNumber(), message);
+    const openedSuccessfully = tryOpenWhatsApp(url);
+
+    if (!openedSuccessfully) {
+      toast({
+        title: "No se pudo abrir WhatsApp",
+        description:
+          "Tu navegador bloqueó la apertura. Puedes continuar con el formulario de contacto.",
+        variant: "destructive",
+      });
+    }
+
+    void trackWhatsAppIntent(
+      buildIntentInputFromContext(context, message, openedSuccessfully),
+    );
+  };
 
   return (
     <div className="container px-4 py-8 md:py-12">
@@ -157,6 +194,16 @@ const Producto = () => {
                   <Phone className="mr-2 h-4 w-4" />
                   Llamar
                 </a>
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                className="flex-1"
+                onClick={handleWhatsAppClick}
+                aria-label="Contactar por WhatsApp sobre este producto"
+              >
+                <MessageCircle className="mr-2 h-4 w-4" />
+                WhatsApp
               </Button>
             </div>
           </div>

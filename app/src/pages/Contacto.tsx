@@ -12,6 +12,16 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { useToast } from "@/hooks/use-toast";
 import { useSearchParams } from "react-router-dom";
 import { submitContactRequest } from "@/lib/api/contact-service";
+import {
+  buildWhatsAppDeepLink,
+  buildWhatsAppPrefilledMessage,
+  getWhatsAppPhoneNumber,
+  tryOpenWhatsApp,
+} from "@/lib/contact/whatsapp-cta";
+import {
+  buildIntentInputFromContext,
+  trackWhatsAppIntent,
+} from "@/lib/api/whatsapp-intent-service";
 
 const contactFormSchema = z.object({
   nombre: z.string()
@@ -97,6 +107,31 @@ const Contacto = () => {
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleWhatsAppClick = () => {
+    const context = {
+      source: "/contacto",
+      contextType: "contact_card" as const,
+      productSlug: selectedProductId ?? undefined,
+      productName: selectedProduct ?? undefined,
+    };
+    const message = buildWhatsAppPrefilledMessage(context);
+    const url = buildWhatsAppDeepLink(getWhatsAppPhoneNumber(), message);
+    const openedSuccessfully = tryOpenWhatsApp(url);
+
+    if (!openedSuccessfully) {
+      toast({
+        title: "No se pudo abrir WhatsApp",
+        description:
+          "Tu navegador bloqueó la apertura. Puedes continuar con el formulario de contacto.",
+        variant: "destructive",
+      });
+    }
+
+    void trackWhatsAppIntent(
+      buildIntentInputFromContext(context, message, openedSuccessfully),
+    );
   };
 
   return (
@@ -318,11 +353,7 @@ const Contacto = () => {
                 Contáctanos por WhatsApp para respuesta rápida
               </p>
               <Button
-                onClick={() => {
-                  const phoneNumber = "525551627054";
-                  const message = "Hola, me gustaría solicitar información sobre sus productos y servicios.";
-                  window.open(`https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`, '_blank', 'noopener,noreferrer');
-                }}
+                onClick={handleWhatsAppClick}
                 className="w-full bg-[#25D366] hover:bg-[#20BA5A]"
               >
                 <MessageCircle className="mr-2 h-4 w-4" />
