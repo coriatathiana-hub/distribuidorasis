@@ -13,6 +13,7 @@ import AdminLogin from "./pages/AdminLogin";
 import AdminLayout from "./components/admin/AdminLayout";
 import AdminProductos from "./pages/AdminProductos";
 import AdminCategorias from "./pages/AdminCategorias";
+import AdminConversion from "./pages/AdminConversion";
 import Privacidad from "./pages/Privacidad";
 import NotFound from "./pages/NotFound";
 import AdminRouteGuard from "./components/admin/AdminRouteGuard";
@@ -47,6 +48,7 @@ const App = () => (
             <Route index element={<Navigate to="productos" replace />} />
             <Route path="productos" element={<AdminProductos />} />
             <Route path="categorias" element={<AdminCategorias />} />
+            <Route path="conversion" element={<AdminConversion />} />
             {/* Catch-all for unrecognized admin sub-routes */}
             <Route path="*" element={<Navigate to="productos" replace />} />
           </Route>

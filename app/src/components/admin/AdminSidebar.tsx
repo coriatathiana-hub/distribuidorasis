@@ -1,5 +1,5 @@
 import { NavLink, useNavigate } from "react-router-dom";
-import { FolderOpen, LogOut, Package } from "lucide-react";
+import { BarChart3, FolderOpen, LogOut, Package } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { signOutAdmin } from "@/lib/supabase/auth";
@@ -7,6 +7,7 @@ import { signOutAdmin } from "@/lib/supabase/auth";
 const NAV_ITEMS = [
   { to: "/admin/productos", label: "Productos", icon: Package },
   { to: "/admin/categorias", label: "Categorías", icon: FolderOpen },
+  { to: "/admin/conversion", label: "Conversión", icon: BarChart3 },
 ] as const;
 
 interface AdminSidebarProps {
@@ -40,6 +41,15 @@ const AdminSidebar = ({ adminEmail, onNavClick }: AdminSidebarProps) => {
             {adminEmail}
           </p>
         )}
+        <Button
+          variant="ghost"
+          className="mt-3 w-full justify-start gap-3 text-sm text-muted-foreground hover:text-foreground"
+          onClick={handleSignOut}
+          aria-label="Cerrar sesión"
+        >
+          <LogOut className="h-4 w-4 shrink-0" />
+          Cerrar sesión
+        </Button>
       </div>
 
       <div className="mx-3 h-px bg-border" />
@@ -66,20 +76,6 @@ const AdminSidebar = ({ adminEmail, onNavClick }: AdminSidebarProps) => {
           </NavLink>
         ))}
       </nav>
-
-      {/* Sign out */}
-      <div className="mt-auto px-3 pb-5">
-        <div className="mb-3 h-px bg-border" />
-        <Button
-          variant="ghost"
-          className="w-full justify-start gap-3 text-sm text-muted-foreground hover:text-foreground"
-          onClick={handleSignOut}
-          aria-label="Cerrar sesión"
-        >
-          <LogOut className="h-4 w-4 shrink-0" />
-          Cerrar sesión
-        </Button>
-      </div>
     </div>
   );
 };

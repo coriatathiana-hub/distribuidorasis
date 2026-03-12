@@ -1,7 +1,7 @@
 /**
  * HU-2.4 — Scenarios 1 & 2: AdminLayout routing and sidebar navigation
  * Tests: sidebar renders nav items, active state, mobile sheet trigger,
- *        signout button, AdminRouteGuard protection of nested routes.
+ *        signout button placement, AdminRouteGuard protection of nested routes.
  */
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
@@ -45,10 +45,11 @@ function renderSidebar(adminEmail?: string, onNavClick?: () => void) {
 describe("HU-2.4 Scenario 1 & 2: AdminSidebar", () => {
   beforeEach(() => vi.clearAllMocks());
 
-  it("renders Productos and Categorías nav links", () => {
+  it("renders Productos, Categorías y Conversión nav links", () => {
     renderSidebar("admin@test.com");
     expect(screen.getByRole("link", { name: /productos/i })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /categorías/i })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /conversión/i })).toBeInTheDocument();
   });
 
   it("shows admin email in the sidebar", () => {
@@ -81,6 +82,16 @@ describe("HU-2.4 Scenario 1 & 2: AdminSidebar", () => {
     expect(screen.getByRole("button", { name: /cerrar sesión/i })).toBeInTheDocument();
   });
 
+  it("renders sign-out button above navigation links", () => {
+    renderSidebar();
+    const signOutButton = screen.getByRole("button", { name: /cerrar sesión/i });
+    const productosLink = screen.getByRole("link", { name: /productos/i });
+    expect(
+      signOutButton.compareDocumentPosition(productosLink) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+  });
+
   it("calls signOutAdmin and redirects on sign-out click", async () => {
     const { signOutAdmin } = await import("@/lib/supabase/auth");
     renderSidebar();
@@ -98,6 +109,7 @@ function renderLayout() {
         <Route path="/admin" element={<AdminLayout />}>
           <Route path="productos" element={<div>Vista Productos</div>} />
           <Route path="categorias" element={<div>Vista Categorías</div>} />
+          <Route path="conversion" element={<div>Vista Conversión</div>} />
         </Route>
         <Route path="/admin/login" element={<div>Login</div>} />
       </Routes>
@@ -123,12 +135,13 @@ describe("HU-2.4 Scenario 1 & 2: AdminLayout", () => {
     );
   });
 
-  it("shows Productos and Categorías nav links in the sidebar", async () => {
+  it("shows Productos, Categorías y Conversión nav links in the sidebar", async () => {
     renderLayout();
     await waitFor(() => {
       const links = screen.getAllByRole("link", { name: /productos/i });
       expect(links.length).toBeGreaterThan(0);
     });
     expect(screen.getAllByRole("link", { name: /categorías/i }).length).toBeGreaterThan(0);
+    expect(screen.getAllByRole("link", { name: /conversión/i }).length).toBeGreaterThan(0);
   });
 });
