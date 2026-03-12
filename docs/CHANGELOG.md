@@ -19,6 +19,19 @@
 
 ---
 
+## [2026-03-11] — HU-4.4: Dashboard admin de conversion omnicanal para explotar `contact_requests` + `whatsapp_cta_attempts`
+
+**Feature:** FEAT-4 — Contacto omnicanal con envio real (Email + WhatsApp)  
+**Benefit:** El equipo comercial ahora puede inspeccionar conversion omnicanal desde backoffice con KPIs y eventos filtrables, priorizando seguimiento y detectando fricciones por canal sin salir del panel admin.  
+**Changes:**
+- Se implemento `admin-conversion-service` para consolidar `contact_requests` y `whatsapp_cta_attempts` en un read model de KPIs + eventos con filtros por fecha/canal/estado.
+- Se agrego modulo `/admin/conversion` con `ConversionDashboard` (cards KPI, tabla unificada, estado vacio, error recuperable con reintento).
+- Se integró navegación en sidebar para Conversión y se reubicó `Cerrar sesión` junto al correo del admin para mantener accesibilidad operativa en vistas largas.
+- Se actualizaron `docs/TECH_SPEC.md` y `docs/SETUP.md` con modelo de datos WhatsApp CTA, ruta admin nueva y checklist de validación HU-4.4.
+**Tests:** 17 passing tests ejecutados para HU-4.4 (`admin-conversion-service.test.ts`, `admin-conversion-dashboard.test.tsx`, `admin-layout-routes.test.tsx`)
+
+---
+
 ## [2026-03-11] — HU-4.3: CTA de WhatsApp con mensaje contextual y registro minimo de intentos
 
 **Feature:** FEAT-4 — Contacto omnicanal con envio real (Email + WhatsApp)  

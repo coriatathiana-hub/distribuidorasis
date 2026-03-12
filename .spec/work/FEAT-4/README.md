@@ -15,6 +15,7 @@
 | HU-4.1 | Envio real de solicitudes por email con persistencia y trazabilidad en `contact_requests` | High | [x] Completed |
 | HU-4.2 | Formulario publico de contacto con validaciones y feedback UX mobile-first | High | [x] Completed |
 | HU-4.3 | CTA de WhatsApp con mensaje contextual y registro minimo de intentos | High | [x] Completed |
+| HU-4.4 | Dashboard admin de conversion omnicanal para explotar `contact_requests` + `whatsapp_cta_attempts` | Medium | [x] Completed |
 
 ## Story Definitions and BDD Criteria
 
@@ -87,11 +88,34 @@
    - **Cuando:** El usuario intenta iniciar contacto por WhatsApp.
    - **Entonces:** El sistema debe notificar de forma clara la incidencia y ofrecer alternativa inmediata de contacto (formulario email).
 
+### HU-4.4: Dashboard admin de conversion omnicanal para explotar `contact_requests` + `whatsapp_cta_attempts`
+
+- **Como:** Administrador comercial SIS.
+- **Quiero:** Visualizar metricas y eventos de conversion de email/WhatsApp en una vista admin unica.
+- **Para poder:** Priorizar seguimiento comercial y detectar cuellos de botella del funnel con evidencia operativa.
+
+**Criterios de aceptacion (BDD)**
+
+1. KPI cards de conversion omnicanal.
+   - **Dado que:** Existen registros en `contact_requests` y `whatsapp_cta_attempts`.
+   - **Cuando:** Accedo al modulo admin de conversion.
+   - **Entonces:** Debo ver tarjetas KPI minimas (solicitudes por formulario, intentos WhatsApp, tasa aproximada formulario/intentos) para un rango temporal definido.
+
+2. Tabla operativa con filtros.
+   - **Dado que:** Necesito analizar eventos de contacto por origen/canal.
+   - **Cuando:** Aplico filtros (fecha, canal, resultado apertura WhatsApp).
+   - **Entonces:** Debo ver una tabla unificada con columnas de contexto, estado y fecha, manteniendo paginacion/ordenamiento basico y control de cierre de sesion visible en la parte superior del sidebar admin.
+
+3. Escenario de error: fallo de consulta o falta de permisos.
+   - **Dado que:** Ocurre un error en la lectura de datos o una denegacion por RLS.
+   - **Cuando:** Intento cargar el dashboard.
+   - **Entonces:** El sistema debe mostrar un estado de error recuperable, sin romper el layout admin, y permitir reintento.
+
 ## Acceptance Criteria (Feature Level)
 
-- [ ] El sitio permite capturar solicitudes por formulario con persistencia en `contact_requests` y envio real de correo a ventas.
-- [ ] El flujo UX de contacto y WhatsApp mantiene experiencia mobile-first, validaciones claras y manejo controlado de errores.
-- [ ] Existe trazabilidad minima de conversion omnicanal para medir solicitudes calificadas y respuesta comercial.
+- [x] El sitio permite capturar solicitudes por formulario con persistencia en `contact_requests` y envio real de correo a ventas.
+- [x] El flujo UX de contacto y WhatsApp mantiene experiencia mobile-first, validaciones claras y manejo controlado de errores.
+- [x] Existe trazabilidad minima de conversion omnicanal para medir solicitudes calificadas y respuesta comercial.
 
 ## Technical Notes
 

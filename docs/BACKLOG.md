@@ -51,12 +51,12 @@
 ### FEAT-4: Contacto omnicanal con envio real (Email + WhatsApp)
 
 - **Hypothesis:** Si entregamos un flujo de contacto que envíe solicitudes por correo a ventas y habilite WhatsApp con mensaje contextual, entonces aumentaremos la conversion de interesados a prospectos atendidos, medido por >=40 solicitudes calificadas al mes.
-- **Status:** In Progress
+- **Status:** Delivered ✅ (2026-03-11)
 - **Stories:**
   - [x] HU-4.1: Envio real de solicitudes por email con persistencia y trazabilidad en `contact_requests` ✅ (2026-03-11, commit `d5cbde7`, evidencias en `.spec/history/2026-03-11_HU-4.1_completed.md`)
   - [x] HU-4.2: Formulario publico de contacto con validaciones y feedback UX mobile-first ✅ (2026-03-11, commit `14ed984`, evidencias en `.spec/history/2026-03-11_HU-4.2_completed.md`)
   - [x] HU-4.3: CTA de WhatsApp con mensaje contextual y registro minimo de intentos ✅ (2026-03-11, commit `cae8161`, evidencias en `.spec/history/2026-03-11_HU-4.3_completed.md`)
-  - [ ] HU-4.4: Dashboard admin de conversion omnicanal para explotar `contact_requests` + `whatsapp_cta_attempts` (cards KPI, tabla y filtros)
+  - [x] HU-4.4: Dashboard admin de conversion omnicanal para explotar `contact_requests` + `whatsapp_cta_attempts` (cards KPI, tabla y filtros) ✅ (2026-03-11, commits `c5bea36` + `94f87b4` + `03db3ae` + `a551ffc`, evidencias en `.spec/history/2026-03-11_HU-4.4_completed.md`)
 
 ---
 
@@ -67,3 +67,4 @@
 - **Feature delivered:** `FEAT-1` — Foundation mobile-first de catalogo y navegacion (2026-03-10)
 - **Feature delivered:** `FEAT-2` — Admin real con Supabase, OTP y seguridad RLS (2026-03-10)
 - **Feature delivered:** `FEAT-3` — Gestion multi-imagen por producto y carrusel en catalogo (2026-03-11)
+- **Feature delivered:** `FEAT-4` — Contacto omnicanal con envio real (Email + WhatsApp) (2026-03-11)
