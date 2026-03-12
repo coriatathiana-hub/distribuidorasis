@@ -17,7 +17,7 @@ vi.mock("@/hooks/use-toast", () => ({
   }),
 }));
 
-describe("Contacto submit flow (HU-4.1)", () => {
+describe("Contacto submit flow (HU-4.1/HU-4.2)", () => {
   beforeEach(() => {
     submitContactRequestMock.mockReset();
     toastMock.mockReset();
@@ -102,5 +102,53 @@ describe("Contacto submit flow (HU-4.1)", () => {
     expect(screen.getByLabelText("Mensaje *")).toHaveValue(
       "Necesito cotizar productos para una obra en CDMX.",
     );
+  });
+
+  it("blocks submit and shows validation errors for invalid fields", async () => {
+    render(
+      <MemoryRouter initialEntries={["/contacto"]}>
+        <Contacto />
+      </MemoryRouter>,
+    );
+
+    const user = userEvent.setup();
+    await user.type(screen.getByLabelText("Nombre Completo *"), "A");
+    await user.type(screen.getByLabelText("Empresa *"), "A");
+    await user.type(screen.getByLabelText("Teléfono *"), "123");
+    await user.type(screen.getByLabelText("Correo Electrónico *"), "juan@empresa.com");
+    await user.type(screen.getByLabelText("Mensaje *"), "corto");
+    await user.click(screen.getByRole("button", { name: "Enviar Solicitud" }));
+
+    expect(submitContactRequestMock).not.toHaveBeenCalled();
+    expect(await screen.findByText("El nombre debe tener al menos 2 caracteres")).toBeInTheDocument();
+    expect(screen.getByText("El nombre de la empresa debe tener al menos 2 caracteres")).toBeInTheDocument();
+    expect(screen.getByText("El teléfono debe tener al menos 10 dígitos")).toBeInTheDocument();
+    expect(screen.getByText("El mensaje debe tener al menos 10 caracteres")).toBeInTheDocument();
+  });
+
+  it("prevents duplicate submits while request is in-flight", async () => {
+    submitContactRequestMock.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          setTimeout(() => {
+            resolve({ success: true, requestId: "req-late", emailId: "re-late" });
+          }, 150);
+        }),
+    );
+
+    render(
+      <MemoryRouter initialEntries={["/contacto"]}>
+        <Contacto />
+      </MemoryRouter>,
+    );
+
+    const user = await fillValidForm();
+    await user.click(screen.getByRole("button", { name: "Enviar Solicitud" }));
+    expect(screen.getByRole("button", { name: "Enviando..." })).toBeDisabled();
+    await user.click(screen.getByRole("button", { name: "Enviando..." }));
+
+    await waitFor(() => {
+      expect(submitContactRequestMock).toHaveBeenCalledTimes(1);
+    });
   });
 });

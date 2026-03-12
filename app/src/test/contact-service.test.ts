@@ -57,6 +57,7 @@ describe("submitContactRequest", () => {
   beforeEach(async () => {
     const invoke = await getInvokeMock();
     invoke.mockReset();
+    vi.useRealTimers();
   });
 
   it("returns requestId and emailId on successful function response", async () => {
@@ -115,5 +116,34 @@ describe("submitContactRequest", () => {
     await expect(submitContactRequest(basePayload)).rejects.toThrow(
       "El servicio de contacto devolvió una respuesta inválida.",
     );
+  });
+
+  it("maps non-2xx gateway errors to actionable copy", async () => {
+    const invoke = await getInvokeMock();
+    invoke.mockResolvedValue({
+      data: null,
+      error: { message: "Edge Function returned a non-2xx status code" },
+    });
+
+    await expect(submitContactRequest(basePayload)).rejects.toThrow(
+      "El servicio de contacto devolvió un error al procesar la solicitud.",
+    );
+  });
+
+  it("throws timeout error when invoke exceeds threshold", async () => {
+    vi.useFakeTimers();
+    const invoke = await getInvokeMock();
+    invoke.mockImplementation(
+      () =>
+        new Promise(() => {
+          // intentionally unresolved to test timeout path
+        }),
+    );
+
+    const expectation = expect(submitContactRequest(basePayload)).rejects.toThrow(
+      "El servicio de contacto tardó demasiado en responder. Intenta nuevamente.",
+    );
+    await vi.advanceTimersByTimeAsync(8100);
+    await expectation;
   });
 });

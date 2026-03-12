@@ -67,6 +67,7 @@ const Contacto = () => {
   });
 
   const onSubmit = async (data: ContactFormValues) => {
+    if (isSubmitting) return;
     setIsSubmitting(true);
 
     try {
@@ -128,7 +129,11 @@ const Contacto = () => {
             </CardHeader>
             <CardContent>
               <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                <form
+                  onSubmit={form.handleSubmit(onSubmit)}
+                  className="space-y-6"
+                  aria-busy={isSubmitting}
+                >
                   <div className="grid gap-4 sm:grid-cols-2">
                     <FormField
                       control={form.control}
