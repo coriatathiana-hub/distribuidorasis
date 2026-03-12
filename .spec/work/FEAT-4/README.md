@@ -14,7 +14,7 @@
 |:---|:------|:---------|:-------|
 | HU-4.1 | Envio real de solicitudes por email con persistencia y trazabilidad en `contact_requests` | High | [x] Completed |
 | HU-4.2 | Formulario publico de contacto con validaciones y feedback UX mobile-first | High | [x] Completed |
-| HU-4.3 | CTA de WhatsApp con mensaje contextual y registro minimo de intentos | High | [ ] Pending |
+| HU-4.3 | CTA de WhatsApp con mensaje contextual y registro minimo de intentos | High | [x] Completed |
 
 ## Story Definitions and BDD Criteria
 

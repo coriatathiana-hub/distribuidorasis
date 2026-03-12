@@ -55,7 +55,8 @@
 - **Stories:**
   - [x] HU-4.1: Envio real de solicitudes por email con persistencia y trazabilidad en `contact_requests` ✅ (2026-03-11, commit `d5cbde7`, evidencias en `.spec/history/2026-03-11_HU-4.1_completed.md`)
   - [x] HU-4.2: Formulario publico de contacto con validaciones y feedback UX mobile-first ✅ (2026-03-11, commit `14ed984`, evidencias en `.spec/history/2026-03-11_HU-4.2_completed.md`)
-  - [ ] HU-4.3: CTA de WhatsApp con mensaje contextual y registro minimo de intentos
+  - [x] HU-4.3: CTA de WhatsApp con mensaje contextual y registro minimo de intentos ✅ (2026-03-11, commit `cae8161`, evidencias en `.spec/history/2026-03-11_HU-4.3_completed.md`)
+  - [ ] HU-4.4: Dashboard admin de conversion omnicanal para explotar `contact_requests` + `whatsapp_cta_attempts` (cards KPI, tabla y filtros)
 
 ---
 

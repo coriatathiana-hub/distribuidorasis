@@ -19,6 +19,20 @@
 
 ---
 
+## [2026-03-11] — HU-4.3: CTA de WhatsApp con mensaje contextual y registro minimo de intentos
+
+**Feature:** FEAT-4 — Contacto omnicanal con envio real (Email + WhatsApp)  
+**Benefit:** El flujo de conversion por WhatsApp ahora es consistente y contextual en vistas clave, con trazabilidad minima de intentos y feedback recuperable cuando el deeplink no puede abrirse.  
+**Changes:**
+- Se centralizo la construccion de deeplink y mensaje prellenado de WhatsApp para evitar divergencias entre rutas publicas.
+- Se incorporo CTA contextual en `Producto` y se alineo el comportamiento del boton flotante y la tarjeta de contacto con tracking uniforme.
+- Se agrego fallback UX con toast accionable cuando `window.open` es bloqueado por el navegador, manteniendo alternativa inmediata por formulario.
+- Se implemento persistencia de intentos en `whatsapp_cta_attempts` (migracion `007`) con RLS (`anon` insert, admin select) e indices operativos.
+- Se documentaron prerequisitos de despliegue para la migracion `007` en `docs/SETUP.md`.
+**Tests:** 6 nuevos tests (3 archivos): `whatsapp-cta.test.ts` (3), `whatsapp-cta.test.tsx` (2), `producto-page.test.tsx` (1)
+
+---
+
 ## [2026-03-11] — HU-4.2: Formulario publico de contacto con validaciones y feedback UX mobile-first
 
 **Feature:** FEAT-4 — Contacto omnicanal con envio real (Email + WhatsApp)  
