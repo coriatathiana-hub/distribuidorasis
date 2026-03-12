@@ -40,11 +40,11 @@
 ### FEAT-3: Gestion multi-imagen por producto y carrusel en catalogo
 
 - **Hypothesis:** Si entregamos soporte multi-imagen ordenable por producto y carrusel visual en listados/detalle, entonces mejoraremos la evaluacion de producto y calidad de lead, medido por aumento de clicks a contacto desde paginas de producto.
-- **Status:** In Progress
+- **Status:** Delivered ✅ (2026-03-11)
 - **Stories:**
   - [x] HU-3.1: Persistencia y reglas de negocio para galerias multi-imagen por producto ✅ (2026-03-11, commits `b93f5e8` + `08101ae` + `7b75860` + `1cd3961` + `33b8193`, evidencias en `.spec/history/2026-03-11_HU-3.1_completed.md`)
   - [x] HU-3.2: Flujo admin para cargar, ordenar y marcar portada de imagenes ✅ (2026-03-11, commits `640a0f4` + cierre docs, evidencias en `.spec/history/2026-03-11_HU-3.2_completed.md`)
-  - [ ] HU-3.3: Carrusel publico en listado y detalle con enfoque mobile-first
+  - [x] HU-3.3: Carrusel publico en listado y detalle con enfoque mobile-first ✅ (2026-03-11, commits `5cbd6a2` + `58b37b5` + `c203835` + `444ef78`, evidencias en `.spec/history/2026-03-11_HU-3.3_completed.md`)
 
 ---
 
@@ -62,3 +62,4 @@
 
 - **Feature delivered:** `FEAT-1` — Foundation mobile-first de catalogo y navegacion (2026-03-10)
 - **Feature delivered:** `FEAT-2` — Admin real con Supabase, OTP y seguridad RLS (2026-03-10)
+- **Feature delivered:** `FEAT-3` — Gestion multi-imagen por producto y carrusel en catalogo (2026-03-11)

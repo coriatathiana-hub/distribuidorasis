@@ -139,3 +139,15 @@
 - Se añadió cobertura de pruebas para escenarios de carga inválida/válida mixta, reordenamiento, portada, eliminación y contratos DAL.
 - Se documentó en `SETUP.md` el prerrequisito crítico de políticas `storage.objects` del bucket `products` para evitar bloqueos por RLS en ambiente.
 **Tests:** 26 nuevos tests (suite total: 152/152 en verde).
+
+## [2026-03-11] — HU-3.3: Carrusel publico en listado y detalle con enfoque mobile-first
+
+**Feature:** FEAT-3 — Gestion multi-imagen por producto y carrusel en catalogo  
+**Benefit:** Los compradores pueden evaluar mejor cada producto desde mobile y desktop con una galeria navegable, orden consistente de imagenes y fallback visual estable, mejorando la confianza antes del contacto comercial.  
+**Changes:**
+- Se implemento `ProductGallery` para detalle con navegacion por flechas y dots, respetando portada/orden del admin y manteniendo accesibilidad en mobile.
+- Se actualizo `Producto.tsx` para consumir `images[]` desde el contrato publico, eliminando dependencia de una sola URL de portada.
+- Se simplifico `ProductCard` para mostrar portada como imagen principal en listado con fallback seguro ante error de carga.
+- Se refinó la UX del carrusel con controles mas discretos y menor ruido visual tras feedback de usuario.
+- Se agrego cobertura de pruebas para escenarios de galeria en detalle y fallback de portada en listado.
+**Tests:** 2 nuevos tests (suite total: 154/154 en verde).
