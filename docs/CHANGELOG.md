@@ -19,6 +19,19 @@
 
 ---
 
+## [2026-03-11] — HU-4.1: Envio real de solicitudes por email con persistencia y trazabilidad en `contact_requests`
+
+**Feature:** FEAT-4 — Contacto omnicanal con envio real (Email + WhatsApp)  
+**Benefit:** El sitio ahora captura solicitudes reales de prospectos con persistencia en `contact_requests` y notificacion transaccional a ventas, reduciendo friccion operativa entre intencion de compra y atencion comercial.  
+**Changes:**
+- Se implemento DAL de contacto (`contact-service`) para mapear payload, invocar la Edge Function y normalizar errores para UX recuperable.
+- Se conecto `Contacto.tsx` a envio real (sin simulacion), manteniendo estado de carga, feedback de exito y conservacion de datos en error para reintento.
+- Se agrego Edge Function `send-contact-email` para insertar en `public.contact_requests` y despachar correo por Resend con response contract seguro (`success`, `requestId`, `emailId`).
+- Se documentaron requisitos runtime para invocacion publica (`verify_jwt=false`) y secretos necesarios en setup operativo.
+**Tests:** 8 passing tests (`app/src/test/contact-service.test.ts` y `app/src/test/contacto-submit.test.tsx`) / 2 archivos de pruebas agregados
+
+---
+
 ## [2026-03-10] — HU-1.1: Navegacion mobile-first y estructura base de experiencia
 
 **Feature:** FEAT-1 — Foundation mobile-first de catalogo y navegacion  

@@ -51,8 +51,11 @@
 ### FEAT-4: Contacto omnicanal con envio real (Email + WhatsApp)
 
 - **Hypothesis:** Si entregamos un flujo de contacto que envíe solicitudes por correo a ventas y habilite WhatsApp con mensaje contextual, entonces aumentaremos la conversion de interesados a prospectos atendidos, medido por >=40 solicitudes calificadas al mes.
-- **Status:** Pending
-- **Stories:** _(Se definiran en `@start-feature FEAT-4`)_
+- **Status:** In Progress
+- **Stories:**
+  - [x] HU-4.1: Envio real de solicitudes por email con persistencia y trazabilidad en `contact_requests` ✅ (2026-03-11, commit `d5cbde7`, evidencias en `.spec/history/2026-03-11_HU-4.1_completed.md`)
+  - [ ] HU-4.2: Formulario publico de contacto con validaciones y feedback UX mobile-first
+  - [ ] HU-4.3: CTA de WhatsApp con mensaje contextual y registro minimo de intentos
 
 ---
 
