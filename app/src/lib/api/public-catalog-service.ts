@@ -12,6 +12,15 @@ export interface PublicCategory {
   sort_order: number;
 }
 
+/** A single image in a product gallery, ordered by sort_order ascending. */
+export interface PublicProductImage {
+  id: string;
+  public_url: string;
+  alt_text: string | null;
+  sort_order: number;
+  is_cover: boolean;
+}
+
 export interface PublicProduct {
   id: string;
   slug: string;
@@ -22,6 +31,8 @@ export interface PublicProduct {
   description: string | null;
   specs_json: Json;
   cover_image_url: string | null;
+  /** Full ordered gallery. Empty array when no images are configured. */
+  images: PublicProductImage[];
 }
 
 type RawProductRow = {
@@ -36,11 +47,19 @@ type RawProductRow = {
   created_at: string;
   updated_at: string;
   categories: { name: string } | null;
-  product_images: { public_url: string; is_cover: boolean; sort_order: number }[] | null;
+  product_images: {
+    id: string;
+    public_url: string;
+    alt_text: string | null;
+    is_cover: boolean;
+    sort_order: number;
+  }[] | null;
 };
 
 function mapProduct(row: RawProductRow): PublicProduct {
-  const images = (row.product_images ?? []).sort((a, b) => a.sort_order - b.sort_order);
+  const images: PublicProductImage[] = (row.product_images ?? [])
+    .slice()
+    .sort((a, b) => a.sort_order - b.sort_order);
   const cover = images.find((img) => img.is_cover) ?? images[0];
   return {
     id: row.id,
@@ -52,6 +71,7 @@ function mapProduct(row: RawProductRow): PublicProduct {
     description: row.description,
     specs_json: row.specs_json,
     cover_image_url: cover?.public_url ?? null,
+    images,
   };
 }
 
@@ -67,10 +87,12 @@ export async function listActiveCategories(): Promise<PublicCategory[]> {
   return data ?? [];
 }
 
+const PRODUCT_IMAGES_SELECT = "id, public_url, alt_text, is_cover, sort_order";
+
 export async function listActiveProducts(): Promise<PublicProduct[]> {
   const { data, error } = await supabase
     .from("products")
-    .select("*, categories(name), product_images(public_url, is_cover, sort_order)")
+    .select(`*, categories(name), product_images(${PRODUCT_IMAGES_SELECT})`)
     .eq("is_active", true)
     .order("name", { ascending: true });
 
@@ -81,7 +103,7 @@ export async function listActiveProducts(): Promise<PublicProduct[]> {
 export async function getProductBySlug(slug: string): Promise<PublicProduct | null> {
   const { data, error } = await supabase
     .from("products")
-    .select("*, categories(name), product_images(public_url, is_cover, sort_order)")
+    .select(`*, categories(name), product_images(${PRODUCT_IMAGES_SELECT})`)
     .eq("slug", slug)
     .eq("is_active", true)
     .maybeSingle();

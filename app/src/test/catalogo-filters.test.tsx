@@ -27,6 +27,7 @@ const base = (overrides: Partial<PublicProduct>): PublicProduct => ({
   description: null,
   specs_json: {},
   cover_image_url: null,
+  images: [],
   ...overrides,
 });
 

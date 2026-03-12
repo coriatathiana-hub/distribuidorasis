@@ -21,6 +21,7 @@ const MOCK_PRODUCT: PublicProduct = {
   description: "Descripción detallada del arnés con certificaciones NOM.",
   specs_json: {},
   cover_image_url: null,
+  images: [],
 };
 
 function renderProducto(slug: string) {
