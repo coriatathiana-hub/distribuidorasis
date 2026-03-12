@@ -46,8 +46,8 @@ const ProductGallery = ({ productName, images = [] }: ProductGalleryProps) => {
   };
 
   return (
-    <div className="space-y-4">
-      <div className="relative">
+    <div className="space-y-3">
+      <div className="group relative">
         {/* Main image / fallback */}
         <AspectRatio ratio={4 / 3} className="bg-muted rounded-lg overflow-hidden border">
           {hasImages && selected && !failedUrls[selected.public_url] ? (
@@ -73,26 +73,35 @@ const ProductGallery = ({ productName, images = [] }: ProductGalleryProps) => {
           <>
             <Button
               type="button"
-              variant="secondary"
+              variant="ghost"
               size="icon"
-              className="absolute left-2 top-1/2 -translate-y-1/2 bg-background/90 shadow-sm"
+              className="absolute left-2 top-1/2 z-10 h-8 w-8 -translate-y-1/2 rounded-full bg-black/35 text-white shadow-sm backdrop-blur-sm transition hover:bg-black/55 hover:text-white md:opacity-0 md:group-hover:opacity-100 focus-visible:opacity-100"
               onClick={goPrev}
               aria-label="Imagen anterior"
             >
-              <ChevronLeft className="h-4 w-4" />
+              <ChevronLeft className="h-3.5 w-3.5" />
             </Button>
             <Button
               type="button"
-              variant="secondary"
+              variant="ghost"
               size="icon"
-              className="absolute right-2 top-1/2 -translate-y-1/2 bg-background/90 shadow-sm"
+              className="absolute right-2 top-1/2 z-10 h-8 w-8 -translate-y-1/2 rounded-full bg-black/35 text-white shadow-sm backdrop-blur-sm transition hover:bg-black/55 hover:text-white md:opacity-0 md:group-hover:opacity-100 focus-visible:opacity-100"
               onClick={goNext}
               aria-label="Imagen siguiente"
             >
-              <ChevronRight className="h-4 w-4" />
+              <ChevronRight className="h-3.5 w-3.5" />
             </Button>
-            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 rounded-full bg-background/90 px-2 py-0.5 text-xs text-muted-foreground">
-              {selectedImage + 1} / {orderedImages.length}
+            <div className="absolute bottom-2 left-1/2 flex -translate-x-1/2 items-center gap-1 rounded-full bg-black/35 px-2 py-1 backdrop-blur-sm">
+              {orderedImages.map((_, idx) => (
+                <span
+                  key={`dot-${idx}`}
+                  className={[
+                    "h-1.5 w-1.5 rounded-full transition",
+                    idx === selectedImage ? "bg-white" : "bg-white/45",
+                  ].join(" ")}
+                  aria-hidden="true"
+                />
+              ))}
             </div>
           </>
         )}
@@ -100,17 +109,17 @@ const ProductGallery = ({ productName, images = [] }: ProductGalleryProps) => {
 
       {/* Thumbnail strip for quick jump */}
       {orderedImages.length > 1 && (
-        <div className="grid grid-cols-4 gap-2 sm:grid-cols-6">
+        <div className="grid grid-cols-5 gap-2 sm:grid-cols-6">
           {orderedImages.map((image, index) => (
             <button
               key={image.id}
               type="button"
               onClick={() => setSelectedImage(index)}
               className={[
-                "touch-target relative rounded-md border-2 transition-colors overflow-hidden",
+                "touch-target relative overflow-hidden rounded-md border transition-all",
                 selectedImage === index
-                  ? "border-primary"
-                  : "border-transparent hover:border-muted-foreground/50",
+                  ? "border-primary ring-1 ring-primary/40"
+                  : "border-transparent opacity-80 hover:opacity-100 hover:border-muted-foreground/40",
               ].join(" ")}
               aria-label={`Miniatura ${index + 1} de ${orderedImages.length}`}
             >
