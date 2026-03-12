@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { useSearchParams } from "react-router-dom";
+import { submitContactRequest } from "@/lib/api/contact-service";
 
 const contactFormSchema = z.object({
   nombre: z.string()
@@ -67,21 +68,29 @@ const Contacto = () => {
 
   const onSubmit = async (data: ContactFormValues) => {
     setIsSubmitting(true);
-    
+
     try {
-      // Simulate form submission - in production, this would send to an API
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+      await submitContactRequest(data);
+
       toast({
         title: "Solicitud Enviada",
         description: "Nos pondremos en contacto contigo a la brevedad posible.",
       });
-      
-      form.reset();
+
+      form.reset({
+        nombre: "",
+        empresa: "",
+        telefono: "",
+        correo: "",
+        tipoRequerimiento: selectedProduct ? "cotizacion" : "",
+        mensaje: selectedProduct ? prefilledMessage : "",
+      });
     } catch (error) {
       toast({
         title: "Error",
-        description: "Hubo un problema al enviar tu solicitud. Intenta nuevamente.",
+        description: error instanceof Error
+          ? error.message
+          : "Hubo un problema al enviar tu solicitud. Intenta nuevamente.",
         variant: "destructive",
       });
     } finally {

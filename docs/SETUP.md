@@ -34,7 +34,7 @@
 | `CONTACT_EMAIL_TO` | Secret | Operational config (`ventas@distribuidorasis.com.mx`) | FEAT-4 |
 | `CONTACT_EMAIL_FROM` | Secret | Email provider dashboard | FEAT-4 |
 | `RESEND_API_KEY` | Secret | Resend dashboard/API keys (or provider equivalent) | FEAT-4 |
-| `WHATSAPP_PHONE_E164` | Public | Business operational config (`525551627054`) | FEAT-4 |
+| `VITE_WHATSAPP_PHONE_E164` | Public | Business operational config (`525551627054`) | FEAT-4 |
 
 > Note: if another transactional provider is chosen (SendGrid/Postmark), replace `RESEND_API_KEY`
 > with that provider's key and update this table.
@@ -67,6 +67,34 @@
   2. Configure API key as `RESEND_API_KEY`.
   3. Set sender mailbox in `CONTACT_EMAIL_FROM`.
   4. Validate delivery to `ventas@distribuidorasis.com.mx`.
+- **Operational smoke test (before FEAT-4 implementation):**
+  1. Ensure `CONTACT_EMAIL_TO`, `CONTACT_EMAIL_FROM`, and `RESEND_API_KEY` are set in `.env.local`.
+  2. Trigger a direct provider test call from terminal:
+     ```bash
+     curl -sS https://api.resend.com/emails \
+       -H "Authorization: Bearer $RESEND_API_KEY" \
+       -H "Content-Type: application/json" \
+       -d '{
+         "from": "'"$CONTACT_EMAIL_FROM"'",
+         "to": ["'"$CONTACT_EMAIL_TO"'"],
+         "subject": "FEAT-4 setup validation",
+         "html": "<p>Resend setup validated for distribuidorasis.</p>"
+       }'
+     ```
+  3. Confirm API success response includes an email `id` and that the message reaches `ventas@distribuidorasis.com.mx`.
+- **Runtime path for HU-4.1 (`send-contact-email`):**
+  1. Deploy/serve Supabase Edge Function `send-contact-email`.
+  2. Configure function auth for public contact flow (`/contacto`):
+     - Disable JWT enforcement (`verify_jwt = false`) for this function.
+     - Rationale: the web form is public and invokes the function as `anon`.
+  3. Ensure function secrets are configured in Supabase environment:
+     - `RESEND_API_KEY`
+     - `CONTACT_EMAIL_TO`
+     - `CONTACT_EMAIL_FROM`
+     - `SUPABASE_SERVICE_ROLE_KEY`
+  4. Submit from `/contacto` and verify both outcomes:
+     - row inserted in `public.contact_requests`,
+     - transactional email delivered to `ventas@distribuidorasis.com.mx`.
 - **Added by:** FEAT-4
 
 ### 2.3 Hosting Platform (Railway preferred)
@@ -218,7 +246,7 @@ Core schema is documented in `docs/TECH_SPEC.md` under Data Model section.
 |:-------------------|:-------------|:----------------|
 | `APP_NAME` | `"Distribuidora SIS"` | Confirm legal branding in production |
 | `CONTACT_EMAIL_TARGET` | `"ventas@distribuidorasis.com.mx"` | Keep synchronized with `CONTACT_EMAIL_TO` |
-| `WHATSAPP_DEFAULT_MESSAGE` | `"Hola, deseo una cotizacion de sus productos."` | Tune by source page/product context |
+| `WHATSAPP_DEFAULT_MESSAGE` | `"Hola, me gustaría solicitar información sobre sus productos y servicios."` | Tune by source page/product context |
 | `CATALOG_PAGE_SIZE` | `12` | Validate performance vs UX on low-end mobile devices |
 
 ---
@@ -236,6 +264,7 @@ npm install        # or: bun install
 # 2. Environment variables
 cp .env.example .env.local
 # fill in VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY from Supabase Project Settings > API
+# fill in FEAT-4 variables: CONTACT_EMAIL_TO, CONTACT_EMAIL_FROM, RESEND_API_KEY, VITE_WHATSAPP_PHONE_E164
 
 # 3. Apply database migrations (Supabase Dashboard SQL Editor or CLI)
 # Run in order: 001_initial_catalog_schema.sql → 002_initial_rls_policies.sql
@@ -266,9 +295,11 @@ npm run dev
 - [ ] Mobile sidebar confirmed: hamburger opens Sheet on mobile viewport, closes on nav click (HU-2.4)
 - [x] Migration 006 applied: gallery business rules (check constraints + unique indexes on product_images) (HU-3.1)
 - [x] Storage bucket `products` created with public-read + admin-write policies (HU-3.2)
-- [ ] Transactional email provider configured and tested (FEAT-4)
-- [ ] Contact form sends to `ventas@distribuidorasis.com.mx` (FEAT-4)
-- [ ] WhatsApp CTA tested on mobile and desktop (FEAT-4)
+- [x] FEAT-4 env variables documented in `app/.env.example` and setup guide (`CONTACT_EMAIL_TO`, `CONTACT_EMAIL_FROM`, `RESEND_API_KEY`, `VITE_WHATSAPP_PHONE_E164`) (FEAT-4 pre-setup)
+- [x] Transactional provider smoke test procedure documented (Resend API call + expected response/email delivery) (FEAT-4 pre-setup)
+- [x] `contact_requests` schema + RLS baseline verified in migrations (`001` + `002`) (FEAT-4 pre-setup)
+- [ ] Contact form sends to `ventas@distribuidorasis.com.mx` via real endpoint/function (FEAT-4 post-implementation)
+- [ ] WhatsApp CTA tested on mobile and desktop with contextual message behavior (FEAT-4 post-implementation)
 
 ### Production deployment
 
