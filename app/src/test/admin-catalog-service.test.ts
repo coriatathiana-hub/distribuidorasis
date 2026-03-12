@@ -33,6 +33,7 @@ vi.mock("@/lib/supabase/client", () => ({
   supabase: {
     from: vi.fn(),
     storage: { from: vi.fn() },
+    auth: { getSession: vi.fn() },
   },
 }));
 
@@ -41,6 +42,10 @@ const getSupabase = async () =>
   (await import("@/lib/supabase/client")).supabase;
 
 type StorageChain = { remove: ReturnType<typeof vi.fn> };
+type StorageUploadChain = {
+  upload: ReturnType<typeof vi.fn>;
+  getPublicUrl: ReturnType<typeof vi.fn>;
+};
 
 // ── Categories ────────────────────────────────────────────────────────────────
 
@@ -357,5 +362,175 @@ describe("deleteProductImage", () => {
 
     await expect(service.deleteProductImage("i1", "products/casco.jpg")).rejects.toThrow("RLS denied");
     expect(removeMock).not.toHaveBeenCalled();
+  });
+});
+
+// ── HU-3.2 — uploadProductImage ───────────────────────────────────────────────
+
+describe("uploadProductImage", () => {
+  const file = new File(["content"], "photo.jpg", { type: "image/jpeg" });
+
+  const mockImage = {
+    id: "i-new",
+    product_id: "p1",
+    storage_path: "products/p1/uuid.jpg",
+    public_url: "https://cdn/products/p1/uuid.jpg",
+    alt_text: null,
+    sort_order: 0,
+    is_cover: false,
+    created_at: "2026-01-01",
+  };
+
+  beforeEach(() => vi.clearAllMocks());
+
+  it("uploads file to storage then inserts product_images row", async () => {
+    const uploadMock = vi.fn().mockResolvedValue({ error: null });
+    const getPublicUrlMock = vi.fn().mockReturnValue({
+      data: { publicUrl: "https://cdn/products/p1/uuid.jpg" },
+    });
+    const sb = await getSupabase();
+    vi.mocked(sb.auth.getSession).mockResolvedValue({
+      data: { session: { user: { id: "admin-1" } } },
+      error: null,
+    } as never);
+    vi.mocked(sb.storage.from).mockReturnValue({
+      upload: uploadMock,
+      getPublicUrl: getPublicUrlMock,
+      remove: vi.fn(),
+    } as unknown as StorageUploadChain);
+    vi.mocked(sb.from)
+      // assertActiveAdminSession -> profiles select
+      .mockReturnValueOnce(
+        makeChain({
+          data: { role: "admin", is_active: true },
+          error: null,
+        }) as ReturnType<typeof sb.from>
+      )
+      // addProductImage insert
+      .mockReturnValue(
+        makeChain({ data: mockImage, error: null }) as ReturnType<typeof sb.from>
+      );
+
+    const result = await service.uploadProductImage("p1", file, 0);
+
+    expect(uploadMock).toHaveBeenCalledOnce();
+    expect(result.product_id).toBe("p1");
+    expect(result.is_cover).toBe(false);
+  });
+
+  it("throws when storage upload fails — does not attempt DB insert", async () => {
+    const uploadMock = vi.fn().mockResolvedValue({ error: { message: "bucket not found" } });
+    const sb = await getSupabase();
+    vi.mocked(sb.auth.getSession).mockResolvedValue({
+      data: { session: { user: { id: "admin-1" } } },
+      error: null,
+    } as never);
+    vi.mocked(sb.storage.from).mockReturnValue({
+      upload: uploadMock,
+      getPublicUrl: vi.fn(),
+      remove: vi.fn(),
+    } as unknown as StorageUploadChain);
+    vi.mocked(sb.from).mockReturnValue(
+      makeChain({
+        data: { role: "admin", is_active: true },
+        error: null,
+      }) as ReturnType<typeof sb.from>
+    );
+
+    await expect(service.uploadProductImage("p1", file, 0)).rejects.toThrow(
+      "bucket not found"
+    );
+    // only session/profile check should hit DB, insert should not.
+    expect(sb.from).toHaveBeenCalledTimes(1);
+  });
+
+  it("throws actionable message when admin session is missing", async () => {
+    const sb = await getSupabase();
+    vi.mocked(sb.auth.getSession).mockResolvedValue({
+      data: { session: null },
+      error: null,
+    } as never);
+
+    await expect(service.uploadProductImage("p1", file, 0)).rejects.toThrow(
+      "Tu sesión de administrador expiró"
+    );
+    expect(sb.from).not.toHaveBeenCalled();
+  });
+
+  it("cleans up storage object when DB insert fails after upload", async () => {
+    const uploadMock = vi.fn().mockResolvedValue({ error: null });
+    const removeMock = vi.fn().mockResolvedValue({ data: [], error: null });
+    const sb = await getSupabase();
+    vi.mocked(sb.auth.getSession).mockResolvedValue({
+      data: { session: { user: { id: "admin-1" } } },
+      error: null,
+    } as never);
+    vi.mocked(sb.storage.from).mockReturnValue({
+      upload: uploadMock,
+      getPublicUrl: vi.fn().mockReturnValue({
+        data: { publicUrl: "https://cdn/products/p1/uuid.jpg" },
+      }),
+      remove: removeMock,
+    } as unknown as StorageUploadChain);
+    vi.mocked(sb.from)
+      .mockReturnValueOnce(
+        makeChain({
+          data: { role: "admin", is_active: true },
+          error: null,
+        }) as ReturnType<typeof sb.from>
+      )
+      .mockReturnValue(
+        makeChain({
+          data: null,
+          error: { message: "new row violates row-level security policy", code: "42501" },
+        }) as ReturnType<typeof sb.from>
+      );
+
+    await expect(service.uploadProductImage("p1", file, 0)).rejects.toThrow(
+      "No tienes permisos para subir imágenes"
+    );
+    expect(removeMock).toHaveBeenCalledOnce();
+  });
+});
+
+// ── HU-3.2 — batchUpdateSortOrder ────────────────────────────────────────────
+
+describe("batchUpdateSortOrder", () => {
+  beforeEach(async () => {
+    vi.clearAllMocks();
+    const sb = await getSupabase();
+    vi.mocked(sb.from).mockReturnValue(
+      makeChain({ data: null, error: null }) as ReturnType<typeof sb.from>
+    );
+  });
+
+  it("resolves when both phases succeed (2 images)", async () => {
+    await expect(
+      service.batchUpdateSortOrder("p1", ["img-1", "img-2"])
+    ).resolves.toBeUndefined();
+  });
+
+  it("calls supabase.from() twice per image across both phases", async () => {
+    const sb = await getSupabase();
+    await service.batchUpdateSortOrder("p1", ["img-1", "img-2"]);
+    // 2 images × 2 phases = 4 calls (cleared before this test)
+    expect(sb.from).toHaveBeenCalledTimes(4);
+  });
+
+  it("throws on phase 1 update failure", async () => {
+    const sb = await getSupabase();
+    vi.mocked(sb.from).mockReturnValue(
+      makeChain({ data: null, error: { message: "phase1 rls error" } }) as ReturnType<typeof sb.from>
+    );
+
+    await expect(
+      service.batchUpdateSortOrder("p1", ["img-1", "img-2"])
+    ).rejects.toThrow("phase1 rls error");
+  });
+
+  it("resolves immediately when orderedIds is empty without calling supabase", async () => {
+    const sb = await getSupabase();
+    await service.batchUpdateSortOrder("p1", []);
+    expect(sb.from).not.toHaveBeenCalled();
   });
 });

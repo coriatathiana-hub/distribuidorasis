@@ -159,9 +159,37 @@ export async function addProductImage(payload: InsertProductImage): Promise<Prod
       );
     if (error.code === "23505")
       throw new Error("Ya existe una imagen en esa posición para este producto.");
+    if (error.code === "42501")
+      throw new Error(
+        "No tienes permisos para subir imágenes. Verifica que tu sesión siga activa y que tu perfil en public.profiles tenga role='admin' e is_active=true.",
+      );
     throw new Error(error.message);
   }
   return data;
+}
+
+async function assertActiveAdminSession(): Promise<void> {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  if (!session) {
+    throw new Error(
+      "Tu sesión de administrador expiró. Cierra sesión, vuelve a iniciar y reintenta la carga.",
+    );
+  }
+
+  const { data: profile, error } = await supabase
+    .from("profiles")
+    .select("role, is_active")
+    .eq("id", session.user.id)
+    .single();
+
+  if (error || !profile || profile.role !== "admin" || !profile.is_active) {
+    throw new Error(
+      "No tienes permisos para subir imágenes. Verifica que tu perfil en public.profiles tenga role='admin' e is_active=true.",
+    );
+  }
 }
 
 /**
@@ -201,6 +229,78 @@ export async function setProductImageCover(
     .eq("id", imageId);
 
   if (setError) throw new Error(setError.message);
+}
+
+/**
+ * Uploads a file to Supabase Storage and inserts a product_images row.
+ * Storage path convention: `products/{productId}/{uuid}.{ext}`
+ * Throws if storage upload fails — the DB row is only inserted after a successful upload.
+ */
+export async function uploadProductImage(
+  productId: string,
+  file: File,
+  sortOrder: number,
+): Promise<ProductImage> {
+  await assertActiveAdminSession();
+
+  const ext = file.name.split(".").pop()?.toLowerCase() ?? "jpg";
+  const storagePath = `products/${productId}/${crypto.randomUUID()}.${ext}`;
+
+  const { error: uploadError } = await supabase.storage
+    .from("products")
+    .upload(storagePath, file, { contentType: file.type, upsert: false });
+
+  if (uploadError) throw new Error(uploadError.message);
+
+  const { data: urlData } = supabase.storage.from("products").getPublicUrl(storagePath);
+
+  try {
+    return await addProductImage({
+      product_id: productId,
+      storage_path: storagePath,
+      public_url: urlData.publicUrl,
+      sort_order: sortOrder,
+      is_cover: false,
+    });
+  } catch (insertError) {
+    // best-effort rollback: if DB insert fails, remove uploaded object to avoid orphans
+    await supabase.storage.from("products").remove([storagePath]);
+    throw insertError;
+  }
+}
+
+/**
+ * Reorders product images atomically using a two-pass update strategy to avoid
+ * transient unique-constraint conflicts on (product_id, sort_order).
+ *
+ * Phase 1: shift all affected rows to a high temporary range (>= 10000).
+ * Phase 2: assign final sort_orders 0, 1, 2, … in the desired order.
+ *
+ * Also used after a delete to close sort_order gaps and keep DB state normalized.
+ */
+export async function batchUpdateSortOrder(
+  productId: string,
+  orderedIds: string[],
+): Promise<void> {
+  const OFFSET = 10000;
+
+  // Phase 1 — move to a safe temporary range
+  for (let i = 0; i < orderedIds.length; i++) {
+    const { error } = await supabase
+      .from("product_images")
+      .update({ sort_order: OFFSET + i })
+      .eq("id", orderedIds[i]);
+    if (error) throw new Error(error.message);
+  }
+
+  // Phase 2 — assign final positions starting from 0
+  for (let i = 0; i < orderedIds.length; i++) {
+    const { error } = await supabase
+      .from("product_images")
+      .update({ sort_order: i })
+      .eq("id", orderedIds[i]);
+    if (error) throw new Error(error.message);
+  }
 }
 
 // ── Categories (delete) ───────────────────────────────────────────────────────

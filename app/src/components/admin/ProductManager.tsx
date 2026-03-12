@@ -45,6 +45,7 @@ import {
 } from "@/lib/api/admin-catalog-service";
 import { slugify } from "@/lib/utils";
 import type { Category } from "@/types/supabase";
+import ImageGalleryManager from "@/components/admin/ImageGalleryManager";
 
 interface FormState {
   name: string;
@@ -378,17 +379,17 @@ const ProductManager = () => {
       </Card>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="sm:max-w-lg">
+        <DialogContent className={editTarget ? "sm:max-w-2xl" : "sm:max-w-lg"}>
           <DialogHeader>
             <DialogTitle>{editTarget ? "Editar producto" : "Nuevo producto"}</DialogTitle>
             <DialogDescription>
               {editTarget
-                ? "Modifica los datos del producto."
+                ? "Modifica los datos y la galería de imágenes del producto."
                 : "Completa los datos para crear un nuevo producto."}
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-4 py-2">
+          <div className="max-h-[65vh] overflow-y-auto space-y-4 py-2 pr-1">
             <div className="space-y-1.5">
               <Label htmlFor="prod-name">Nombre *</Label>
               <Input
@@ -454,6 +455,14 @@ const ProductManager = () => {
                 rows={3}
               />
             </div>
+
+            {/* Gallery section — only available when editing an existing product */}
+            {editTarget && (
+              <div className="border-t pt-4">
+                <p className="mb-3 text-sm font-medium">Imágenes del producto</p>
+                <ImageGalleryManager productId={editTarget.id} />
+              </div>
+            )}
           </div>
 
           <DialogFooter className="gap-2">
