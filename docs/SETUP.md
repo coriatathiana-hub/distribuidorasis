@@ -132,6 +132,7 @@
 | `004_fix_profiles_policy_recursion.sql` | Removes recursive `profiles` policies and keeps safe `profiles_self_select` policy | HU-2.2 |
 | `005_products_name_unique.sql` | Adds `UNIQUE` constraint on `products.name` (omission in 001; `categories.name` was already unique) | HU-2.3 |
 | `006_product_images_gallery_rules.sql` | Adds check constraints + unique indexes to `product_images` (sort_order ≥ 0, non-empty URLs, unique sort slot per product, single cover per product) | HU-3.1 |
+| `007_whatsapp_cta_attempts.sql` | Creates `whatsapp_cta_attempts` table + RLS (`anon` insert, admin select) and indexes for omnichannel CTA traceability | HU-4.3 |
 
 ### 3.3 Schema Details
 
@@ -139,7 +140,7 @@ Core schema is documented in `docs/TECH_SPEC.md` under Data Model section.
 
 ### 3.4 Security Policies
 
-- Public (`anon`) can read only active catalog data and create `contact_requests`.
+- Public (`anon`) can read only active catalog data, create `contact_requests`, and insert `whatsapp_cta_attempts`.
 - Authenticated admins can perform CRUD operations on catalog and contact entities.
 - Admin identity is validated by role in `profiles` (`role='admin'` and active).
 
@@ -298,7 +299,8 @@ npm run dev
 - [x] FEAT-4 env variables documented in `app/.env.example` and setup guide (`CONTACT_EMAIL_TO`, `CONTACT_EMAIL_FROM`, `RESEND_API_KEY`, `VITE_WHATSAPP_PHONE_E164`) (FEAT-4 pre-setup)
 - [x] Transactional provider smoke test procedure documented (Resend API call + expected response/email delivery) (FEAT-4 pre-setup)
 - [x] `contact_requests` schema + RLS baseline verified in migrations (`001` + `002`) (FEAT-4 pre-setup)
-- [ ] Contact form sends to `ventas@distribuidorasis.com.mx` via real endpoint/function (FEAT-4 post-implementation)
+- [x] Contact form sends to `ventas@distribuidorasis.com.mx` via real endpoint/function (FEAT-4 post-implementation)
+- [ ] Migration `007_whatsapp_cta_attempts.sql` applied and RLS verified (`anon` insert + admin select) (HU-4.3)
 - [ ] WhatsApp CTA tested on mobile and desktop with contextual message behavior (FEAT-4 post-implementation)
 
 ### Production deployment
