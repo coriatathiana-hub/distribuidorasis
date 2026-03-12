@@ -10,6 +10,17 @@ import * as service from "@/lib/api/public-catalog-service";
 import type { PublicProduct } from "@/lib/api/public-catalog-service";
 
 vi.mock("@/lib/api/public-catalog-service");
+vi.mock("@/components/ui/carousel", () => ({
+  Carousel: ({ children }: { children: unknown }) => <div>{children as never}</div>,
+  CarouselContent: ({ children }: { children: unknown }) => <div>{children as never}</div>,
+  CarouselItem: ({ children }: { children: unknown }) => <div>{children as never}</div>,
+  CarouselPrevious: (props: React.ComponentProps<"button">) => (
+    <button type="button" {...props} />
+  ),
+  CarouselNext: (props: React.ComponentProps<"button">) => (
+    <button type="button" {...props} />
+  ),
+}));
 
 const MOCK_PRODUCT: PublicProduct = {
   id: "uuid-arnes",
@@ -20,8 +31,23 @@ const MOCK_PRODUCT: PublicProduct = {
   short_description: "Arnés tipo completo para trabajos en altura",
   description: "Descripción detallada del arnés con certificaciones NOM.",
   specs_json: {},
-  cover_image_url: null,
-  images: [],
+  cover_image_url: "https://cdn/arnes-cover.jpg",
+  images: [
+    {
+      id: "img-cover",
+      public_url: "https://cdn/arnes-cover.jpg",
+      alt_text: "Arnés - portada",
+      sort_order: 0,
+      is_cover: true,
+    },
+    {
+      id: "img-side",
+      public_url: "https://cdn/arnes-side.jpg",
+      alt_text: "Arnés - vista lateral",
+      sort_order: 1,
+      is_cover: false,
+    },
+  ],
 };
 
 function renderProducto(slug: string) {
@@ -51,6 +77,8 @@ describe("HU-1.3 detalle de producto", () => {
     );
 
     expect(screen.getByText("EPP")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Imagen anterior" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Imagen siguiente" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Contactar" })).toHaveAttribute(
       "href",
       "/contacto?origen=detalle&productoId=arnes-3-aros&producto=Arn%C3%A9s%20de%20Seguridad%203%20Aros",
