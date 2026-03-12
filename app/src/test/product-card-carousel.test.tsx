@@ -1,14 +1,8 @@
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import { MemoryRouter } from "react-router-dom";
 import { fireEvent, render, screen } from "@testing-library/react";
 import ProductCard from "@/components/ProductCard";
 import type { PublicProduct } from "@/lib/api/public-catalog-service";
-
-vi.mock("@/components/ui/carousel", () => ({
-  Carousel: ({ children }: { children: unknown }) => <div>{children as never}</div>,
-  CarouselContent: ({ children }: { children: unknown }) => <div>{children as never}</div>,
-  CarouselItem: ({ children }: { children: unknown }) => <div>{children as never}</div>,
-}));
 
 function makeProduct(overrides: Partial<PublicProduct>): PublicProduct {
   return {
@@ -27,7 +21,7 @@ function makeProduct(overrides: Partial<PublicProduct>): PublicProduct {
 }
 
 describe("ProductCard carousel (HU-3.3)", () => {
-  it("prioriza imagen de portada como primera vista en listado", () => {
+  it("prioriza imagen de portada como imagen principal en listado", () => {
     const product = makeProduct({
       images: [
         {
@@ -53,7 +47,7 @@ describe("ProductCard carousel (HU-3.3)", () => {
       </MemoryRouter>,
     );
 
-    const cover = screen.getByAltText("Portada");
+    const cover = screen.getByAltText("Arnés de Seguridad 3 Aros");
     expect(cover).toBeInTheDocument();
     expect(cover).toHaveAttribute("src", "https://cdn/cover.jpg");
   });

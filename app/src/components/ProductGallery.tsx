@@ -1,13 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
-import { Package } from "lucide-react";
+import { ChevronLeft, ChevronRight, Package } from "lucide-react";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel";
+import { Button } from "@/components/ui/button";
 import type { PublicProductImage } from "@/lib/api/public-catalog-service";
 
 interface ProductGalleryProps {
@@ -37,73 +31,76 @@ const ProductGallery = ({ productName, images = [] }: ProductGalleryProps) => {
   const hasImages = orderedImages.length > 0;
   const selected = orderedImages[selectedImage];
 
+  const goPrev = () => {
+    if (!orderedImages.length) return;
+    setSelectedImage((prev) => (prev - 1 + orderedImages.length) % orderedImages.length);
+  };
+
+  const goNext = () => {
+    if (!orderedImages.length) return;
+    setSelectedImage((prev) => (prev + 1) % orderedImages.length);
+  };
+
   const markFailed = (url: string) => {
     setFailedUrls((prev) => ({ ...prev, [url]: true }));
   };
 
   return (
     <div className="space-y-4">
-      {/* Main image / fallback */}
-      <AspectRatio ratio={4 / 3} className="bg-muted rounded-lg overflow-hidden border">
-        {hasImages && selected && !failedUrls[selected.public_url] ? (
-          <img
-            src={selected.public_url}
-            alt={selected.alt_text ?? `${productName} - Imagen ${selectedImage + 1}`}
-            className="h-full w-full object-cover"
-            onError={() => markFailed(selected.public_url)}
-          />
-        ) : (
-          <div className="flex h-full w-full items-center justify-center">
-            <div className="text-center">
-              <Package className="mx-auto h-24 w-24 text-muted-foreground" />
-              <p className="mt-4 text-sm text-muted-foreground">
-                Imagen no disponible
-              </p>
+      <div className="relative">
+        {/* Main image / fallback */}
+        <AspectRatio ratio={4 / 3} className="bg-muted rounded-lg overflow-hidden border">
+          {hasImages && selected && !failedUrls[selected.public_url] ? (
+            <img
+              src={selected.public_url}
+              alt={selected.alt_text ?? `${productName} - Imagen ${selectedImage + 1}`}
+              className="h-full w-full object-cover"
+              onError={() => markFailed(selected.public_url)}
+            />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center">
+              <div className="text-center">
+                <Package className="mx-auto h-24 w-24 text-muted-foreground" />
+                <p className="mt-4 text-sm text-muted-foreground">
+                  Imagen no disponible
+                </p>
+              </div>
             </div>
-          </div>
-        )}
-      </AspectRatio>
+          )}
+        </AspectRatio>
 
-      {/* Mobile-first carousel for public detail */}
-      {orderedImages.length > 1 && (
-        <div className="px-10 sm:px-12">
-          <Carousel opts={{ align: "start", loop: false }} className="w-full">
-            <CarouselContent>
-              {orderedImages.map((image, index) => (
-                <CarouselItem key={image.id}>
-                  <button
-                    type="button"
-                    onClick={() => setSelectedImage(index)}
-                    className="w-full"
-                    aria-label={`Ver imagen ${index + 1} de ${orderedImages.length}`}
-                  >
-                    <AspectRatio ratio={4 / 3} className="bg-muted rounded-lg overflow-hidden border">
-                      {!failedUrls[image.public_url] ? (
-                        <img
-                          src={image.public_url}
-                          alt={image.alt_text ?? `${productName} - Vista ${index + 1}`}
-                          className="h-full w-full object-cover"
-                          onError={() => markFailed(image.public_url)}
-                        />
-                      ) : (
-                        <div className="flex h-full w-full items-center justify-center">
-                          <Package className="h-10 w-10 text-muted-foreground" />
-                        </div>
-                      )}
-                    </AspectRatio>
-                  </button>
-                </CarouselItem>
-              ))}
-            </CarouselContent>
-            <CarouselPrevious aria-label="Imagen anterior" />
-            <CarouselNext aria-label="Imagen siguiente" />
-          </Carousel>
-        </div>
-      )}
+        {orderedImages.length > 1 && (
+          <>
+            <Button
+              type="button"
+              variant="secondary"
+              size="icon"
+              className="absolute left-2 top-1/2 -translate-y-1/2 bg-background/90 shadow-sm"
+              onClick={goPrev}
+              aria-label="Imagen anterior"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            <Button
+              type="button"
+              variant="secondary"
+              size="icon"
+              className="absolute right-2 top-1/2 -translate-y-1/2 bg-background/90 shadow-sm"
+              onClick={goNext}
+              aria-label="Imagen siguiente"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 rounded-full bg-background/90 px-2 py-0.5 text-xs text-muted-foreground">
+              {selectedImage + 1} / {orderedImages.length}
+            </div>
+          </>
+        )}
+      </div>
 
       {/* Thumbnail strip for quick jump */}
       {orderedImages.length > 1 && (
-        <div className="grid grid-cols-4 gap-2">
+        <div className="grid grid-cols-4 gap-2 sm:grid-cols-6">
           {orderedImages.map((image, index) => (
             <button
               key={image.id}

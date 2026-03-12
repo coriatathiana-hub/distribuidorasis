@@ -10,17 +10,6 @@ import * as service from "@/lib/api/public-catalog-service";
 import type { PublicProduct } from "@/lib/api/public-catalog-service";
 
 vi.mock("@/lib/api/public-catalog-service");
-vi.mock("@/components/ui/carousel", () => ({
-  Carousel: ({ children }: { children: unknown }) => <div>{children as never}</div>,
-  CarouselContent: ({ children }: { children: unknown }) => <div>{children as never}</div>,
-  CarouselItem: ({ children }: { children: unknown }) => <div>{children as never}</div>,
-  CarouselPrevious: (props: React.ComponentProps<"button">) => (
-    <button type="button" {...props} />
-  ),
-  CarouselNext: (props: React.ComponentProps<"button">) => (
-    <button type="button" {...props} />
-  ),
-}));
 
 const MOCK_PRODUCT: PublicProduct = {
   id: "uuid-arnes",
