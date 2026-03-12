@@ -114,3 +114,15 @@
 - Se agrego script operacional `supabase/auth-user.sql` como referencia para alta/upsert de admins en `public.profiles`.
 - Se actualizaron `docs/SETUP.md` y `docs/TECH_SPEC.md` con requisitos OTP y trazabilidad de nuevas migraciones.
 **Tests:** 11 passing tests (`app/src/test/admin-auth.test.tsx` + `app/src/test/admin-route-guard.test.tsx`) y 2 nuevos tests de contrato RLS (49/49 suite total)
+
+## [2026-03-11] — HU-3.1: Persistencia y reglas de negocio para galerias multi-imagen por producto
+
+**Feature:** FEAT-3 — Gestion multi-imagen por producto y carrusel en catalogo  
+**Benefit:** Se asegura integridad y consistencia de la galeria de imagenes por producto (orden deterministico + portada unica), reduciendo errores de datos y dejando la base lista para la UI admin y carrusel publico de FEAT-3.  
+**Changes:**
+- Se agrego migracion `006_product_images_gallery_rules.sql` con constraints de calidad (`sort_order >= 0`, `public_url/storage_path` no vacios), indice unico por posicion y regla de una sola portada por producto.
+- Se extendio `admin-catalog-service.ts` con operaciones de galeria: `listProductImages`, `addProductImage`, `setProductImageCover` y `deleteProductImage` (incluyendo limpieza best-effort en Storage).
+- Se extendio `public-catalog-service.ts` para exponer `images[]` ordenadas y `cover_image_url` derivada de `is_cover` o fallback al primer elemento.
+- Se actualizaron tipos en `supabase.ts` (`InsertProductImage`, `UpdateProductImage`) y pruebas existentes para mantener compatibilidad del contrato `PublicProduct`.
+- Se actualizo `docs/SETUP.md` con la migracion 006 y su trazabilidad de infraestructura.
+**Tests:** 24 nuevos tests de contrato (12 en `supabase-schema-contract.test.ts` + 12 en `admin-catalog-service.test.ts`), suite total en verde: 126/126.
