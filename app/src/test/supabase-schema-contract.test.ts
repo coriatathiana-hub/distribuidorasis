@@ -19,10 +19,12 @@ import type {
   Database,
   InsertCategory,
   InsertProduct,
+  InsertProductImage,
   Product,
   ProductImage,
   Profile,
   UpdateProduct,
+  UpdateProductImage,
 } from "@/types/supabase";
 
 // ──────────────────────────────────────────────
@@ -258,5 +260,80 @@ describe("HU-2.1 TypeScript Database contract — all tables represented", () =>
       created_at: "2026-01-01",
     };
     expect(profile.role).toBe("admin");
+  });
+});
+
+// ──────────────────────────────────────────────
+// HU-3.1 Scenario 1: SQL migration 006 — gallery business rules
+// ──────────────────────────────────────────────
+describe("HU-3.1 Scenario 1: SQL migration 006 — product_images gallery rules", () => {
+  const sql = readFileSync(
+    resolve(__dirname, "../../..", "supabase/migrations/006_product_images_gallery_rules.sql"),
+    "utf-8",
+  );
+
+  it("normalizes existing sort_orders before adding constraints", () => {
+    expect(sql).toMatch(/row_number\(\) over \(partition by product_id/i);
+  });
+
+  it("adds non-negative check constraint on sort_order", () => {
+    expect(sql).toMatch(/product_images_sort_order_non_negative/i);
+    expect(sql).toMatch(/sort_order >= 0/i);
+  });
+
+  it("adds not-empty check constraint on public_url", () => {
+    expect(sql).toMatch(/product_images_public_url_not_empty/i);
+    expect(sql).toMatch(/length\(trim\(public_url\)\) > 0/i);
+  });
+
+  it("adds not-empty check constraint on storage_path", () => {
+    expect(sql).toMatch(/product_images_storage_path_not_empty/i);
+    expect(sql).toMatch(/length\(trim\(storage_path\)\) > 0/i);
+  });
+
+  it("creates unique index for (product_id, sort_order) pair", () => {
+    expect(sql).toMatch(/product_images_product_sort_order_unique/i);
+    expect(sql).toMatch(/on public\.product_images\(product_id, sort_order\)/i);
+  });
+
+  it("creates partial unique index for single cover image per product", () => {
+    expect(sql).toMatch(/product_images_single_cover_per_product/i);
+    expect(sql).toMatch(/where is_cover = true/i);
+  });
+});
+
+// ──────────────────────────────────────────────
+// HU-3.1 TypeScript types — InsertProductImage / UpdateProductImage
+// ──────────────────────────────────────────────
+describe("HU-3.1 TypeScript type contract — product image insert/update types", () => {
+  it("InsertProductImage requires product_id, storage_path, public_url", () => {
+    const insert: InsertProductImage = {
+      product_id: "prod-uuid",
+      storage_path: "products/casco.jpg",
+      public_url: "https://cdn.example.com/casco.jpg",
+    };
+    expect(insert.product_id).toBe("prod-uuid");
+  });
+
+  it("InsertProductImage allows optional sort_order and is_cover", () => {
+    const insert: InsertProductImage = {
+      product_id: "prod-uuid",
+      storage_path: "products/casco.jpg",
+      public_url: "https://cdn.example.com/casco.jpg",
+      sort_order: 0,
+      is_cover: true,
+      alt_text: "Casco industrial blanco",
+    };
+    expect(insert.is_cover).toBe(true);
+  });
+
+  it("UpdateProductImage allows partial updates (sort_order only)", () => {
+    const update: UpdateProductImage = { sort_order: 2 };
+    expect(update.sort_order).toBe(2);
+  });
+
+  it("UpdateProductImage allows toggling is_cover", () => {
+    const update: UpdateProductImage = { is_cover: false };
+    expect(update.is_cover).toBe(false);
   });
 });

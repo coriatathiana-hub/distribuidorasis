@@ -30,12 +30,17 @@ function makeChain(result: QueryResult) {
 }
 
 vi.mock("@/lib/supabase/client", () => ({
-  supabase: { from: vi.fn() },
+  supabase: {
+    from: vi.fn(),
+    storage: { from: vi.fn() },
+  },
 }));
 
 // Lazy import so mock is applied first
 const getSupabase = async () =>
   (await import("@/lib/supabase/client")).supabase;
+
+type StorageChain = { remove: ReturnType<typeof vi.fn> };
 
 // ── Categories ────────────────────────────────────────────────────────────────
 
@@ -194,5 +199,163 @@ describe("deleteCategory", () => {
     );
 
     await expect(service.deleteCategory("c-1")).rejects.toThrow("DB error");
+  });
+});
+
+// ── Product Images ─────────────────────────────────────────────────────────────
+// BDD HU-3.1 Scenario 1: images are stored and retrieved in sort_order
+
+describe("listProductImages", () => {
+  const images = [
+    { id: "i1", product_id: "p1", storage_path: "products/a.jpg", public_url: "https://cdn/a.jpg", alt_text: null, sort_order: 0, is_cover: true, created_at: "2026-01-01" },
+    { id: "i2", product_id: "p1", storage_path: "products/b.jpg", public_url: "https://cdn/b.jpg", alt_text: null, sort_order: 1, is_cover: false, created_at: "2026-01-01" },
+  ];
+
+  it("returns images ordered by sort_order ascending", async () => {
+    const sb = await getSupabase();
+    vi.mocked(sb.from).mockReturnValue(
+      makeChain({ data: images, error: null }) as ReturnType<typeof sb.from>
+    );
+
+    const result = await service.listProductImages("p1");
+    expect(result).toHaveLength(2);
+    expect(result[0].sort_order).toBe(0);
+    expect(result[1].sort_order).toBe(1);
+  });
+
+  it("returns empty array when no images exist", async () => {
+    const sb = await getSupabase();
+    vi.mocked(sb.from).mockReturnValue(
+      makeChain({ data: null, error: null }) as ReturnType<typeof sb.from>
+    );
+
+    const result = await service.listProductImages("p1");
+    expect(result).toEqual([]);
+  });
+
+  it("throws Error on Supabase error", async () => {
+    const sb = await getSupabase();
+    vi.mocked(sb.from).mockReturnValue(
+      makeChain({ data: null, error: { message: "connection lost" } }) as ReturnType<typeof sb.from>
+    );
+
+    await expect(service.listProductImages("p1")).rejects.toThrow("connection lost");
+  });
+});
+
+describe("addProductImage", () => {
+  const payload = {
+    product_id: "p1",
+    storage_path: "products/casco.jpg",
+    public_url: "https://cdn/casco.jpg",
+    sort_order: 0,
+    is_cover: false,
+  };
+
+  it("returns created image on success", async () => {
+    const created = { id: "i1", alt_text: null, created_at: "2026-01-01", ...payload };
+    const sb = await getSupabase();
+    vi.mocked(sb.from).mockReturnValue(
+      makeChain({ data: created, error: null }) as ReturnType<typeof sb.from>
+    );
+
+    const result = await service.addProductImage(payload);
+    expect(result).toEqual(created);
+  });
+
+  // BDD HU-3.1 Scenario 3: invalid data is rejected with actionable error
+  it("throws actionable message on check constraint violation (23514 — empty url/path or negative order)", async () => {
+    const sb = await getSupabase();
+    vi.mocked(sb.from).mockReturnValue(
+      makeChain({ data: null, error: { message: "check violation", code: "23514" } }) as ReturnType<typeof sb.from>
+    );
+
+    await expect(service.addProductImage(payload)).rejects.toThrow(
+      "Los datos de la imagen son inválidos"
+    );
+  });
+
+  it("throws actionable message on duplicate sort_order per product (23505)", async () => {
+    const sb = await getSupabase();
+    vi.mocked(sb.from).mockReturnValue(
+      makeChain({ data: null, error: { message: "unique violation", code: "23505" } }) as ReturnType<typeof sb.from>
+    );
+
+    await expect(service.addProductImage(payload)).rejects.toThrow(
+      "Ya existe una imagen en esa posición para este producto."
+    );
+  });
+
+  it("throws generic Error for unknown Supabase errors", async () => {
+    const sb = await getSupabase();
+    vi.mocked(sb.from).mockReturnValue(
+      makeChain({ data: null, error: { message: "unknown" } }) as ReturnType<typeof sb.from>
+    );
+
+    await expect(service.addProductImage(payload)).rejects.toThrow("unknown");
+  });
+});
+
+// BDD HU-3.1 Scenario 2: single cover enforced via two sequential updates
+describe("setProductImageCover", () => {
+  it("clears all covers for product then sets new cover", async () => {
+    const sb = await getSupabase();
+    // mockReturnValueOnce: first call (clear) returns success; subsequent (set) also success.
+    // resolves.toBeUndefined() proves both sequential updates completed without error.
+    vi.mocked(sb.from)
+      .mockReturnValueOnce(makeChain({ data: null, error: null }) as ReturnType<typeof sb.from>)
+      .mockReturnValue(makeChain({ data: null, error: null }) as ReturnType<typeof sb.from>);
+
+    await expect(service.setProductImageCover("p1", "i2")).resolves.toBeUndefined();
+  });
+
+  it("throws if clearing covers fails", async () => {
+    const sb = await getSupabase();
+    vi.mocked(sb.from).mockReturnValueOnce(
+      makeChain({ data: null, error: { message: "RLS denied on clear" } }) as ReturnType<typeof sb.from>
+    );
+
+    await expect(service.setProductImageCover("p1", "i2")).rejects.toThrow("RLS denied on clear");
+  });
+
+  it("throws if setting new cover fails", async () => {
+    const sb = await getSupabase();
+    vi.mocked(sb.from)
+      .mockReturnValueOnce(makeChain({ data: null, error: null }) as ReturnType<typeof sb.from>) // clear ok
+      .mockReturnValue(
+        makeChain({ data: null, error: { message: "RLS denied on set" } }) as ReturnType<typeof sb.from>
+      );
+
+    await expect(service.setProductImageCover("p1", "i2")).rejects.toThrow("RLS denied on set");
+  });
+});
+
+describe("deleteProductImage", () => {
+  const setupStorageMock = (removeMock: ReturnType<typeof vi.fn>) => async () => {
+    const sb = await getSupabase();
+    vi.mocked(sb.storage.from).mockReturnValue({ remove: removeMock } as unknown as StorageChain);
+    return sb;
+  };
+
+  it("resolves and attempts storage cleanup on successful table delete", async () => {
+    const removeMock = vi.fn(() => Promise.resolve({ data: [], error: null }));
+    const sb = await setupStorageMock(removeMock)();
+    vi.mocked(sb.from).mockReturnValue(
+      makeChain({ data: null, error: null }) as ReturnType<typeof sb.from>
+    );
+
+    await expect(service.deleteProductImage("i1", "products/casco.jpg")).resolves.toBeUndefined();
+    expect(removeMock).toHaveBeenCalledWith(["products/casco.jpg"]);
+  });
+
+  it("throws Error when table delete fails without touching storage", async () => {
+    const removeMock = vi.fn();
+    const sb = await setupStorageMock(removeMock)();
+    vi.mocked(sb.from).mockReturnValue(
+      makeChain({ data: null, error: { message: "RLS denied" } }) as ReturnType<typeof sb.from>
+    );
+
+    await expect(service.deleteProductImage("i1", "products/casco.jpg")).rejects.toThrow("RLS denied");
+    expect(removeMock).not.toHaveBeenCalled();
   });
 });
