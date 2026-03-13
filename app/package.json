@@ -10,7 +10,9 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "images:migrate:dry-run": "node scripts/migrate-product-images.mjs",
+    "images:migrate:apply": "node scripts/migrate-product-images.mjs --apply"
   },
   "dependencies": {
     "@fontsource/orbitron": "^5.2.8",
