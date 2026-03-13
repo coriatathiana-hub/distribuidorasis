@@ -50,6 +50,18 @@ export function buildWhatsAppDeepLink(
 }
 
 export function tryOpenWhatsApp(url: string): boolean {
-  const openedWindow = window.open(url, "_blank", "noopener,noreferrer");
-  return openedWindow !== null;
+  try {
+    const openedWindow = window.open(url, "_blank", "noopener,noreferrer");
+
+    if (openedWindow) {
+      return true;
+    }
+
+    // Some browsers may return null even for user-triggered actions.
+    // Fallback to same-tab navigation to avoid false "blocked" feedback.
+    window.location.href = url;
+    return true;
+  } catch {
+    return false;
+  }
 }
