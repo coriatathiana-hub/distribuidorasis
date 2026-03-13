@@ -11,13 +11,44 @@ type ContactRequestInsert = {
   status?: string;
 };
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
+const baseCorsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
-function badRequest(message: string) {
+function getCorsHeaders(request: Request): Record<string, string> {
+  const allowedOrigins = (Deno.env.get("ALLOWED_ORIGINS") ?? "")
+    .split(",")
+    .map((origin) => origin.trim())
+    .filter((origin) => origin.length > 0);
+  const requestOrigin = request.headers.get("origin");
+
+  // Backward compatible default for local/dev environments.
+  if (allowedOrigins.length === 0) {
+    return {
+      ...baseCorsHeaders,
+      "Access-Control-Allow-Origin": "*",
+    };
+  }
+
+  if (!requestOrigin) {
+    return {
+      ...baseCorsHeaders,
+      "Access-Control-Allow-Origin": allowedOrigins[0],
+      Vary: "Origin",
+    };
+  }
+
+  return {
+    ...baseCorsHeaders,
+    "Access-Control-Allow-Origin": allowedOrigins.includes(requestOrigin)
+      ? requestOrigin
+      : "null",
+    Vary: "Origin",
+  };
+}
+
+function badRequest(message: string, corsHeaders: Record<string, string>) {
   return new Response(
     JSON.stringify({
       success: false,
@@ -33,7 +64,10 @@ function badRequest(message: string) {
   );
 }
 
-function serverError(message = "No se pudo procesar la solicitud de contacto.") {
+function serverError(
+  corsHeaders: Record<string, string>,
+  message = "No se pudo procesar la solicitud de contacto.",
+) {
   return new Response(
     JSON.stringify({
       success: false,
@@ -107,12 +141,14 @@ function buildHtmlEmail(payload: ContactRequestInsert): string {
 }
 
 Deno.serve(async (request: Request) => {
+  const corsHeaders = getCorsHeaders(request);
+
   if (request.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
   }
 
   if (request.method !== "POST") {
-    return badRequest("Método no soportado.");
+    return badRequest("Método no soportado.", corsHeaders);
   }
 
   const supabaseUrl = Deno.env.get("SUPABASE_URL");
@@ -128,18 +164,18 @@ Deno.serve(async (request: Request) => {
     !contactEmailTo ||
     !contactEmailFrom
   ) {
-    return serverError("Configuración incompleta del servicio de contacto.");
+    return serverError(corsHeaders, "Configuración incompleta del servicio de contacto.");
   }
 
   let payload: ContactRequestInsert | null = null;
   try {
     payload = parsePayload(await request.json());
   } catch {
-    return badRequest("Payload JSON inválido.");
+    return badRequest("Payload JSON inválido.", corsHeaders);
   }
 
   if (!payload) {
-    return badRequest("Faltan campos obligatorios de contacto.");
+    return badRequest("Faltan campos obligatorios de contacto.", corsHeaders);
   }
 
   const supabase = createClient(supabaseUrl, supabaseServiceRoleKey, {
@@ -153,7 +189,7 @@ Deno.serve(async (request: Request) => {
     .single();
 
   if (insertError || !row) {
-    return serverError();
+    return serverError(corsHeaders);
   }
 
   const resendResponse = await fetch("https://api.resend.com/emails", {
@@ -173,6 +209,7 @@ Deno.serve(async (request: Request) => {
 
   if (!resendResponse.ok) {
     return serverError(
+      corsHeaders,
       "No se pudo enviar el correo de notificación. Tu solicitud fue registrada.",
     );
   }
