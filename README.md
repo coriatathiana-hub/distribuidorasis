@@ -6,8 +6,8 @@ Mobile-first catalog and commercial operations platform for **Distribuidora SIS*
 
 - `FEAT-1` Delivered: foundation UX (navigation, catalog filters, product detail).
 - `FEAT-2` Delivered: real admin panel with OTP auth, protected routes, CRUD, controlled delete.
-- `FEAT-3` Pending: multi-image product management and public carousel experience.
-- `FEAT-4` Pending: real omnichannel contact flow (email + WhatsApp).
+- `FEAT-3` Delivered: multi-image product management and public carousel experience.
+- `FEAT-4` Delivered: omnichannel contact flow (email + WhatsApp) plus conversion dashboard.
 
 Backlog source of truth: `docs/BACKLOG.md`.
 
@@ -54,45 +54,11 @@ supabase/           # SQL migrations, seed scripts, operational SQL
 
 Architecture decision: route trees are split by layout (`PublicLayout` vs `AdminLayout`), documented as `ADR-005` in `docs/TECH_SPEC.md`.
 
-## Tomorrow Plan (FEAT-3 + FEAT-4)
+## Go-live and Operations
 
-### FEAT-3 (Product multi-image + carousels)
+All deployment, DNS, auth URLs, tunnel, anti-abuse, and smoke-test procedures are centralized in:
 
-- Product images table + storage workflow alignment
-- Admin image gallery management per product (upload, reorder, cover)
-- Public product/list card carousel integration
-- Controlled delete consistency between DB rows and storage objects
-
-### FEAT-4 (Omnichannel contact)
-
-- Contact form -> transactional email delivery to `ventas@distribuidorasis.com.mx`
-- WhatsApp contextual CTA and message prefill
-- Delivery validation and operational observability
-
-### Infrastructure Checklist (Domains, Cloudflare, Resend, and related)
-
-- Domain strategy
-  - Confirm primary production domain and subdomain strategy (`www`, `admin` if needed)
-  - Define canonical redirects and HTTPS-only policy
-- Cloudflare
-  - Zone onboarding and nameserver cutover
-  - DNS records for app host
-  - SSL/TLS mode and minimum TLS version
-  - Cache rules (avoid caching admin/auth-sensitive routes)
-  - WAF basic managed rules + bot protection baseline
-- Resend
-  - Domain verification
-  - SPF/DKIM/DMARC alignment
-  - API key provisioning and secret management
-  - Sender identity (`CONTACT_EMAIL_FROM`) and test delivery to sales inbox
-- App hosting/runtime
-  - Environment variables parity (staging/production)
-  - Build and deploy pipeline verification
-  - Health-check and rollback procedure
-- Supabase production hardening
-  - RLS review for all tables used by FEAT-3/FEAT-4
-  - Storage bucket policies (`products`) validation
-  - Backup and retention checks
+- `docs/SETUP.md`
 
 ## Documentation
 

@@ -1,7 +1,9 @@
 # Guia de configuracion: Dominio (AKKY) + Cloudflare + Resend
 
-> **Proyecto:** distribuidorasis  
-> **Objetivo:** dejar listo el dominio para envio de correo transaccional con Resend usando la via acordada: **AKKY (registrador) -> Cloudflare (DNS) -> Resend**.
+> Este documento se mantiene por trazabilidad historica.
+> La fuente unica y vigente para setup/go-live es `docs/SETUP.md`.
+>  
+> Via aprobada: **AKKY (registrador) -> Cloudflare (DNS) -> Resend**.
 
 ---
 
@@ -113,7 +115,7 @@ Criterio de exito:
 
 ### 5.1 Crear subdominio no productivo via Tunnel
 
-Objetivo: exponer tu `localhost:5173` como `staging.distribuidorasis.com.mx`.
+Objetivo: exponer tu `localhost:8080` como `staging.distribuidorasis.com.mx`.
 
 Pasos de alto nivel:
 
@@ -125,7 +127,7 @@ Pasos de alto nivel:
 4. En Cloudflare DNS, crear CNAME:
    - `staging -> <tunnel-id>.cfargotunnel.com`
 5. Configurar ruta local (ejemplo conceptual):
-   - host `staging.distribuidorasis.com.mx` -> `http://localhost:5173`
+   - host `staging.distribuidorasis.com.mx` -> `http://localhost:8080`
 6. Levantar tunel:
    - `cloudflared tunnel run distribuidorasis-staging`
 
