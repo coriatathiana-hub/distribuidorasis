@@ -1,7 +1,7 @@
 # Setup & Operations Guide (Single Source of Truth)
 
 > **Project:** distribuidorasis  
-> **Last updated:** 2026-03-12  
+> **Last updated:** 2026-03-13  
 > **Scope:** end-to-end setup for local, staging, and production.
 
 This document is the canonical setup/runbook for:
@@ -53,7 +53,7 @@ This document is the canonical setup/runbook for:
 1. Create/connect Railway project to this repository.
 2. Set root directory to `app/`.
 3. Configure build/start:
-   - Build command: `npm ci && npm run build`
+   - Build command: `npm install --include=dev && npm run build`
    - Start command: `npm run preview -- --host 0.0.0.0 --port $PORT`
 4. Configure variables from sections 2.1 and 2.2.
 5. Add custom domain (`www.distribuidorasis.com.mx`) and force HTTPS.
@@ -89,15 +89,10 @@ Use a dedicated subdomain for email reputation isolation (`mail.distribuidorasis
 
 In `Authentication -> URL Configuration` set:
 
-- **Local**
-  - Site URL: `http://localhost:8080`
-  - Redirect URL: `http://localhost:8080/**`
-- **Staging**
-  - Site URL: `https://staging.distribuidorasis.com.mx`
-  - Redirect URL: `https://staging.distribuidorasis.com.mx/**`
-- **Production**
-  - Site URL: `https://www.distribuidorasis.com.mx`
-  - Redirect URL: `https://www.distribuidorasis.com.mx/**`
+- Site URL: `https://www.distribuidorasis.com.mx`
+- Redirect URL: `http://localhost:8080/**`
+- Redirect URL: `https://staging.distribuidorasis.com.mx/**`
+- Redirect URL: `https://www.distribuidorasis.com.mx/**`
 
 Security requirements:
 - OTP-only admin flow (no password login for admin).
@@ -191,6 +186,9 @@ Required env vars for script:
 - `VITE_SUPABASE_URL` (or `SUPABASE_URL`)
 - `SUPABASE_SERVICE_ROLE_KEY`
 
+Execution status (production):
+- ✅ Migration executed successfully (`uploaded=46`, `inserted_rows=46`, `failures=0`).
+
 ---
 
 ## 9) Cloudflare Tunnel for Local Staging
@@ -231,19 +229,20 @@ Mandatory mitigations before/at go-live:
 
 ### 11.1 Pre-deploy
 
-- [ ] Railway project configured with production variables.
-- [ ] Cloudflare DNS web records pointing to Railway.
-- [ ] Resend domain status is `Verified`.
-- [ ] Supabase Auth URLs updated for staging and production.
-- [ ] Migration `007_whatsapp_cta_attempts.sql` applied in production.
+- [x] Railway project configured with production variables.
+- [x] Cloudflare DNS web records pointing to Railway.
+- [x] Resend domain status is `Verified`.
+- [x] Supabase Auth URLs updated for staging and production.
+- [x] Migration `007_whatsapp_cta_attempts.sql` applied in production.
+- [x] Legacy image migration executed to Supabase Storage (`app/public/products` -> `product_images`).
 
 ### 11.2 Release validation
 
-- [ ] Public catalog works on production domain.
-- [ ] Admin OTP login works on production domain.
-- [ ] `/contacto` creates DB record + sends email.
-- [ ] WhatsApp CTA opens and logs attempt.
-- [ ] `/admin/conversion` shows metrics and filtered table.
+- [x] Public catalog works on production domain.
+- [x] Admin OTP login works on production domain.
+- [x] `/contacto` creates DB record + sends email.
+- [x] WhatsApp CTA opens and logs attempt.
+- [x] `/admin/conversion` shows metrics and filtered table.
 
 ### 11.3 Post-go-live (first 24h)
 

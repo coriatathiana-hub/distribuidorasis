@@ -6,6 +6,12 @@ import process from "node:process";
 import { fileURLToPath } from "node:url";
 
 const ALLOWED_EXTENSIONS = [".jpg", ".jpeg", ".png", ".webp"];
+const MIME_BY_EXTENSION = {
+  ".jpg": "image/jpeg",
+  ".jpeg": "image/jpeg",
+  ".png": "image/png",
+  ".webp": "image/webp",
+};
 
 function parseArgs(argv) {
   const args = new Set(argv.slice(2));
@@ -57,6 +63,10 @@ async function listLocalProductFiles(productsDir) {
 
 function logVerbose(enabled, message) {
   if (enabled) console.log(message);
+}
+
+function getMimeTypeByExtension(ext) {
+  return MIME_BY_EXTENSION[ext];
 }
 
 async function main() {
@@ -123,6 +133,13 @@ async function main() {
     }
 
     const ext = path.extname(fileName).toLowerCase();
+    const contentType = getMimeTypeByExtension(ext);
+    if (!contentType) {
+      failures += 1;
+      console.error(`- failed slug=${product.slug}: unsupported extension ${ext}`);
+      if (strict) break;
+      continue;
+    }
     const storagePath = `products/${product.id}/${product.slug}${ext}`;
     const localPath = path.join(productsDir, fileName);
     const existing = imagesByProductId.get(product.id) ?? [];
@@ -152,7 +169,7 @@ async function main() {
       const { error: uploadError } = await supabase.storage
         .from(bucket)
         .upload(storagePath, buffer, {
-          contentType: undefined,
+          contentType,
           upsert: true,
         });
 
