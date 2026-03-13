@@ -50,7 +50,14 @@ const contactFormSchema = z.object({
     .max(1000, { message: "El mensaje no puede exceder 1000 caracteres" }),
 });
 
-type ContactFormValues = z.infer<typeof contactFormSchema>;
+type ContactFormValues = {
+  nombre: string;
+  empresa: string;
+  telefono: string;
+  correo: string;
+  tipoRequerimiento: string;
+  mensaje: string;
+};
 
 const Contacto = () => {
   const [searchParams] = useSearchParams();
@@ -326,7 +333,7 @@ const Contacto = () => {
                 <div>
                   <p className="font-medium">Correo Electrónico</p>
                   <p className="text-sm text-muted-foreground">
-                    info@distribuidorasis.com.mx
+                    ventas@distribuidorasis.com.mx
                   </p>
                 </div>
               </div>

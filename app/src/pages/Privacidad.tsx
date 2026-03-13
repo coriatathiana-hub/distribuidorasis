@@ -81,7 +81,7 @@ const Privacidad = () => {
               </ul>
               <p className="mt-2 text-sm text-muted-foreground">
                 En caso de que no desee que sus datos personales sean tratados para estas finalidades secundarias, 
-                puede manifestarlo enviando un correo a: privacidad@distribuidorasis.com.mx
+                puede manifestarlo enviando un correo a: contacto@distribuidorasis.com.mx
               </p>
             </div>
           </CardContent>
@@ -106,7 +106,7 @@ const Privacidad = () => {
             </p>
             <div className="rounded-lg bg-muted p-4">
               <p className="text-sm text-muted-foreground">
-                <strong className="text-foreground">Correo electrónico:</strong> privacidad@distribuidorasis.com.mx<br />
+                <strong className="text-foreground">Correo electrónico:</strong> contacto@distribuidorasis.com.mx<br />
                 <strong className="text-foreground">Teléfono:</strong> 55 5162 7054<br />
                 <strong className="text-foreground">Dirección:</strong> Av. Jaime Balmes No. 11, Mezanine 33, Oficina 122, Polanco I Sección, Miguel Hidalgo, CDMX
               </p>
@@ -156,7 +156,7 @@ const Privacidad = () => {
         <div className="text-center">
           <p className="text-sm text-muted-foreground">
             Para cualquier duda o aclaración sobre este Aviso de Privacidad, puede contactarnos en:<br />
-            <strong className="text-foreground">privacidad@distribuidorasis.com.mx</strong> o al teléfono <strong className="text-foreground">55 5162 7054</strong>
+            <strong className="text-foreground">contacto@distribuidorasis.com.mx</strong> o al teléfono <strong className="text-foreground">55 5162 7054</strong>
           </p>
         </div>
       </div>
