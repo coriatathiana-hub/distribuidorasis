@@ -100,7 +100,7 @@ const Footer = () => {
 
         <div className="mt-8 border-t border-primary-foreground/20 pt-8 text-center text-sm text-primary-foreground/60">
           <p>&copy; {new Date().getFullYear()} Distribuidora SIS. Todos los derechos reservados.</p>
-          <p className="mt-2 text-xs uppercase tracking-[0.16em] text-primary-foreground/50">
+          <p className="mt-5 text-[10px] normal-case tracking-[0.08em] text-primary-foreground/35">
             {runtimeLabel} · {__APP_COMMIT_SHA__}
           </p>
         </div>
