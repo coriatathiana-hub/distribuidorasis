@@ -195,19 +195,39 @@ Execution status (production):
 
 Goal: expose local app as `https://staging.distribuidorasis.com.mx`.
 
+### 9.1 One-time setup
+
 1. Install `cloudflared`.
-2. `cloudflared tunnel login`
-3. `cloudflared tunnel create distribuidorasis-staging`
-4. Create DNS CNAME:
+2. Authenticate and pin the Cloudflare account/profile:
+   - `cloudflared tunnel login`
+   - `export TUNNEL_ORIGIN_CERT="/Users/<you>/.cloudflared/profiles/distribuidorasis/cert.pem"`
+3. Create tunnel:
+   - `cloudflared tunnel create distribuidorasis-staging`
+4. Create DNS CNAME (only required UI-side task in Cloudflare if not created by CLI):
    - `staging` -> `<tunnel-id>.cfargotunnel.com`
-5. Configure tunnel route:
-   - `staging.distribuidorasis.com.mx` -> `http://localhost:8080`
-6. Run:
-   - `cloudflared tunnel run distribuidorasis-staging`
+5. Keep tunnel config in repo:
+   - `cloudflared/distribuidorasis-staging.yml`
+   - ingress target: `http://localhost:8080`
+
+### 9.2 Daily local workflow (app + tunnel)
+
+Use repository scripts from project root:
+
+```bash
+./scripts/start-dev.sh
+./scripts/status-dev.sh
+./scripts/stop-dev.sh
+```
+
+Notes:
+- `start-dev.sh` starts Vite in `app/` and the Cloudflare tunnel in background.
+- `status-dev.sh` reports process health and local/staging URL availability.
+- `stop-dev.sh` gracefully stops both services.
 
 Validation:
 - app opens from public staging URL,
-- OTP redirects/callbacks work in staging domain.
+- OTP redirects/callbacks work in staging domain,
+- footer shows runtime indicator (`production` / `staging (local)` / `local`) and git short SHA.
 
 ---
 
@@ -222,6 +242,10 @@ Mandatory mitigations before/at go-live:
 2. Add edge/proxy controls (Cloudflare WAF managed rules + bot/challenge baseline).
 3. Introduce CAPTCHA or equivalent challenge in public contact flow (next hardening task).
 4. Monitor spikes in `contact_requests` and `whatsapp_cta_attempts`.
+
+Operational decision (2026-03-13):
+- Baseline hardening tasks remain pending during week-1 observation.
+- Keep active monitoring in place and prioritize mitigation rollout if abnormal traffic appears.
 
 ---
 
@@ -257,8 +281,6 @@ Mandatory mitigations before/at go-live:
 ## 12) One-command Local Bootstrap
 
 ```bash
-cd app
-cp .env.example .env.local
-npm install
-npm run dev
+cd app && cp .env.example .env.local && npm install
+cd .. && ./scripts/start-dev.sh
 ```

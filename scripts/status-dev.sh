@@ -15,7 +15,12 @@ if [[ ! -f "$PID_FILE" ]]; then
   exit 0
 fi
 
-mapfile -t pids < "$PID_FILE"
+pids=()
+while IFS= read -r pid || [[ -n "${pid:-}" ]]; do
+  if [[ -n "${pid:-}" ]]; then
+    pids+=("$pid")
+  fi
+done < "$PID_FILE"
 
 if [[ "${#pids[@]}" -eq 0 ]]; then
   echo "⚠️  $PID_FILE está vacío."
