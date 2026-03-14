@@ -1,0 +1,7 @@
+tunnel: c7c42b35-031a-4fa4-badd-90b414be88cd
+credentials-file: /Users/fcastrillo/.cloudflared/profiles/distribuidorasis/c7c42b35-031a-4fa4-badd-90b414be88cd.json
+
+ingress:
+  - hostname: staging.distribuidorasis.com.mx
+    service: http://localhost:8080
+  - service: http_status:404

@@ -1,7 +1,23 @@
 import { MapPin, Phone, Mail } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 
+const getRuntimeLabel = () => {
+  const hostname = window.location.hostname;
+
+  if (hostname === "www.distribuidorasis.com.mx") {
+    return "production";
+  }
+
+  if (hostname === "staging.distribuidorasis.com.mx") {
+    return import.meta.env.DEV ? "staging (local)" : "staging";
+  }
+
+  return import.meta.env.DEV ? "local" : hostname;
+};
+
 const Footer = () => {
+  const runtimeLabel = getRuntimeLabel();
+
   return (
     <footer className="border-t bg-primary text-primary-foreground">
       <div className="container px-4 py-12">
@@ -84,6 +100,9 @@ const Footer = () => {
 
         <div className="mt-8 border-t border-primary-foreground/20 pt-8 text-center text-sm text-primary-foreground/60">
           <p>&copy; {new Date().getFullYear()} Distribuidora SIS. Todos los derechos reservados.</p>
+          <p className="mt-2 text-xs uppercase tracking-[0.16em] text-primary-foreground/50">
+            {runtimeLabel} · {__APP_COMMIT_SHA__}
+          </p>
         </div>
       </div>
     </footer>
