@@ -12,8 +12,14 @@ const allowedHosts = [
 ];
 
 const resolveGitCommitSha = () => {
-  if (process.env.VITE_APP_GIT_SHA) {
-    return process.env.VITE_APP_GIT_SHA;
+  const ciSha =
+    process.env.VITE_APP_GIT_SHA ||
+    process.env.RAILWAY_GIT_COMMIT_SHA ||
+    process.env.GITHUB_SHA ||
+    process.env.CI_COMMIT_SHA;
+
+  if (ciSha) {
+    return ciSha.slice(0, 7);
   }
 
   try {
