@@ -3,21 +3,24 @@ import { BarChart3, FolderOpen, LogOut, Package } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { signOutAdmin } from "@/lib/supabase/auth";
+import type { AdminModule } from "@/lib/supabase/auth";
 
 const NAV_ITEMS = [
-  { to: "/admin/productos", label: "Productos", icon: Package },
-  { to: "/admin/categorias", label: "Categorías", icon: FolderOpen },
-  { to: "/admin/conversion", label: "Conversión", icon: BarChart3 },
+  { to: "/admin/productos", label: "Productos", icon: Package, module: "productos" as const },
+  { to: "/admin/categorias", label: "Categorías", icon: FolderOpen, module: "categorias" as const },
+  { to: "/admin/conversion", label: "Conversión", icon: BarChart3, module: "conversion" as const },
 ] as const;
 
 interface AdminSidebarProps {
   adminEmail?: string | null;
+  allowedModules?: AdminModule[] | null;
   /** Called after a nav link is clicked — used to close the mobile sheet. */
   onNavClick?: () => void;
 }
 
-const AdminSidebar = ({ adminEmail, onNavClick }: AdminSidebarProps) => {
+const AdminSidebar = ({ adminEmail, allowedModules, onNavClick }: AdminSidebarProps) => {
   const navigate = useNavigate();
+  const visibleNavItems = NAV_ITEMS.filter((item) => !allowedModules || allowedModules.includes(item.module));
 
   const handleSignOut = async () => {
     try {
@@ -56,7 +59,7 @@ const AdminSidebar = ({ adminEmail, onNavClick }: AdminSidebarProps) => {
 
       {/* Navigation */}
       <nav className="flex flex-col gap-1 px-3 py-4" aria-label="Menú de administración">
-        {NAV_ITEMS.map(({ to, label, icon: Icon }) => (
+        {visibleNavItems.map(({ to, label, icon: Icon }) => (
           <NavLink
             key={to}
             to={to}

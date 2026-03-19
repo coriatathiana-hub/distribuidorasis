@@ -1,7 +1,13 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
+import { toast } from "sonner";
+import {
+  getDefaultAdminModule,
+  hasModuleAccess,
+  type AdminModule,
+} from "@/lib/supabase/auth";
 
 type AuthState = "loading" | "authorized" | "unauthorized";
 
@@ -17,7 +23,15 @@ interface AdminRouteGuardProps {
  */
 const AdminRouteGuard = ({ children }: AdminRouteGuardProps) => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [authState, setAuthState] = useState<AuthState>("loading");
+
+  const resolveModuleFromPath = (pathname: string): AdminModule | null => {
+    if (pathname.startsWith("/admin/productos")) return "productos";
+    if (pathname.startsWith("/admin/categorias")) return "categorias";
+    if (pathname.startsWith("/admin/conversion")) return "conversion";
+    return null;
+  };
 
   useEffect(() => {
     let mounted = true;
@@ -37,19 +51,34 @@ const AdminRouteGuard = ({ children }: AdminRouteGuardProps) => {
 
       const { data: profile } = await supabase
         .from("profiles")
-        .select("role, is_active")
+        .select("role, is_active, allowed_modules")
         .eq("id", session.user.id)
         .single();
 
       if (!mounted) return;
 
-      if (profile?.role === "admin" && profile?.is_active === true) {
-        setAuthState("authorized");
-      } else {
+      if (!profile || profile.role !== "admin" || profile.is_active !== true) {
         await supabase.auth.signOut();
         setAuthState("unauthorized");
         navigate("/admin/login", { replace: true });
+        return;
       }
+
+      const requiredModule = resolveModuleFromPath(location.pathname);
+      if (requiredModule && !hasModuleAccess(profile, requiredModule)) {
+        const fallbackModule = getDefaultAdminModule(profile);
+        const fallbackPath = `/admin/${fallbackModule}`;
+
+        if (location.pathname !== fallbackPath) {
+          toast.error("Acceso denegado al módulo solicitado.");
+          navigate(fallbackPath, { replace: true });
+        }
+
+        setAuthState("authorized");
+        return;
+      }
+
+      setAuthState("authorized");
     };
 
     checkAuth();
@@ -67,7 +96,7 @@ const AdminRouteGuard = ({ children }: AdminRouteGuardProps) => {
       mounted = false;
       subscription.unsubscribe();
     };
-  }, [navigate]);
+  }, [location.pathname, navigate]);
 
   if (authState === "loading") {
     return (

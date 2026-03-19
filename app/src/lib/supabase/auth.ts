@@ -15,6 +15,35 @@ export interface SessionProfile {
   error: string | null;
 }
 
+export const ADMIN_MODULES = ["productos", "categorias", "conversion"] as const;
+export type AdminModule = (typeof ADMIN_MODULES)[number];
+
+export function hasModuleAccess(
+  profile: Pick<Profile, "role" | "is_active" | "allowed_modules">,
+  module: AdminModule,
+): boolean {
+  if (profile.role !== "admin" || !profile.is_active) {
+    return false;
+  }
+
+  // Backward compatibility: null keeps full access for legacy admins.
+  if (!profile.allowed_modules) {
+    return true;
+  }
+
+  return profile.allowed_modules.includes(module);
+}
+
+export function getDefaultAdminModule(profile: Pick<Profile, "allowed_modules">): AdminModule {
+  const candidates = profile.allowed_modules ?? ADMIN_MODULES;
+
+  if (candidates.includes("productos")) return "productos";
+  if (candidates.includes("categorias")) return "categorias";
+  if (candidates.includes("conversion")) return "conversion";
+
+  return "conversion";
+}
+
 /**
  * Request an email OTP code.
  * shouldCreateUser: false enforces admin allowlist — only existing auth.users receive the code.
@@ -52,7 +81,7 @@ export async function verifyOtp(email: string, token: string): Promise<OtpVerify
 
   const { data: profile, error: profileError } = await supabase
     .from("profiles")
-    .select("role, is_active")
+    .select("role, is_active, allowed_modules")
     .eq("id", sessionData.session.user.id)
     .single();
 

@@ -169,6 +169,7 @@ describe("HU-2.1 TypeScript Database contract — all tables represented", () =>
       email: "e@test.com",
       role: "admin",
       is_active: true,
+      allowed_modules: null,
       created_at: "2026-01-01",
     };
     expect(check.role).toBe("admin");
@@ -257,6 +258,7 @@ describe("HU-2.1 TypeScript Database contract — all tables represented", () =>
       email: "admin@sis.com",
       role: "admin",
       is_active: true,
+      allowed_modules: ["productos", "categorias", "conversion"],
       created_at: "2026-01-01",
     };
     expect(profile.role).toBe("admin");
@@ -299,6 +301,22 @@ describe("HU-3.1 Scenario 1: SQL migration 006 — product_images gallery rules"
   it("creates partial unique index for single cover image per product", () => {
     expect(sql).toMatch(/product_images_single_cover_per_product/i);
     expect(sql).toMatch(/where is_cover = true/i);
+  });
+});
+
+describe("HU-5.1 Scenario 1: SQL migration 008 — profiles module permissions", () => {
+  const sql = readFileSync(
+    resolve(__dirname, "../../..", "supabase/migrations/008_profiles_module_permissions.sql"),
+    "utf-8",
+  );
+
+  it("adds allowed_modules column to profiles", () => {
+    expect(sql).toMatch(/add column if not exists allowed_modules text\[\] null/i);
+  });
+
+  it("enforces valid module values via check constraint", () => {
+    expect(sql).toMatch(/profiles_allowed_modules_valid/i);
+    expect(sql).toMatch(/array\['productos','categorias','conversion'\]::text\[\]/i);
   });
 });
 

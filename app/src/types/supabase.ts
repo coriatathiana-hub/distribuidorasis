@@ -24,6 +24,7 @@ export interface Database {
           email: string;
           role: "admin";
           is_active: boolean;
+          allowed_modules: string[] | null;
           created_at: string;
         };
         Insert: {
@@ -31,6 +32,7 @@ export interface Database {
           email: string;
           role: "admin";
           is_active?: boolean;
+          allowed_modules?: string[] | null;
           created_at?: string;
         };
         Update: {
@@ -38,6 +40,7 @@ export interface Database {
           email?: string;
           role?: "admin";
           is_active?: boolean;
+          allowed_modules?: string[] | null;
           created_at?: string;
         };
       };
