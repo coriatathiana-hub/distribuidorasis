@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -52,7 +53,7 @@ import ImageGalleryManager, {
 interface FormState {
   name: string;
   slug: string;
-  category_id: string;
+  category_ids: string[];
   short_description: string;
   description: string;
 }
@@ -60,7 +61,7 @@ interface FormState {
 const EMPTY_FORM: FormState = {
   name: "",
   slug: "",
-  category_id: "",
+  category_ids: [],
   short_description: "",
   description: "",
 };
@@ -104,7 +105,7 @@ const ProductManager = () => {
     return products.filter((p) => {
       const matchSearch =
         !q || p.name.toLowerCase().includes(q) || (p.short_description ?? "").toLowerCase().includes(q);
-      const matchCat = filterCategory === "all" || p.category_id === filterCategory;
+      const matchCat = filterCategory === "all" || p.category_ids.includes(filterCategory);
       return matchSearch && matchCat;
     });
   }, [products, searchTerm, filterCategory]);
@@ -121,7 +122,7 @@ const ProductManager = () => {
     setForm({
       name: prod.name,
       slug: prod.slug,
-      category_id: prod.category_id,
+      category_ids: prod.category_ids,
       short_description: prod.short_description ?? "",
       description: prod.description ?? "",
     });
@@ -143,8 +144,8 @@ const ProductManager = () => {
   };
 
   const handleSave = async () => {
-    if (!form.name.trim() || !form.slug.trim() || !form.category_id) {
-      toast.error("Nombre, slug y categoría son obligatorios.");
+    if (!form.name.trim() || !form.slug.trim() || form.category_ids.length === 0) {
+      toast.error("Nombre, slug y al menos una categoría son obligatorios.");
       return;
     }
     setSaving(true);
@@ -152,18 +153,23 @@ const ProductManager = () => {
       const payload = {
         name: form.name.trim(),
         slug: form.slug.trim(),
-        category_id: form.category_id,
+        category_ids: form.category_ids,
         short_description: form.short_description.trim() || null,
         description: form.description.trim() || null,
       };
 
       if (editTarget) {
         const updated = await updateProduct(editTarget.id, payload);
-        const cat = categories.find((c) => c.id === updated.category_id);
+        const selectedCategories = categories.filter((c) => form.category_ids.includes(c.id));
         setProducts((prev) =>
           prev.map((p) =>
             p.id === updated.id
-              ? { ...updated, category_name: cat?.name ?? "" }
+              ? {
+                  ...updated,
+                  category_ids: form.category_ids,
+                  category_names: selectedCategories.map((c) => c.name),
+                  category_name: selectedCategories[0]?.name ?? "",
+                }
               : p
           )
         );
@@ -174,10 +180,15 @@ const ProductManager = () => {
         toast.success("Producto actualizado.");
       } else {
         const created = await createProduct(payload);
-        const cat = categories.find((c) => c.id === created.category_id);
+        const selectedCategories = categories.filter((c) => form.category_ids.includes(c.id));
         setProducts((prev) => [
           ...prev,
-          { ...created, category_name: cat?.name ?? "" },
+          {
+            ...created,
+            category_ids: form.category_ids,
+            category_names: selectedCategories.map((c) => c.name),
+            category_name: selectedCategories[0]?.name ?? "",
+          },
         ]);
         toast.success("Producto creado.");
       }
@@ -307,12 +318,18 @@ const ProductManager = () => {
                             </div>
                           )}
                           <div className="md:hidden text-xs text-muted-foreground mt-0.5">
-                            {prod.category_name}
+                            {prod.category_names.join(", ")}
                           </div>
                         </div>
                       </TableCell>
                       <TableCell className="hidden md:table-cell">
-                        <Badge variant="secondary">{prod.category_name}</Badge>
+                        <div className="flex flex-wrap gap-1">
+                          {prod.category_names.map((name) => (
+                            <Badge key={`${prod.id}-${name}`} variant="secondary">
+                              {name}
+                            </Badge>
+                          ))}
+                        </div>
                       </TableCell>
                       <TableCell>
                         <Badge variant={prod.is_active ? "default" : "secondary"}>
@@ -422,23 +439,48 @@ const ProductManager = () => {
               </p>
             </div>
 
-            <div className="space-y-1.5">
-              <Label htmlFor="prod-category">Categoría *</Label>
-              <Select
-                value={form.category_id}
-                onValueChange={(v) => setForm((prev) => ({ ...prev, category_id: v }))}
-              >
-                <SelectTrigger id="prod-category">
-                  <SelectValue placeholder="Selecciona una categoría" />
-                </SelectTrigger>
-                <SelectContent>
-                  {categories.map((cat) => (
-                    <SelectItem key={cat.id} value={cat.id}>
-                      {cat.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+            <div className="space-y-2">
+              <Label>Categorías *</Label>
+              <div className="rounded-md border p-3 space-y-2">
+                {categories.length === 0 && (
+                  <p className="text-xs text-muted-foreground">
+                    No hay categorías disponibles.
+                  </p>
+                )}
+                {categories.map((cat) => {
+                  const checked = form.category_ids.includes(cat.id);
+                  return (
+                    <div key={cat.id} className="flex items-center gap-2">
+                      <Checkbox
+                        id={`prod-category-${cat.id}`}
+                        checked={checked}
+                        disabled={!cat.is_active}
+                        onCheckedChange={(nextChecked) =>
+                          setForm((prev) => {
+                            const set = new Set(prev.category_ids);
+                            if (nextChecked) {
+                              set.add(cat.id);
+                            } else {
+                              set.delete(cat.id);
+                            }
+                            return { ...prev, category_ids: Array.from(set) };
+                          })
+                        }
+                      />
+                      <Label
+                        htmlFor={`prod-category-${cat.id}`}
+                        className={!cat.is_active ? "text-muted-foreground" : ""}
+                      >
+                        {cat.name}
+                        {!cat.is_active ? " (inactiva)" : ""}
+                      </Label>
+                    </div>
+                  );
+                })}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Selecciona una o más categorías activas para publicar el producto.
+              </p>
             </div>
 
             <div className="space-y-1.5">

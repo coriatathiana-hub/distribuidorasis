@@ -49,7 +49,7 @@ const Catalogo = () => {
         (p.short_description ?? "").toLowerCase().includes(q) ||
         (p.description ?? "").toLowerCase().includes(q);
       const matchCat =
-        selectedCategory === "all" || p.category_id === selectedCategory;
+        selectedCategory === "all" || p.category_ids.includes(selectedCategory);
       return matchSearch && matchCat;
     });
   }, [products, searchQuery, selectedCategory]);

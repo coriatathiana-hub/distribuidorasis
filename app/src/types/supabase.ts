@@ -108,6 +108,23 @@ export interface Database {
           updated_at?: string;
         };
       };
+      product_categories: {
+        Row: {
+          product_id: string;
+          category_id: string;
+          created_at: string;
+        };
+        Insert: {
+          product_id: string;
+          category_id: string;
+          created_at?: string;
+        };
+        Update: {
+          product_id?: string;
+          category_id?: string;
+          created_at?: string;
+        };
+      };
       product_images: {
         Row: {
           id: string;
@@ -218,6 +235,7 @@ export interface Database {
 export type Profile = Database["public"]["Tables"]["profiles"]["Row"];
 export type Category = Database["public"]["Tables"]["categories"]["Row"];
 export type Product = Database["public"]["Tables"]["products"]["Row"];
+export type ProductCategory = Database["public"]["Tables"]["product_categories"]["Row"];
 export type ProductImage = Database["public"]["Tables"]["product_images"]["Row"];
 export type ContactRequest = Database["public"]["Tables"]["contact_requests"]["Row"];
 export type WhatsAppCtaAttempt = Database["public"]["Tables"]["whatsapp_cta_attempts"]["Row"];
@@ -225,6 +243,7 @@ export type WhatsAppCtaAttempt = Database["public"]["Tables"]["whatsapp_cta_atte
 /** Insert types */
 export type InsertCategory = Database["public"]["Tables"]["categories"]["Insert"];
 export type InsertProduct = Database["public"]["Tables"]["products"]["Insert"];
+export type InsertProductCategory = Database["public"]["Tables"]["product_categories"]["Insert"];
 export type InsertProductImage = Database["public"]["Tables"]["product_images"]["Insert"];
 export type InsertContactRequest = Database["public"]["Tables"]["contact_requests"]["Insert"];
 export type InsertWhatsAppCtaAttempt = Database["public"]["Tables"]["whatsapp_cta_attempts"]["Insert"];
@@ -232,5 +251,6 @@ export type InsertWhatsAppCtaAttempt = Database["public"]["Tables"]["whatsapp_ct
 /** Update types */
 export type UpdateCategory = Database["public"]["Tables"]["categories"]["Update"];
 export type UpdateProduct = Database["public"]["Tables"]["products"]["Update"];
+export type UpdateProductCategory = Database["public"]["Tables"]["product_categories"]["Update"];
 export type UpdateProductImage = Database["public"]["Tables"]["product_images"]["Update"];
 export type UpdateWhatsAppCtaAttempt = Database["public"]["Tables"]["whatsapp_cta_attempts"]["Update"];

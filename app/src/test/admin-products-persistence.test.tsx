@@ -24,6 +24,8 @@ const MOCK_PRODUCTS: ProductWithCategory[] = [
     id: "p-1",
     category_id: "cat-1",
     category_name: "EPP",
+    category_ids: ["cat-1"],
+    category_names: ["EPP"],
     name: "Casco MSA",
     slug: "casco-msa",
     short_description: "Casco de seguridad certificado",
@@ -37,6 +39,8 @@ const MOCK_PRODUCTS: ProductWithCategory[] = [
     id: "p-2",
     category_id: "cat-1",
     category_name: "EPP",
+    category_ids: ["cat-1"],
+    category_names: ["EPP"],
     name: "Guante de látex",
     slug: "guante-latex",
     short_description: null,
@@ -140,7 +144,7 @@ describe("ProductManager — persistence (HU-2.3)", () => {
     await userEvent.click(screen.getByRole("button", { name: /nuevo/i }));
     await userEvent.click(screen.getByRole("button", { name: /crear producto/i }));
     expect(toast.error).toHaveBeenCalledWith(
-      "Nombre, slug y categoría son obligatorios."
+      "Nombre, slug y al menos una categoría son obligatorios."
     );
   });
 
@@ -149,10 +153,7 @@ describe("ProductManager — persistence (HU-2.3)", () => {
     await waitFor(() => screen.getByText("Casco MSA"));
     await userEvent.click(screen.getByRole("button", { name: /nuevo/i }));
     await userEvent.type(screen.getByLabelText(/nombre \*/i), "Nuevo producto");
-    // Select category from dialog combobox
-    const categorySelect = screen.getByRole("combobox", { name: /categoría/i });
-    await userEvent.click(categorySelect);
-    await userEvent.click(screen.getByRole("option", { name: "EPP" }));
+    await userEvent.click(screen.getByLabelText("EPP"));
     await userEvent.click(screen.getByRole("button", { name: /crear producto/i }));
     await waitFor(() => expect(service.createProduct).toHaveBeenCalledOnce());
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();

@@ -18,9 +18,11 @@ import type {
   ContactRequest,
   Database,
   InsertCategory,
+  InsertProductCategory,
   InsertProduct,
   InsertProductImage,
   Product,
+  ProductCategory,
   ProductImage,
   Profile,
   UpdateProduct,
@@ -217,6 +219,15 @@ describe("HU-2.1 TypeScript Database contract — all tables represented", () =>
     expect(row.is_cover).toBe(true);
   });
 
+  it("Database type contains public.product_categories", () => {
+    const row: ProductCategory = {
+      product_id: "prod-uuid",
+      category_id: "cat-uuid",
+      created_at: "2026-03-18",
+    };
+    expect(row.product_id).toBe("prod-uuid");
+  });
+
   it("Database type contains public.contact_requests", () => {
     const row: ContactRequest = {
       id: "uuid",
@@ -245,6 +256,14 @@ describe("HU-2.1 TypeScript Database contract — all tables represented", () =>
       slug: "casco-msa",
     };
     expect(insert.slug).toBe("casco-msa");
+  });
+
+  it("InsertProductCategory requires product_id and category_id", () => {
+    const insert: InsertProductCategory = {
+      product_id: "prod-uuid",
+      category_id: "cat-uuid",
+    };
+    expect(insert.category_id).toBe("cat-uuid");
   });
 
   it("Update types allow partial row updates", () => {
@@ -317,6 +336,29 @@ describe("HU-5.1 Scenario 1: SQL migration 008 — profiles module permissions",
   it("enforces valid module values via check constraint", () => {
     expect(sql).toMatch(/profiles_allowed_modules_valid/i);
     expect(sql).toMatch(/array\['productos','categorias','conversion'\]::text\[\]/i);
+  });
+});
+
+describe("HU-5.3 Scenario 1: SQL migration 009 — product_categories pivot + RLS", () => {
+  const sql = readFileSync(
+    resolve(__dirname, "../../..", "supabase/migrations/009_product_categories_pivot.sql"),
+    "utf-8",
+  );
+
+  it("creates product_categories table with composite primary key", () => {
+    expect(sql).toMatch(/create table if not exists public\.product_categories/i);
+    expect(sql).toMatch(/primary key \(product_id, category_id\)/i);
+  });
+
+  it("backfills pivot table from legacy products.category_id", () => {
+    expect(sql).toMatch(/insert into public\.product_categories/i);
+    expect(sql).toMatch(/select p\.id, p\.category_id/i);
+  });
+
+  it("enables RLS and defines anon/admin policies", () => {
+    expect(sql).toMatch(/alter table public\.product_categories enable row level security/i);
+    expect(sql).toMatch(/product_categories_anon_select_active/i);
+    expect(sql).toMatch(/product_categories_admin_all/i);
   });
 });
 

@@ -10,14 +10,33 @@ import type {
   Product,
   InsertProduct,
   UpdateProduct,
+  InsertProductCategory,
   ProductImage,
   InsertProductImage,
 } from "@/types/supabase";
 
-export type ProductWithCategory = Product & { category_name: string };
+export type ProductWithCategory = Product & {
+  category_name: string;
+  category_names: string[];
+  category_ids: string[];
+};
+
+export type InsertProductWithCategories = Omit<InsertProduct, "category_id"> & {
+  category_ids: string[];
+};
+
+export type UpdateProductWithCategories = Omit<UpdateProduct, "category_id"> & {
+  category_ids: string[];
+};
 
 type ProductJoinRow = Product & {
-  categories: { name: string } | null;
+  legacy_category: { name: string } | null; // legacy 1:N join for compatibility
+  product_categories:
+    | {
+        category_id: string;
+        categories: { name: string } | null;
+      }[]
+    | null;
 };
 
 // ── Categories ────────────────────────────────────────────────────────────────
@@ -76,23 +95,85 @@ export async function toggleCategoryActive(id: string, is_active: boolean): Prom
 export async function listProducts(): Promise<ProductWithCategory[]> {
   const { data, error } = await supabase
     .from("products")
-    .select("*, categories(name)")
+    .select(
+      "*, legacy_category:categories!products_category_id_fkey(name), product_categories(category_id, categories!product_categories_category_id_fkey(name))",
+    )
     .order("name", { ascending: true });
 
   if (error) throw new Error(error.message);
 
-  return (data as unknown as ProductJoinRow[] | null ?? []).map(
-    ({ categories, ...row }) => ({
+  const rows = (data as unknown as ProductJoinRow[] | null) ?? [];
+  return rows.map(({ legacy_category, product_categories, ...row }) => {
+    const normalizedCategoryIds = Array.from(
+      new Set((product_categories ?? []).map((item) => item.category_id)),
+    );
+    const normalizedCategoryNames = Array.from(
+      new Set(
+        (product_categories ?? [])
+          .map((item) => item.categories?.name ?? "")
+          .filter(Boolean),
+      ),
+    );
+
+    const category_ids =
+      normalizedCategoryIds.length > 0 ? normalizedCategoryIds : [row.category_id];
+    const category_names =
+      normalizedCategoryNames.length > 0
+        ? normalizedCategoryNames
+        : legacy_category?.name
+          ? [legacy_category.name]
+          : [];
+
+    return {
       ...row,
-      category_name: categories?.name ?? "",
-    })
-  );
+      category_ids,
+      category_names,
+      category_name: category_names[0] ?? legacy_category?.name ?? "",
+    };
+  });
 }
 
-export async function createProduct(payload: InsertProduct): Promise<Product> {
+function assertCategoryIds(categoryIds: string[]): void {
+  if (!Array.isArray(categoryIds) || categoryIds.length === 0) {
+    throw new Error("Debes seleccionar al menos una categoría válida.");
+  }
+}
+
+async function replaceProductCategories(
+  productId: string,
+  categoryIds: string[],
+): Promise<void> {
+  const uniqueCategoryIds = Array.from(new Set(categoryIds));
+  const rows: InsertProductCategory[] = uniqueCategoryIds.map((categoryId) => ({
+    product_id: productId,
+    category_id: categoryId,
+  }));
+
+  const { error: deleteError } = await supabase
+    .from("product_categories")
+    .delete()
+    .eq("product_id", productId);
+  if (deleteError) throw new Error(deleteError.message);
+
+  const { error: insertError } = await supabase.from("product_categories").insert(rows);
+  if (insertError) throw new Error(insertError.message);
+}
+
+export async function createProduct(payload: InsertProductWithCategories): Promise<Product> {
+  assertCategoryIds(payload.category_ids);
+  const primaryCategoryId = payload.category_ids[0];
+
   const { data, error } = await supabase
     .from("products")
-    .insert(payload)
+    .insert({
+      name: payload.name,
+      slug: payload.slug,
+      category_id: primaryCategoryId,
+      short_description: payload.short_description ?? null,
+      description: payload.description ?? null,
+      specs_json: payload.specs_json,
+      is_active: payload.is_active,
+    })
     .select()
     .single();
 
@@ -100,13 +181,33 @@ export async function createProduct(payload: InsertProduct): Promise<Product> {
     if (error.code === "23505") throw new Error("Ya existe un producto con ese nombre o slug.");
     throw new Error(error.message);
   }
+
+  try {
+    await replaceProductCategories(data.id, payload.category_ids);
+  } catch (pivotError) {
+    // Best-effort rollback to avoid orphan product when pivot write fails.
+    await supabase.from("products").delete().eq("id", data.id);
+    throw pivotError;
+  }
+
   return data;
 }
 
-export async function updateProduct(id: string, payload: UpdateProduct): Promise<Product> {
+export async function updateProduct(id: string, payload: UpdateProductWithCategories): Promise<Product> {
+  assertCategoryIds(payload.category_ids);
+  const primaryCategoryId = payload.category_ids[0];
+
   const { data, error } = await supabase
     .from("products")
-    .update(payload)
+    .update({
+      name: payload.name,
+      slug: payload.slug,
+      category_id: primaryCategoryId,
+      short_description: payload.short_description ?? null,
+      description: payload.description ?? null,
+      specs_json: payload.specs_json,
+      is_active: payload.is_active,
+    })
     .eq("id", id)
     .select()
     .single();
@@ -115,6 +216,8 @@ export async function updateProduct(id: string, payload: UpdateProduct): Promise
     if (error.code === "23505") throw new Error("Ya existe un producto con ese nombre o slug.");
     throw new Error(error.message);
   }
+
+  await replaceProductCategories(id, payload.category_ids);
   return data;
 }
 

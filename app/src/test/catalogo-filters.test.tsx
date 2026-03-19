@@ -23,6 +23,8 @@ const base = (overrides: Partial<PublicProduct>): PublicProduct => ({
   name: "Producto",
   category_id: "cat-epp",
   category_name: "EPP",
+  category_ids: ["cat-epp"],
+  category_names: ["EPP"],
   short_description: null,
   description: null,
   specs_json: {},
@@ -32,11 +34,11 @@ const base = (overrides: Partial<PublicProduct>): PublicProduct => ({
 });
 
 const MOCK_PRODUCTS: PublicProduct[] = [
-  base({ id: "p1", slug: "arnes-3-aros", name: "Arnés de Seguridad 3 Aros", category_id: "cat-epp", category_name: "EPP" }),
-  base({ id: "p2", slug: "arnes-vform", name: "Arnés V-Form MSA", category_id: "cat-epp", category_name: "EPP" }),
-  base({ id: "p3", slug: "bota-casquillo", name: "Bota con Casquillo", category_id: "cat-calzado", category_name: "Calzado" }),
-  base({ id: "p4", slug: "cinta-peligro", name: "Cinta de Peligro", category_id: "cat-senal", category_name: "Señalización y Delimitación" }),
-  base({ id: "p5", slug: "malla-naranja", name: "Malla Naranja", category_id: "cat-senal", category_name: "Señalización y Delimitación" }),
+  base({ id: "p1", slug: "arnes-3-aros", name: "Arnés de Seguridad 3 Aros", category_id: "cat-epp", category_name: "EPP", category_ids: ["cat-epp"], category_names: ["EPP"] }),
+  base({ id: "p2", slug: "arnes-vform", name: "Arnés V-Form MSA", category_id: "cat-epp", category_name: "EPP", category_ids: ["cat-epp"], category_names: ["EPP"] }),
+  base({ id: "p3", slug: "bota-casquillo", name: "Bota con Casquillo", category_id: "cat-calzado", category_name: "Calzado", category_ids: ["cat-calzado"], category_names: ["Calzado"] }),
+  base({ id: "p4", slug: "cinta-peligro", name: "Cinta de Peligro", category_id: "cat-senal", category_name: "Señalización y Delimitación", category_ids: ["cat-senal"], category_names: ["Señalización y Delimitación"] }),
+  base({ id: "p5", slug: "malla-naranja", name: "Malla Naranja", category_id: "cat-senal", category_name: "Señalización y Delimitación", category_ids: ["cat-senal"], category_names: ["Señalización y Delimitación"] }),
 ];
 
 function renderCatalogo() {

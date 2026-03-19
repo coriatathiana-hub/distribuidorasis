@@ -165,7 +165,14 @@ const Producto = () => {
         <div className="space-y-6">
           <div>
             <div className="mb-3 flex flex-wrap gap-2">
-              <Badge variant="secondary">{product.category_name}</Badge>
+              {(product.category_names.length > 0
+                ? product.category_names
+                : [product.category_name]
+              ).map((categoryName) => (
+                <Badge key={`${product.id}-${categoryName}`} variant="secondary">
+                  {categoryName}
+                </Badge>
+              ))}
             </div>
             <h1 className="mb-4 text-3xl md:text-4xl font-bold text-foreground">
               {product.name}
