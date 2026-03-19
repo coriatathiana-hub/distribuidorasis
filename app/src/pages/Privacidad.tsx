@@ -19,7 +19,7 @@ const Privacidad = () => {
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-muted-foreground">
-              <strong className="text-foreground">SUMINISTROS INDUSTRIALES Y DE SEGURIDAD SIS, S.A. DE C.V.</strong> (en adelante "Distribuidora SIS"), 
+              <strong className="text-foreground">SUMINISTROS INDUSTRIALES DE SEGURIDAD PRIVADA SIS, S.A. DE C.V.</strong> (en adelante "Distribuidora SIS"), 
               con domicilio en Av. Jaime Balmes No. 11, Mezanine 33, Oficina 122, Colonia Polanco I Sección, 
               Alcaldía Miguel Hidalgo, Ciudad de México, C.P. 11510, es responsable del tratamiento de sus datos personales.
             </p>
