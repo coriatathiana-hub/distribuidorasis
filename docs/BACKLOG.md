@@ -97,7 +97,7 @@
       - Mantener compatibilidad en listados/filtros publicos y en consultas de detalle.
       - Actualizar reglas RLS/constraints para evitar inconsistencias y duplicados.
     - **Riesgo:** Alto 🔴 (impacta modelo de datos, consultas existentes y flujos de filtrado)
-  - [ ] HU-5.4: Actualizar branding legal en footer a razon social completa
+  - [x] HU-5.4: Actualizar branding legal en footer a razon social completa ✅ (2026-03-18, commits `6666c8a` + `fd95024` + cierre docs, evidencias en `.spec/history/2026-03-18_HU-5.4_completed.md`)
     - Como: Usuario visitante y area legal/comercial
     - Quiero: ver la razon social completa de la empresa en el sitio
     - Para poder: asegurar consistencia legal y de marca en la presentacion corporativa
