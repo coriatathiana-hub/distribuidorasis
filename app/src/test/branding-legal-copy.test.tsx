@@ -15,10 +15,14 @@ describe("HU-5.4 legal branding copy", () => {
   it("renders updated opening sentence in about page", () => {
     render(<Nosotros />);
 
-    expect(
-      screen.getByText(
-        /Suministros Industriales de Seguridad Privada SIS, S\.A\. de C\.V\. es una comercializadora especializada/i,
-      ),
-    ).toBeInTheDocument();
+    const legalNameFragment = screen.getByText(
+      /Suministros Industriales de Seguridad Privada SIS, S\.A\. de C\.V\./i,
+    );
+    const paragraph = legalNameFragment.closest("p");
+
+    expect(paragraph).not.toBeNull();
+    expect(paragraph).toHaveTextContent(
+      /Suministros Industriales de Seguridad Privada SIS, S\.A\. de C\.V\.\s+es una comercializadora especializada/i,
+    );
   });
 });
