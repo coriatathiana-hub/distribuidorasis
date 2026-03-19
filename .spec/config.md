@@ -9,14 +9,16 @@
 
 | Setting | Value | Options |
 |:--------|:------|:--------|
-| **mode** | `trunk` | `trunk` / `feature` |
+| **mode** | `feature` | `trunk` / `feature` |
 
 - **`trunk`** (default): All commits go directly to `main`. Push happens at `@finish-objective`.
   Best for pre-deployment or projects without CI/CD auto-deploy.
-- **`feature`**: Each `@start-objective` creates a branch `hu/N.M` from `main`.
-  Commits stay on the branch during `@apply`. At `@finish-objective`, the branch is merged
-  to `main` with `--no-ff`, pushed, and deleted. Best for projects with CD pipelines
-  connected to `main` (Railway, Vercel, Netlify, etc.) where every push triggers a deploy.
+- **`feature`**: Each `@start-feature` creates a branch `feat/N` from `main` (for example, `feat/5`).
+  Each `@start-objective` creates a branch `hu/N.M` from the active feature branch. Commits stay on
+  the HU branch during `@apply`. At `@finish-objective`, the HU branch is merged into `feat/N` with
+  `--no-ff`, pushed, and deleted. The `feat/N` branch is merged to `main` only when the whole Feature
+  is completed and explicitly closed. Best for projects with CD pipelines connected to `main` where
+  every push triggers a deploy and partial HU work must stay isolated until Feature completion.
 
 ---
 

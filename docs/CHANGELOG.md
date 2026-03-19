@@ -19,6 +19,19 @@
 
 ---
 
+## [2026-03-18] — HU-5.5: Corregir bug de navegacion para iniciar cada cambio de pagina en la parte superior
+
+**Feature:** FEAT-5 — Hardening post-MVP de conversion, edicion y taxonomia de catalogo  
+**Benefit:** La navegacion publica ahora inicia consistentemente en la parte superior de cada pagina destino, reduciendo friccion de lectura en paginas largas y mejorando orientacion del usuario al cambiar de ruta.  
+**Changes:**
+- Se agrego `ScrollToTop` para resetear posicion en cambios de ruta dentro del arbol de `BrowserRouter`.
+- Se integró la logica en `App.tsx` sin afectar layouts public/admin.
+- Se preservo comportamiento de anclas (`#hash`) para no romper navegacion contextual dentro de pagina.
+- Se agrego cobertura de regresion para scroll-top en navegacion normal y exclusion de hash navigation.
+**Tests:** 2 nuevos tests (`app/src/test/navigation-scroll-top.test.tsx`) + verificacion de suite `navigation.test.tsx` (3 passing)
+
+---
+
 ## [2026-03-11] — HU-4.4: Dashboard admin de conversion omnicanal para explotar `contact_requests` + `whatsapp_cta_attempts`
 
 **Feature:** FEAT-4 — Contacto omnicanal con envio real (Email + WhatsApp)  

@@ -40,6 +40,18 @@ When the user references a command file, **read it in full and follow its instru
 - **Test-as-Contract:** Write failing tests (RED) before implementation code (GREEN), then refactor.
 - **Git Strategy:** Read `.spec/config.md` to determine trunk or feature mode before any git operation.
 
+## Git Flow (Feature Mode)
+
+When `.spec/config.md` has `mode: feature`, enforce this branch flow:
+
+1. `@start-feature FEAT-N` creates `feat/N` from `main`.
+2. `@start-objective HU-N.M` creates `hu/N.M` from active `feat/N`.
+3. `@apply` commits stay in `hu/N.M`.
+4. `@finish-objective` merges `hu/N.M` into `feat/N` (`--no-ff`), tags HU, pushes `feat/N`, and deletes `hu/N.M`.
+5. Only at feature closure, merge `feat/N` into `main` (`--no-ff`), tag `FEAT-N`, push `main`, and delete `feat/N`.
+
+Never merge `hu/N.M` directly into `main` in feature mode.
+
 ## Model Awareness (Cursor Billing Optimization)
 
 When executing any SpecSeed command, check the **Model Routing** table in `.spec/config.md`

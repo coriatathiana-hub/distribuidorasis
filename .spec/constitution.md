@@ -171,21 +171,25 @@ SpecSeed supports two git modes, configurable via `.spec/config.md`:
 | Mode | Use Case | Behavior |
 |:-----|:---------|:---------|
 | **`trunk`** (default) | Pre-deploy or no CD on `main` | All commits go directly to `main` |
-| **`feature`** | CD connected to `main` (Railway, Vercel, etc.) | Branch `hu/N.M` per story, merge `--no-ff` at close |
+| **`feature`** | CD connected to `main` (Railway, Vercel, etc.) | Branch `feat/N` per feature + branch `hu/N.M` per story; HU merges into `feat/N`; feature merges into `main` at closure |
 
 In both modes, SpecSeed serializes work via `current_objective.md` (one HU at a time).
 
 ### Feature Mode Flow
 
 ```
-main ──●──────────────────────●── (merge --no-ff) ──●──
-        \                    /
-         hu/1.1 ──●──●──●──
+main    ──●────────────────────────────────────────────●── (merge --no-ff FEAT-N) ──●──
+           \                                          /
+feat/N       ●──────────────●──────────────●────────●
+              \            / \            /
+hu/N.1         ●──●──●────   hu/N.2 ●──●──
 ```
 
-- `@start-objective` creates `hu/N.M` from `main`.
-- `@apply` commits stay on the branch. No push between tasks.
-- `@finish-objective` merges to `main`, tags, pushes, and deletes the branch.
+- `@start-feature` creates `feat/N` from `main`.
+- `@start-objective` creates `hu/N.M` from the active `feat/N` branch.
+- `@apply` commits stay on `hu/N.M`. No push between tasks.
+- `@finish-objective` merges `hu/N.M` into `feat/N`, tags HU, pushes `feat/N`, and deletes `hu/N.M`.
+- Feature closure merges `feat/N` into `main` (`--no-ff`), tags `FEAT-N`, pushes `main`, and deletes `feat/N`.
 
 ### Commit Convention (Conventional Commits)
 
@@ -215,9 +219,9 @@ main ──●──────────────────────
 ### Rules
 
 - **Never commit WIP code to `main`** without marking it: use `wip(HU-N.M):` prefix if unavoidable.
-- **Always push after `@finish-objective`** to keep the remote in sync.
+- **Always push `feat/N` after `@finish-objective`** to keep remote feature progress in sync.
 - **Tags are immutable** — once created, do not move or delete them.
-- **In feature mode:** never push the `hu/N.M` branch to remote (it stays local).
+- **In feature mode:** do not merge HU branches directly to `main`; HU integration must always go through `feat/N`.
 
 ---
 
