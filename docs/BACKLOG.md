@@ -79,7 +79,7 @@
       - `ventas@distribuidorasis.com.mx` solo puede abrir `/admin/conversion` y no puede abrir `/admin/productos` ni `/admin/categorias`.
       - Si intenta navegar manualmente a un modulo no permitido, el sistema redirige y muestra feedback de acceso denegado.
       - Mantener compatibilidad con admins full-access actuales.
-  - [ ] HU-5.2: Diferir eliminacion fisica de imagenes en edicion de producto hasta accion explicita de guardar
+  - [x] HU-5.2: Diferir eliminacion fisica de imagenes en edicion de producto hasta accion explicita de guardar ✅ (2026-03-18, commit `45709b5` + cierre docs, evidencias en `.spec/history/2026-03-18_HU-5.2_completed.md`)
     - Como: Operador de catalogo
     - Quiero: que borrar una imagen durante la edicion solo marque el cambio localmente
     - Para poder: evitar perdida accidental de contenido antes de confirmar el formulario

@@ -19,6 +19,20 @@
 
 ---
 
+## [2026-03-18] — HU-5.2: Diferir eliminacion fisica de imagenes en edicion de producto hasta accion explicita de guardar
+
+**Feature:** FEAT-5 — Hardening post-MVP de conversion, edicion y taxonomia de catalogo  
+**Benefit:** La edición de productos ahora es más segura frente a errores humanos, porque eliminar imágenes deja de ser una acción destructiva inmediata y se confirma solo al guardar, reduciendo pérdida accidental de contenido.
+**Changes:**
+- Se cambió `ImageGalleryManager` para que la acción de eliminar marque imágenes como pendientes en estado local en vez de borrar físicamente al instante.
+- Se agregó resumen de eliminaciones pendientes con opción de `Deshacer`, y se bloqueó reordenamiento mientras existan pendientes para evitar inconsistencias.
+- Se conectó `ProductManager` con un handle imperativo de galería para ejecutar borrado físico únicamente al presionar `Guardar cambios`.
+- Se mantuvo `upload` y `cover` operativos, pero el delete ahora sigue flujo de confirmación explícita del formulario.
+- Se añadió cobertura de regresión para validar: no-save/no-delete, cancel sin persistir y commit físico al guardar.
+**Tests:** 3 nuevos tests (`app/src/test/product-manager-edit-gallery-deferred-delete.test.tsx`) + ajustes en `admin-image-gallery-manager`
+
+---
+
 ## [2026-03-18] — HU-5.1: Restringir acceso admin por modulo para usuario de conversiones
 
 **Feature:** FEAT-5 — Hardening post-MVP de conversion, edicion y taxonomia de catalogo  
