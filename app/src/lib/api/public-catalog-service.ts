@@ -27,6 +27,8 @@ export interface PublicProduct {
   name: string;
   category_id: string;
   category_name: string;
+  category_ids: string[];
+  category_names: string[];
   short_description: string | null;
   description: string | null;
   specs_json: Json;
@@ -46,7 +48,13 @@ type RawProductRow = {
   is_active: boolean;
   created_at: string;
   updated_at: string;
-  categories: { name: string } | null;
+  legacy_category: { name: string } | null;
+  product_categories:
+    | {
+        category_id: string;
+        categories: { name: string } | null;
+      }[]
+    | null;
   product_images: {
     id: string;
     public_url: string;
@@ -61,12 +69,34 @@ function mapProduct(row: RawProductRow): PublicProduct {
     .slice()
     .sort((a, b) => a.sort_order - b.sort_order);
   const cover = images.find((img) => img.is_cover) ?? images[0];
+  const normalizedCategoryIds = Array.from(
+    new Set((row.product_categories ?? []).map((item) => item.category_id)),
+  );
+  const normalizedCategoryNames = Array.from(
+    new Set(
+      (row.product_categories ?? [])
+        .map((item) => item.categories?.name ?? "")
+        .filter(Boolean),
+    ),
+  );
+
+  const category_ids =
+    normalizedCategoryIds.length > 0 ? normalizedCategoryIds : [row.category_id];
+  const category_names =
+    normalizedCategoryNames.length > 0
+      ? normalizedCategoryNames
+      : row.legacy_category?.name
+        ? [row.legacy_category.name]
+        : [];
+
   return {
     id: row.id,
     slug: row.slug,
     name: row.name,
-    category_id: row.category_id,
-    category_name: row.categories?.name ?? "",
+    category_id: category_ids[0] ?? row.category_id,
+    category_name: category_names[0] ?? row.legacy_category?.name ?? "",
+    category_ids,
+    category_names,
     short_description: row.short_description,
     description: row.description,
     specs_json: row.specs_json,
@@ -92,7 +122,9 @@ const PRODUCT_IMAGES_SELECT = "id, public_url, alt_text, is_cover, sort_order";
 export async function listActiveProducts(): Promise<PublicProduct[]> {
   const { data, error } = await supabase
     .from("products")
-    .select(`*, categories(name), product_images(${PRODUCT_IMAGES_SELECT})`)
+    .select(
+      `*, legacy_category:categories!products_category_id_fkey(name), product_categories(category_id, categories!product_categories_category_id_fkey(name)), product_images(${PRODUCT_IMAGES_SELECT})`,
+    )
     .eq("is_active", true)
     .order("name", { ascending: true });
 
@@ -103,7 +135,9 @@ export async function listActiveProducts(): Promise<PublicProduct[]> {
 export async function getProductBySlug(slug: string): Promise<PublicProduct | null> {
   const { data, error } = await supabase
     .from("products")
-    .select(`*, categories(name), product_images(${PRODUCT_IMAGES_SELECT})`)
+    .select(
+      `*, legacy_category:categories!products_category_id_fkey(name), product_categories(category_id, categories!product_categories_category_id_fkey(name)), product_images(${PRODUCT_IMAGES_SELECT})`,
+    )
     .eq("slug", slug)
     .eq("is_active", true)
     .maybeSingle();

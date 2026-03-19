@@ -1,7 +1,7 @@
 # Product Backlog
 
 > **Project:** distribuidorasis
-> **Last updated:** 2026-03-11
+> **Last updated:** 2026-03-18
 >
 > This is the **Single Source of Truth** for the SAFe hierarchy.
 > Structure: Epic → Feature (FEAT-N) → User Story (HU-N.M)
@@ -60,6 +60,63 @@
 
 ---
 
+### FEAT-5: Hardening post-MVP de conversion, edicion y taxonomia de catalogo
+
+- **Hypothesis:** Si endurecemos conversiones con control de acceso por modulo, edicion transaccional de imagenes, taxonomia multi-categoria, navegacion consistente y branding legal, entonces reduciremos incidentes operativos y mejoraremos trazabilidad comercial, medido por menor tasa de errores de edicion y mayor cobertura de conversiones registradas.
+- **Para:** Equipo comercial y operacion admin de SIS
+- **Que:** busca mayor control de conversiones y seguridad operativa al editar productos
+- **Esta epica:** provee mejoras post-MVP en control de acceso admin, UX transaccional de imagenes, taxonomia multi-categoria, correccion de navegacion y consistencia de marca
+- **Esperamos:** reducir errores de operacion en backoffice y mejorar visibilidad de conversiones para toma de decisiones
+- **Sabremos que hemos tenido exito cuando:** se reduzcan incidentes de edicion reportados y aumente la trazabilidad de conversiones email en dashboard admin
+- **Status:** Delivered ✅ (2026-03-18)
+- **Stories:**
+  - [x] HU-5.1: Restringir acceso admin por modulo para usuario de conversiones (`ventas@distribuidorasis.com.mx`) ✅ (2026-03-18, commits `076ba4f` + cierre docs, evidencias en `.spec/history/2026-03-18_HU-5.1_completed.md`)
+    - Como: Administrador principal
+    - Quiero: definir permisos por subseccion del admin (Categorias, Productos, Conversiones)
+    - Para poder: permitir que `ventas@distribuidorasis.com.mx` acceda solo a Conversiones sin acceso a Catalogo
+    - Criterios iniciales:
+      - Incorporar un atributo de autorizacion por modulo en alta/gestion de usuarios admin.
+      - `ventas@distribuidorasis.com.mx` solo puede abrir `/admin/conversion` y no puede abrir `/admin/productos` ni `/admin/categorias`.
+      - Si intenta navegar manualmente a un modulo no permitido, el sistema redirige y muestra feedback de acceso denegado.
+      - Mantener compatibilidad con admins full-access actuales.
+  - [x] HU-5.2: Diferir eliminacion fisica de imagenes en edicion de producto hasta accion explicita de guardar ✅ (2026-03-18, commit `45709b5` + cierre docs, evidencias en `.spec/history/2026-03-18_HU-5.2_completed.md`)
+    - Como: Operador de catalogo
+    - Quiero: que borrar una imagen durante la edicion solo marque el cambio localmente
+    - Para poder: evitar perdida accidental de contenido antes de confirmar el formulario
+    - Criterios iniciales:
+      - Las imagenes marcadas para eliminar no se borran en DB/storage hasta `Guardar`.
+      - Si el usuario cancela o abandona, el estado persistido no cambia.
+      - El resumen de cambios muestra imagenes pendientes de eliminacion antes de confirmar.
+  - [x] HU-5.3: Permitir relacion producto multi-categoria con migracion de modelo y UI admin/publica ✅ (2026-03-18, commit `1a66f83` + cierre docs, evidencias en `.spec/history/2026-03-18_HU-5.3_completed.md`)
+    - Como: Admin de catalogo
+    - Quiero: asociar un producto a mas de una categoria
+    - Para poder: representar mejor el catalogo y mejorar descubrimiento por distintos criterios
+    - Criterios iniciales:
+      - Definir tabla pivote `product_categories` y estrategia de migracion desde modelo 1:N actual.
+      - Ajustar CRUD admin para seleccionar multiples categorias por producto.
+      - Mantener compatibilidad en listados/filtros publicos y en consultas de detalle.
+      - Actualizar reglas RLS/constraints para evitar inconsistencias y duplicados.
+    - **Riesgo:** Alto 🔴 (impacta modelo de datos, consultas existentes y flujos de filtrado)
+  - [x] HU-5.4: Actualizar branding legal en footer a razon social completa ✅ (2026-03-18, commits `6666c8a` + `fd95024` + cierre docs, evidencias en `.spec/history/2026-03-18_HU-5.4_completed.md`)
+    - Como: Usuario visitante y area legal/comercial
+    - Quiero: ver la razon social completa de la empresa en el sitio
+    - Para poder: asegurar consistencia legal y de marca en la presentacion corporativa
+    - Criterios iniciales:
+      - En la página "Aviso de Privacidad", reemplazar  `SUMINISTROS INDUSTRIALES Y DE SEGURIDAD SIS, S.A. DE C.V.` por `SUMINISTROS INDUSTRIALES DE SEGURIDAD PRIVADA SIS, S.A. DE C.V.`
+      - En la página "Nosotros", reemplazar "Somos una comercializadora especializada ..." por "Suministros Industriales de Seguridad Privada SIS, S.A. de C.V. es una comercializadora especializada ..."
+      - Verificar consistencia en vistas mobile y desktop.
+      - Validar que no existan otras referencias desactualizadas del nombre comercial.
+  - [x] HU-5.5: Corregir bug de navegacion para iniciar cada cambio de pagina en la parte superior ✅ (2026-03-18, commits `c4130be` + cierre docs, evidencias en `.spec/history/2026-03-18_HU-5.5_completed.md`)
+    - Como: Usuario visitante
+    - Quiero: que al navegar entre paginas el scroll inicie desde arriba
+    - Para poder: visualizar de inmediato el encabezado y contexto de la pagina destino
+    - Criterios iniciales:
+      - Al navegar entre rutas del sitio (ej. desde Inicio hacia Aviso de Privacidad), la vista se posiciona en el top de la nueva pagina.
+      - El comportamiento aplica de forma consistente en desktop y mobile.
+      - Evitar regresiones de UX en paginas largas donde el usuario venga desde un scroll profundo.
+
+---
+
 ## Completed
 
 > Stories and Features move here when finished via `@finish-objective`.
@@ -68,3 +125,4 @@
 - **Feature delivered:** `FEAT-2` — Admin real con Supabase, OTP y seguridad RLS (2026-03-10)
 - **Feature delivered:** `FEAT-3` — Gestion multi-imagen por producto y carrusel en catalogo (2026-03-11)
 - **Feature delivered:** `FEAT-4` — Contacto omnicanal con envio real (Email + WhatsApp) (2026-03-11)
+- **Feature delivered:** `FEAT-5` — Hardening post-MVP de conversion, edicion y taxonomia de catalogo (2026-03-18)

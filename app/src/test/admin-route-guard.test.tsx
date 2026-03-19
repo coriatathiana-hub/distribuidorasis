@@ -35,15 +35,31 @@ function buildProfileQuery(profile: Record<string, unknown> | null, error = null
   return { select };
 }
 
-function renderGuard() {
+function renderGuard(initialEntry = "/admin/productos") {
   return render(
-    <MemoryRouter initialEntries={["/admin"]}>
+    <MemoryRouter initialEntries={[initialEntry]}>
       <Routes>
         <Route
-          path="/admin"
+          path="/admin/productos"
           element={
             <AdminRouteGuard>
-              <div>Contenido protegido</div>
+              <div>Vista Productos</div>
+            </AdminRouteGuard>
+          }
+        />
+        <Route
+          path="/admin/categorias"
+          element={
+            <AdminRouteGuard>
+              <div>Vista Categorías</div>
+            </AdminRouteGuard>
+          }
+        />
+        <Route
+          path="/admin/conversion"
+          element={
+            <AdminRouteGuard>
+              <div>Vista Conversión</div>
             </AdminRouteGuard>
           }
         />
@@ -84,7 +100,7 @@ describe("HU-2.2 Scenario 2: AdminRouteGuard", () => {
 
     renderGuard();
     await waitFor(() => {
-      expect(screen.getByText(/contenido protegido/i)).toBeInTheDocument();
+      expect(screen.getByText(/vista productos/i)).toBeInTheDocument();
     });
   });
 
@@ -138,5 +154,45 @@ describe("HU-2.2 Scenario 2: AdminRouteGuard", () => {
       expect(screen.getByText(/pantalla de login/i)).toBeInTheDocument();
     });
     expect(mockSignOut).toHaveBeenCalled();
+  });
+
+  it("redirects restricted admin to /admin/conversion when accessing disallowed module", async () => {
+    mockGetSession.mockResolvedValue({
+      data: {
+        session: { user: { id: "uuid-restricted" } },
+      },
+    });
+    mockFrom.mockReturnValue(
+      buildProfileQuery({
+        role: "admin",
+        is_active: true,
+        allowed_modules: ["conversion"],
+      }),
+    );
+
+    renderGuard("/admin/productos");
+    await waitFor(() => {
+      expect(screen.getByText(/vista conversión/i)).toBeInTheDocument();
+    });
+  });
+
+  it("allows restricted admin when route matches granted module", async () => {
+    mockGetSession.mockResolvedValue({
+      data: {
+        session: { user: { id: "uuid-restricted" } },
+      },
+    });
+    mockFrom.mockReturnValue(
+      buildProfileQuery({
+        role: "admin",
+        is_active: true,
+        allowed_modules: ["conversion"],
+      }),
+    );
+
+    renderGuard("/admin/conversion");
+    await waitFor(() => {
+      expect(screen.getByText(/vista conversión/i)).toBeInTheDocument();
+    });
   });
 });

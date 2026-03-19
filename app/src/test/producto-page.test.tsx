@@ -39,6 +39,8 @@ const MOCK_PRODUCT: PublicProduct = {
   name: "Arnés de Seguridad 3 Aros",
   category_id: "cat-epp",
   category_name: "EPP",
+  category_ids: ["cat-epp"],
+  category_names: ["EPP"],
   short_description: "Arnés tipo completo para trabajos en altura",
   description: "Descripción detallada del arnés con certificaciones NOM.",
   specs_json: {},

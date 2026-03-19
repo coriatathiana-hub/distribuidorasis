@@ -31,6 +31,19 @@ When a command is invoked, **read the corresponding file in `.spec/commands/` in
 - **Validation First:** Run `validate` before any implementation. If BLOCKER detected, stop.
 - **Language:** Respond in Spanish. Write code, logs, and technical docs in English.
 - **Test-as-Contract:** Write failing tests (RED) before implementation code (GREEN), then refactor.
+- **Git Strategy:** Read `.spec/config.md` before any git operation and follow the configured mode.
+
+## Git Flow (Feature Mode)
+
+When `.spec/config.md` has `mode: feature`, use this branch strategy:
+
+1. `@start-feature FEAT-N` creates `feat/N` from `main`.
+2. `@start-objective HU-N.M` creates `hu/N.M` from active `feat/N`.
+3. `@apply` commits remain in `hu/N.M`.
+4. `@finish-objective` merges `hu/N.M` into `feat/N` (`--no-ff`), tags HU, pushes `feat/N`, and deletes `hu/N.M`.
+5. Only when the full feature is done, merge `feat/N` into `main` (`--no-ff`), tag `FEAT-N`, push `main`, and delete `feat/N`.
+
+Never merge `hu/N.M` directly into `main` in feature mode.
 
 ## Templates
 

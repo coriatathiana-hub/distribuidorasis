@@ -63,8 +63,9 @@ const Nosotros = () => {
         <div className="grid gap-8 md:grid-cols-2">
           <div>
             <p className="text-lg leading-relaxed text-muted-foreground">
-              Somos una comercializadora especializada en el suministro de materiales, 
-              equipos e insumos para la industria de la construcción, atendiendo obras 
+              <strong className="text-foreground">Suministros Industriales de Seguridad Privada SIS, S.A. de C.V. </strong>
+              es una comercializadora especializada en el suministro de materiales,
+              equipos e insumos para la industria de la construcción, atendiendo obras
               civiles, industriales y desarrollos inmobiliarios.
             </p>
             <p className="mt-4 text-lg leading-relaxed text-muted-foreground">

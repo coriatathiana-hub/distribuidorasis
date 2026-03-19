@@ -11,6 +11,8 @@ function makeProduct(overrides: Partial<PublicProduct>): PublicProduct {
     name: "Arnés de Seguridad 3 Aros",
     category_id: "cat-epp",
     category_name: "EPP",
+    category_ids: ["cat-epp"],
+    category_names: ["EPP"],
     short_description: "Arnés para trabajo en alturas.",
     description: "Descripción larga",
     specs_json: {},

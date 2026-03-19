@@ -44,9 +44,14 @@ const ProductCard = ({ product }: ProductCardProps) => {
         <CardHeader className="space-y-2 pb-2 pt-3">
           <CardTitle className="line-clamp-2 text-lg leading-tight">{product.name}</CardTitle>
           <div className="flex flex-wrap gap-1">
-            <Badge variant="secondary" className="text-xs">
-              {product.category_name}
-            </Badge>
+            {(product.category_names.length > 0
+              ? product.category_names
+              : [product.category_name]
+            ).map((categoryName) => (
+              <Badge key={`${product.id}-${categoryName}`} variant="secondary" className="text-xs">
+                {categoryName}
+              </Badge>
+            ))}
           </div>
         </CardHeader>
         <CardContent className="pb-4 pt-0">

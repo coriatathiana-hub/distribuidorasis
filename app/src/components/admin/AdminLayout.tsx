@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/sheet";
 import AdminSidebar from "./AdminSidebar";
 import { getAdminProfile } from "@/lib/supabase/auth";
+import type { AdminModule } from "@/lib/supabase/auth";
 
 /**
  * Shell for all /admin/* routes.
@@ -19,11 +20,15 @@ import { getAdminProfile } from "@/lib/supabase/auth";
  */
 const AdminLayout = () => {
   const [adminEmail, setAdminEmail] = useState<string | null>(null);
+  const [allowedModules, setAllowedModules] = useState<AdminModule[] | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
     getAdminProfile().then(({ profile }) => {
-      if (profile) setAdminEmail(profile.email);
+      if (profile) {
+        setAdminEmail(profile.email);
+        setAllowedModules(profile.allowed_modules as AdminModule[] | null);
+      }
     });
   }, []);
 
@@ -34,7 +39,7 @@ const AdminLayout = () => {
         className="hidden lg:flex lg:w-60 lg:shrink-0 lg:flex-col lg:border-r lg:bg-card"
         aria-label="Barra lateral de administración"
       >
-        <AdminSidebar adminEmail={adminEmail} />
+        <AdminSidebar adminEmail={adminEmail} allowedModules={allowedModules} />
       </aside>
 
       {/* Content column */}
@@ -56,6 +61,7 @@ const AdminLayout = () => {
               </SheetHeader>
               <AdminSidebar
                 adminEmail={adminEmail}
+                allowedModules={allowedModules}
                 onNavClick={() => setMobileOpen(false)}
               />
             </SheetContent>

@@ -19,6 +19,75 @@
 
 ---
 
+## [2026-03-18] — HU-5.3: Permitir relacion producto multi-categoria con migracion de modelo y UI admin/publica
+
+**Feature:** FEAT-5 — Hardening post-MVP de conversion, edicion y taxonomia de catalogo  
+**Benefit:** El catálogo ahora modela productos en múltiples categorías sin duplicar registros, mejorando descubrimiento público y control operativo en backoffice con consistencia de seguridad y trazabilidad de cambios.  
+**Changes:**
+- Se incorporó migración `009_product_categories_pivot.sql` con precheck de integridad, backfill desde `products.category_id`, índices y políticas RLS para `anon`/`authenticated admin`.
+- Se actualizaron DAL admin/público para leer y persistir `category_ids`/`category_names` usando `product_categories` como fuente principal y compatibilidad temporal con `category_id` legacy.
+- Se adaptó `ProductManager` para selección multi-categoría y se actualizaron catálogo/detalle/cards para filtrar y renderizar múltiples badges por producto.
+- Se corrigió post-migración la ambigüedad de relaciones en Supabase embeds usando relaciones explícitas por FK (`!products_category_id_fkey`, `!product_categories_category_id_fkey`).
+- Se actualizó `TECH_SPEC.md` y se archivó el objetivo en `.spec/history/2026-03-18_HU-5.3_completed.md`.
+**Tests:** 2 nuevos tests de integración (`admin-product-multicategory`, `public-multicategory-filter`) + regresión ajustada (suite focal: 110 passing)
+
+---
+
+## [2026-03-18] — HU-5.2: Diferir eliminacion fisica de imagenes en edicion de producto hasta accion explicita de guardar
+
+**Feature:** FEAT-5 — Hardening post-MVP de conversion, edicion y taxonomia de catalogo  
+**Benefit:** La edición de productos ahora es más segura frente a errores humanos, porque eliminar imágenes deja de ser una acción destructiva inmediata y se confirma solo al guardar, reduciendo pérdida accidental de contenido.
+**Changes:**
+- Se cambió `ImageGalleryManager` para que la acción de eliminar marque imágenes como pendientes en estado local en vez de borrar físicamente al instante.
+- Se agregó resumen de eliminaciones pendientes con opción de `Deshacer`, y se bloqueó reordenamiento mientras existan pendientes para evitar inconsistencias.
+- Se conectó `ProductManager` con un handle imperativo de galería para ejecutar borrado físico únicamente al presionar `Guardar cambios`.
+- Se mantuvo `upload` y `cover` operativos, pero el delete ahora sigue flujo de confirmación explícita del formulario.
+- Se añadió cobertura de regresión para validar: no-save/no-delete, cancel sin persistir y commit físico al guardar.
+**Tests:** 3 nuevos tests (`app/src/test/product-manager-edit-gallery-deferred-delete.test.tsx`) + ajustes en `admin-image-gallery-manager`
+
+---
+
+## [2026-03-18] — HU-5.1: Restringir acceso admin por modulo para usuario de conversiones
+
+**Feature:** FEAT-5 — Hardening post-MVP de conversion, edicion y taxonomia de catalogo  
+**Benefit:** El equipo comercial ahora puede operar con principio de minimo privilegio en el backoffice, permitiendo acceso exclusivo a Conversiones para usuarios restringidos sin romper la operacion de admins legacy.
+**Changes:**
+- Se agregó `allowed_modules` al modelo `profiles` con migración `008_profiles_module_permissions.sql` y validación de dominio permitido (`productos`, `categorias`, `conversion`).
+- Se actualizó la capa de auth y tipos de Supabase para soportar permisos por módulo con fallback compatible (`null` = full access legacy).
+- Se reforzó `AdminRouteGuard` para denegar módulos no autorizados, redirigir a una ruta permitida y mostrar feedback de acceso denegado.
+- Se filtró el `AdminSidebar` por permisos efectivos, mostrando solo las secciones habilitadas para cada perfil admin.
+- Se extendió cobertura de regresión para ruta protegida, filtrado de menú y contrato de migración.
+**Tests:** 5 escenarios nuevos sobre suites existentes (`admin-route-guard`, `admin-layout-routes`, `supabase-schema-contract`)
+
+---
+
+## [2026-03-18] — HU-5.4: Actualizar branding legal en footer a razon social completa
+
+**Feature:** FEAT-5 — Hardening post-MVP de conversion, edicion y taxonomia de catalogo  
+**Benefit:** El contenido institucional ahora refleja la razon social legal requerida en paginas clave, reduciendo riesgo de inconsistencia legal/comercial y reforzando claridad de marca para usuarios finales.  
+**Changes:**
+- Se actualizo la razon social en `Privacidad` a `SUMINISTROS INDUSTRIALES DE SEGURIDAD PRIVADA SIS, S.A. DE C.V.`.
+- Se actualizo la apertura editorial en `Nosotros` para iniciar con la razon social completa solicitada.
+- Se incorporó ajuste de formato en negritas para destacar el nombre legal sin alterar el mensaje base.
+- Se agrego prueba de regresion para validar copy legal en `Privacidad` y `Nosotros`, incluyendo caso con texto dividido por elementos inline.
+- Se documentaron referencias residuales de `Distribuidora SIS` fuera del alcance de HU-5.4 como deuda controlada.
+**Tests:** 2 passing tests (`app/src/test/branding-legal-copy.test.tsx`)
+
+---
+
+## [2026-03-18] — HU-5.5: Corregir bug de navegacion para iniciar cada cambio de pagina en la parte superior
+
+**Feature:** FEAT-5 — Hardening post-MVP de conversion, edicion y taxonomia de catalogo  
+**Benefit:** La navegacion publica ahora inicia consistentemente en la parte superior de cada pagina destino, reduciendo friccion de lectura en paginas largas y mejorando orientacion del usuario al cambiar de ruta.  
+**Changes:**
+- Se agrego `ScrollToTop` para resetear posicion en cambios de ruta dentro del arbol de `BrowserRouter`.
+- Se integró la logica en `App.tsx` sin afectar layouts public/admin.
+- Se preservo comportamiento de anclas (`#hash`) para no romper navegacion contextual dentro de pagina.
+- Se agrego cobertura de regresion para scroll-top en navegacion normal y exclusion de hash navigation.
+**Tests:** 2 nuevos tests (`app/src/test/navigation-scroll-top.test.tsx`) + verificacion de suite `navigation.test.tsx` (3 passing)
+
+---
+
 ## [2026-03-11] — HU-4.4: Dashboard admin de conversion omnicanal para explotar `contact_requests` + `whatsapp_cta_attempts`
 
 **Feature:** FEAT-4 — Contacto omnicanal con envio real (Email + WhatsApp)  
