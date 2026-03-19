@@ -19,6 +19,20 @@
 
 ---
 
+## [2026-03-18] — HU-5.4: Actualizar branding legal en footer a razon social completa
+
+**Feature:** FEAT-5 — Hardening post-MVP de conversion, edicion y taxonomia de catalogo  
+**Benefit:** El contenido institucional ahora refleja la razon social legal requerida en paginas clave, reduciendo riesgo de inconsistencia legal/comercial y reforzando claridad de marca para usuarios finales.  
+**Changes:**
+- Se actualizo la razon social en `Privacidad` a `SUMINISTROS INDUSTRIALES DE SEGURIDAD PRIVADA SIS, S.A. DE C.V.`.
+- Se actualizo la apertura editorial en `Nosotros` para iniciar con la razon social completa solicitada.
+- Se incorporó ajuste de formato en negritas para destacar el nombre legal sin alterar el mensaje base.
+- Se agrego prueba de regresion para validar copy legal en `Privacidad` y `Nosotros`, incluyendo caso con texto dividido por elementos inline.
+- Se documentaron referencias residuales de `Distribuidora SIS` fuera del alcance de HU-5.4 como deuda controlada.
+**Tests:** 2 passing tests (`app/src/test/branding-legal-copy.test.tsx`)
+
+---
+
 ## [2026-03-18] — HU-5.5: Corregir bug de navegacion para iniciar cada cambio de pagina en la parte superior
 
 **Feature:** FEAT-5 — Hardening post-MVP de conversion, edicion y taxonomia de catalogo  
