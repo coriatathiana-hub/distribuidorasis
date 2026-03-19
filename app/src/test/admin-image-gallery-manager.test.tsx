@@ -243,43 +243,33 @@ describe("ImageGalleryManager (HU-3.2)", () => {
 
   // ── Delete ────────────────────────────────────────────────────────────────
 
-  it("llama deleteProductImage con id y storage_path al eliminar", async () => {
-    render(<ImageGalleryManager productId="prod-1" />);
-    await waitFor(() => screen.getAllByRole("listitem"));
-
-    await userEvent.click(screen.getByRole("button", { name: /eliminar imagen 1/i }));
-
-    await waitFor(() =>
-      expect(service.deleteProductImage).toHaveBeenCalledWith(
-        "img-1",
-        "products/prod-1/a.jpg",
-      ),
-    );
-  });
-
-  it("renormaliza sort_orders via batchUpdateSortOrder tras eliminar", async () => {
-    render(<ImageGalleryManager productId="prod-1" />);
-    await waitFor(() => screen.getAllByRole("listitem"));
-
-    await userEvent.click(screen.getByRole("button", { name: /eliminar imagen 1/i }));
-
-    await waitFor(() =>
-      expect(service.batchUpdateSortOrder).toHaveBeenCalledWith("prod-1", ["img-2"]),
-    );
-  });
-
-  it("muestra toast de error cuando deleteProductImage falla", async () => {
+  it("marca imagen como pendiente sin borrarla físicamente de inmediato", async () => {
     const { toast } = await import("sonner");
-    vi.mocked(service.deleteProductImage).mockRejectedValue(
-      new Error("RLS denied"),
-    );
     render(<ImageGalleryManager productId="prod-1" />);
     await waitFor(() => screen.getAllByRole("listitem"));
 
     await userEvent.click(screen.getByRole("button", { name: /eliminar imagen 1/i }));
 
     await waitFor(() =>
-      expect(toast.error).toHaveBeenCalledWith("RLS denied"),
+      expect(screen.getByText(/pendientes por eliminar: 1/i)).toBeInTheDocument(),
     );
+    expect(service.deleteProductImage).not.toHaveBeenCalled();
+    expect(toast.success).toHaveBeenCalledWith(
+      "Imagen marcada para eliminar. Se aplicará al guardar cambios.",
+    );
+  });
+
+  it("permite deshacer una eliminación pendiente", async () => {
+    render(<ImageGalleryManager productId="prod-1" />);
+    await waitFor(() => screen.getAllByRole("listitem"));
+
+    await userEvent.click(screen.getByRole("button", { name: /eliminar imagen 1/i }));
+    await userEvent.click(screen.getByRole("button", { name: /deshacer/i }));
+
+    await waitFor(() =>
+      expect(screen.queryByText(/pendientes por eliminar:/i)).not.toBeInTheDocument(),
+    );
+    expect(service.deleteProductImage).not.toHaveBeenCalled();
+    expect(screen.getAllByRole("listitem")).toHaveLength(2);
   });
 });

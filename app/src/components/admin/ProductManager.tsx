@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, useMemo } from "react";
+import { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import { Loader2, Package, PencilLine, Plus, Power, PowerOff, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -45,7 +45,9 @@ import {
 } from "@/lib/api/admin-catalog-service";
 import { slugify } from "@/lib/utils";
 import type { Category } from "@/types/supabase";
-import ImageGalleryManager from "@/components/admin/ImageGalleryManager";
+import ImageGalleryManager, {
+  type ImageGalleryManagerHandle,
+} from "@/components/admin/ImageGalleryManager";
 
 interface FormState {
   name: string;
@@ -77,6 +79,7 @@ const ProductManager = () => {
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
   const [slugManual, setSlugManual] = useState(false);
   const [saving, setSaving] = useState(false);
+  const galleryRef = useRef<ImageGalleryManagerHandle | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -164,6 +167,10 @@ const ProductManager = () => {
               : p
           )
         );
+        if (galleryRef.current?.hasPendingDeletions()) {
+          await galleryRef.current.commitPendingDeletions();
+          toast.success("Cambios de galería aplicados.");
+        }
         toast.success("Producto actualizado.");
       } else {
         const created = await createProduct(payload);
@@ -460,7 +467,7 @@ const ProductManager = () => {
             {editTarget && (
               <div className="border-t pt-4">
                 <p className="mb-3 text-sm font-medium">Imágenes del producto</p>
-                <ImageGalleryManager productId={editTarget.id} />
+                <ImageGalleryManager ref={galleryRef} productId={editTarget.id} />
               </div>
             )}
           </div>
