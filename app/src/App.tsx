@@ -17,6 +17,7 @@ import AdminConversion from "./pages/AdminConversion";
 import Privacidad from "./pages/Privacidad";
 import NotFound from "./pages/NotFound";
 import AdminRouteGuard from "./components/admin/AdminRouteGuard";
+import ScrollToTop from "./components/ScrollToTop";
 
 const queryClient = new QueryClient();
 
@@ -33,6 +34,7 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
+        <ScrollToTop />
         <Routes>
           {/* ── Admin routes — own layout, no public header/footer ── */}
           <Route path="/admin/login" element={<AdminLogin />} />
