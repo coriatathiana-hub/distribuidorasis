@@ -1,3 +1,128 @@
-# Current Objective
+# Objective: HU-5.1 — Restringir acceso admin por modulo para usuario de conversiones
 
-> No active objective. Run `@start-objective HU-N.M` to begin.
+## Context
+- **Feature:** FEAT-5 — Hardening post-MVP de conversion, edicion y taxonomia de catalogo
+- **Story:** Como administrador principal, quiero definir permisos por subseccion del admin (Categorias, Productos, Conversiones), para poder permitir que `ventas@distribuidorasis.com.mx` acceda solo a Conversiones sin acceso a Catalogo.
+- **Spec Level:** Standard
+- **Git Strategy:** `feature` (from `.spec/config.md`)
+- **Feature Branch:** `feat/5`
+- **Objective Branch:** `hu/5.1`
+- **TDD Mode:** `flexible` (`IMPLEMENT → TEST → REFACTOR`)
+
+## Validation (Step 0)
+
+- **Status:** WARNINGS (no BLOCKER)
+- **Summary:**
+  - ✅ PRD and TECH_SPEC satisfy global pre-requisites.
+  - ✅ FEAT-5 and HU-5.1 exist with valid SAFe IDs.
+  - ✅ HU-5.1 in `.spec/work/FEAT-5/README.md` includes C/Q/P + >=2 BDD + >=1 exception scenario.
+  - ⚠️ `docs/PRD.md` and `docs/TECH_SPEC.md` do not yet reflect FEAT-5/HU-5.1 authorization model.
+  - ⚠️ `current_objective.md` was empty before planning (expected).
+- **Decision:** Proceed to planning (allowed by Poka-Yoke because there is no BLOCKER).
+
+## Acceptance Criteria (BDD)
+
+- **Dado que** existe un atributo de permisos por modulo en perfiles admin, **cuando** se configura a `ventas@distribuidorasis.com.mx` con acceso solo a Conversiones, **entonces** el usuario puede acceder a `/admin/conversion` y consultar sus datos.
+- **Dado que** el mismo usuario intenta abrir `/admin/productos` o `/admin/categorias`, **cuando** navega por URL directa o menu, **entonces** el sistema deniega acceso, redirige a una ruta permitida y muestra feedback de autorizacion.
+- **Escenario de excepcion:** Si el atributo de permisos no existe en un admin legacy, el sistema debe aplicar fallback de full-access temporal hasta completar migracion controlada.
+
+## Story Analysis
+
+- **Data changes:** Yes. `profiles` needs a module-level permission attribute.
+- **Infrastructure prerequisites:** Apply new migration in Supabase and update operational helper SQL for admin provisioning.
+- **Component classification:**
+  - Permission schema and migration: `[DB]`
+  - Auth/session profile and route authorization checks: `[CC]` + `[DAL]`
+  - Admin sidebar navigation filtering: `[CC]`
+  - Permission-focused regressions: `[TEST]`
+- **Dependencies:** None blocking. Builds on existing OTP + `profiles` authorization flow from HU-2.2.
+- **Risk areas:**
+  - Breaking legacy admins if permission column defaults are not backward-compatible.
+  - Redirect loops if route guard and sidebar filtering diverge on permission logic.
+  - False positives in tests if role/permission mocks are incomplete.
+
+## Implementation Plan
+
+### Task 1: Add module permissions to `profiles` schema with backward-compatible default (~45 min)
+- **Type:** [DB]
+- **Cycle:** IMPLEMENT → TEST → REFACTOR
+- **Files:** `supabase/migrations/008_profiles_module_permissions.sql` (new), `supabase/auth-user.sql`
+- **Verification:** `npm run test -- admin-auth.test.tsx`
+- **Status:** ✅ Completed (migration + provisioning helper updated)
+
+### Task 2: Update Supabase types and auth profile contract for module permissions (~35 min)
+- **Type:** [DAL]
+- **Cycle:** IMPLEMENT → TEST → REFACTOR
+- **Files:** `app/src/types/supabase.ts`, `app/src/lib/supabase/auth.ts`
+- **Verification:** `npm run test -- admin-auth.test.tsx`
+- **Status:** ✅ Completed (types + shared permission helpers implemented)
+
+### Task 3: Enforce module-based authorization in `AdminRouteGuard` (~55 min)
+- **Type:** [CC]
+- **Cycle:** IMPLEMENT → TEST → REFACTOR
+- **Files:** `app/src/components/admin/AdminRouteGuard.tsx`
+- **Verification:** `npm run test -- admin-route-guard.test.tsx`
+- **Status:** ✅ Completed (deny + redirect + toast feedback + legacy fallback)
+
+### Task 4: Filter admin menu options based on allowed modules (~45 min)
+- **Type:** [CC]
+- **Cycle:** IMPLEMENT → TEST → REFACTOR
+- **Files:** `app/src/components/admin/AdminSidebar.tsx`, `app/src/components/admin/AdminLayout.tsx`
+- **Verification:** `npm run test -- admin-layout-routes.test.tsx`
+- **Status:** ✅ Completed (sidebar visibility controlled by `allowed_modules`)
+
+### Task 5: Add/extend regression tests for module access matrix (~55 min)
+- **Type:** [TEST]
+- **Cycle:** IMPLEMENT → TEST → REFACTOR
+- **Files:** `app/src/test/admin-route-guard.test.tsx`, `app/src/test/admin-layout-routes.test.tsx` (or new `app/src/test/admin-module-access.test.tsx`)
+- **Verification:** `npm run test -- admin-route-guard.test.tsx && npm run test -- admin-layout-routes.test.tsx`
+- **Status:** ✅ Completed (new restricted-user scenarios added)
+
+### Task 6: Run integrated verification and document migration note (~25 min)
+- **Type:** [TEST]
+- **Cycle:** IMPLEMENT → TEST → REFACTOR
+- **Files:** `current_objective.md`, optional `docs/SETUP.md` migration checklist entry
+- **Verification:** `npm run test -- admin-auth.test.tsx && npm run test -- admin-route-guard.test.tsx && npm run test -- admin-layout-routes.test.tsx`
+- **Status:** ✅ Completed (targeted integrated test run + lint check on touched files)
+
+## Execution Log
+- `npm run test -- src/test/admin-auth.test.tsx` ✅
+- `npm run test -- src/test/admin-route-guard.test.tsx src/test/admin-layout-routes.test.tsx src/test/supabase-schema-contract.test.ts` ✅
+- `ReadLints` on touched files ✅ (no new lint issues)
+
+## Database Changes (if applicable)
+
+```sql
+-- 008_profiles_module_permissions.sql (planned)
+alter table public.profiles
+  add column if not exists allowed_modules text[] null;
+
+-- Backward compatibility: null means full access for legacy admins.
+-- For explicit full-access users, this can also be ['productos','categorias','conversion'].
+alter table public.profiles
+  add constraint profiles_allowed_modules_valid
+  check (
+    allowed_modules is null
+    or allowed_modules <@ array['productos','categorias','conversion']::text[]
+  );
+
+-- Optional hardening for explicit defaults (evaluate during implementation):
+-- update public.profiles
+-- set allowed_modules = array['productos','categorias','conversion']::text[]
+-- where allowed_modules is null and role = 'admin';
+```
+
+## Manual Testing Checklist
+- [ ] Configurar `ventas@distribuidorasis.com.mx` con `allowed_modules=['conversion']` en `profiles`.
+- [ ] Iniciar sesion OTP con ese usuario y confirmar acceso a `/admin/conversion`.
+- [ ] Intentar abrir `/admin/productos` y `/admin/categorias` por URL directa; confirmar redireccion + feedback de acceso denegado.
+- [ ] Confirmar que en sidebar solo aparece `Conversión` para usuario restringido.
+- [ ] Iniciar sesion con admin legacy/full-access y verificar acceso normal a los tres modulos.
+
+## Definition of Done
+- [x] All BDD criteria have passing tests
+- [x] No TypeScript errors
+- [ ] RLS policies tested (if applicable)
+- [ ] CHANGELOG entry drafted
+- [ ] All changes committed with `feat(HU-5.1):` convention
+- [ ] Tag `HU-5.1` created

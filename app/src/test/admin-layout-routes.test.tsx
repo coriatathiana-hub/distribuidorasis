@@ -28,13 +28,23 @@ vi.mock("@/components/ui/sheet", () => ({
 
 // ── AdminSidebar ──────────────────────────────────────────────────────────────
 
-function renderSidebar(adminEmail?: string, onNavClick?: () => void) {
+function renderSidebar(
+  adminEmail?: string,
+  onNavClick?: () => void,
+  allowedModules?: Array<"productos" | "categorias" | "conversion"> | null,
+) {
   return render(
     <MemoryRouter initialEntries={["/admin/productos"]}>
       <Routes>
         <Route
           path="/admin/*"
-          element={<AdminSidebar adminEmail={adminEmail} onNavClick={onNavClick} />}
+          element={
+            <AdminSidebar
+              adminEmail={adminEmail}
+              onNavClick={onNavClick}
+              allowedModules={allowedModules}
+            />
+          }
         />
         <Route path="/admin/login" element={<div>Login</div>} />
       </Routes>
@@ -98,6 +108,13 @@ describe("HU-2.4 Scenario 1 & 2: AdminSidebar", () => {
     await userEvent.click(screen.getByRole("button", { name: /cerrar sesión/i }));
     await waitFor(() => expect(signOutAdmin).toHaveBeenCalled());
   });
+
+  it("hides Productos y Categorías when allowed modules are conversion-only", () => {
+    renderSidebar("ventas@distribuidorasis.com.mx", undefined, ["conversion"]);
+    expect(screen.queryByRole("link", { name: /productos/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /categorías/i })).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /conversión/i })).toBeInTheDocument();
+  });
 });
 
 // ── AdminLayout ───────────────────────────────────────────────────────────────
@@ -143,5 +160,24 @@ describe("HU-2.4 Scenario 1 & 2: AdminLayout", () => {
     });
     expect(screen.getAllByRole("link", { name: /categorías/i }).length).toBeGreaterThan(0);
     expect(screen.getAllByRole("link", { name: /conversión/i }).length).toBeGreaterThan(0);
+  });
+
+  it("filters sidebar links when profile has conversion-only access", async () => {
+    const { getAdminProfile } = await import("@/lib/supabase/auth");
+    vi.mocked(getAdminProfile).mockResolvedValueOnce({
+      profile: {
+        email: "ventas@distribuidorasis.com.mx",
+        allowed_modules: ["conversion"],
+      },
+      error: null,
+    } as never);
+
+    renderLayout();
+
+    await waitFor(() => {
+      expect(screen.getAllByRole("link", { name: /conversión/i }).length).toBeGreaterThan(0);
+    });
+    expect(screen.queryByRole("link", { name: /productos/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /categorías/i })).not.toBeInTheDocument();
   });
 });
