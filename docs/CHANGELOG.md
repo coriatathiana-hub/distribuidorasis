@@ -19,6 +19,20 @@
 
 ---
 
+## [2026-03-18] — HU-5.3: Permitir relacion producto multi-categoria con migracion de modelo y UI admin/publica
+
+**Feature:** FEAT-5 — Hardening post-MVP de conversion, edicion y taxonomia de catalogo  
+**Benefit:** El catálogo ahora modela productos en múltiples categorías sin duplicar registros, mejorando descubrimiento público y control operativo en backoffice con consistencia de seguridad y trazabilidad de cambios.  
+**Changes:**
+- Se incorporó migración `009_product_categories_pivot.sql` con precheck de integridad, backfill desde `products.category_id`, índices y políticas RLS para `anon`/`authenticated admin`.
+- Se actualizaron DAL admin/público para leer y persistir `category_ids`/`category_names` usando `product_categories` como fuente principal y compatibilidad temporal con `category_id` legacy.
+- Se adaptó `ProductManager` para selección multi-categoría y se actualizaron catálogo/detalle/cards para filtrar y renderizar múltiples badges por producto.
+- Se corrigió post-migración la ambigüedad de relaciones en Supabase embeds usando relaciones explícitas por FK (`!products_category_id_fkey`, `!product_categories_category_id_fkey`).
+- Se actualizó `TECH_SPEC.md` y se archivó el objetivo en `.spec/history/2026-03-18_HU-5.3_completed.md`.
+**Tests:** 2 nuevos tests de integración (`admin-product-multicategory`, `public-multicategory-filter`) + regresión ajustada (suite focal: 110 passing)
+
+---
+
 ## [2026-03-18] — HU-5.2: Diferir eliminacion fisica de imagenes en edicion de producto hasta accion explicita de guardar
 
 **Feature:** FEAT-5 — Hardening post-MVP de conversion, edicion y taxonomia de catalogo  

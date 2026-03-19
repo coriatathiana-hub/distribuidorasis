@@ -152,6 +152,7 @@ Apply migrations in order from `supabase/migrations/`:
 6. `006_product_images_gallery_rules.sql`
 7. `007_whatsapp_cta_attempts.sql`
 8. `008_profiles_module_permissions.sql`
+9. `009_product_categories_pivot.sql`
 
 `007` must be validated in production:
 - `anon` can insert into `whatsapp_cta_attempts`,
@@ -161,6 +162,12 @@ Apply migrations in order from `supabase/migrations/`:
 - `public.profiles.allowed_modules` accepts only `productos`, `categorias`, `conversion`.
 - restricted admin profiles (e.g. `['conversion']`) can access only allowed admin modules.
 - legacy admins with `allowed_modules = null` retain temporary full access until migration hardening is completed.
+
+`009` must be validated in production:
+- `product_categories` contains backfilled links from legacy `products.category_id`.
+- `anon` can read only active product/category relationships.
+- admin CRUD over `product_categories` works through authenticated profile guard.
+- app queries use explicit relationship embeds to avoid ambiguous FK resolution.
 
 ---
 
@@ -265,6 +272,7 @@ Operational decision (2026-03-13):
 - [x] Supabase Auth URLs updated for staging and production.
 - [x] Migration `007_whatsapp_cta_attempts.sql` applied in production.
 - [ ] Migration `008_profiles_module_permissions.sql` applied in production.
+- [ ] Migration `009_product_categories_pivot.sql` applied in production.
 - [x] Legacy image migration executed to Supabase Storage (`app/public/products` -> `product_images`).
 
 ### 11.2 Release validation
