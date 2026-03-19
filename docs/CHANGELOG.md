@@ -19,6 +19,20 @@
 
 ---
 
+## [2026-03-18] — HU-5.1: Restringir acceso admin por modulo para usuario de conversiones
+
+**Feature:** FEAT-5 — Hardening post-MVP de conversion, edicion y taxonomia de catalogo  
+**Benefit:** El equipo comercial ahora puede operar con principio de minimo privilegio en el backoffice, permitiendo acceso exclusivo a Conversiones para usuarios restringidos sin romper la operacion de admins legacy.
+**Changes:**
+- Se agregó `allowed_modules` al modelo `profiles` con migración `008_profiles_module_permissions.sql` y validación de dominio permitido (`productos`, `categorias`, `conversion`).
+- Se actualizó la capa de auth y tipos de Supabase para soportar permisos por módulo con fallback compatible (`null` = full access legacy).
+- Se reforzó `AdminRouteGuard` para denegar módulos no autorizados, redirigir a una ruta permitida y mostrar feedback de acceso denegado.
+- Se filtró el `AdminSidebar` por permisos efectivos, mostrando solo las secciones habilitadas para cada perfil admin.
+- Se extendió cobertura de regresión para ruta protegida, filtrado de menú y contrato de migración.
+**Tests:** 5 escenarios nuevos sobre suites existentes (`admin-route-guard`, `admin-layout-routes`, `supabase-schema-contract`)
+
+---
+
 ## [2026-03-18] — HU-5.4: Actualizar branding legal en footer a razon social completa
 
 **Feature:** FEAT-5 — Hardening post-MVP de conversion, edicion y taxonomia de catalogo  

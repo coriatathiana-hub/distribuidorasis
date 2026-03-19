@@ -70,7 +70,7 @@
 - **Sabremos que hemos tenido exito cuando:** se reduzcan incidentes de edicion reportados y aumente la trazabilidad de conversiones email en dashboard admin
 - **Status:** In Progress 🚧 (2026-03-18)
 - **Stories:**
-  - [ ] HU-5.1: Restringir acceso admin por modulo para usuario de conversiones (`ventas@distribuidorasis.com.mx`)
+  - [x] HU-5.1: Restringir acceso admin por modulo para usuario de conversiones (`ventas@distribuidorasis.com.mx`) ✅ (2026-03-18, commits `076ba4f` + cierre docs, evidencias en `.spec/history/2026-03-18_HU-5.1_completed.md`)
     - Como: Administrador principal
     - Quiero: definir permisos por subseccion del admin (Categorias, Productos, Conversiones)
     - Para poder: permitir que `ventas@distribuidorasis.com.mx` acceda solo a Conversiones sin acceso a Catalogo

@@ -1,7 +1,7 @@
 # Setup & Operations Guide (Single Source of Truth)
 
 > **Project:** distribuidorasis  
-> **Last updated:** 2026-03-13  
+> **Last updated:** 2026-03-18  
 > **Scope:** end-to-end setup for local, staging, and production.
 
 This document is the canonical setup/runbook for:
@@ -151,10 +151,16 @@ Apply migrations in order from `supabase/migrations/`:
 5. `005_products_name_unique.sql`
 6. `006_product_images_gallery_rules.sql`
 7. `007_whatsapp_cta_attempts.sql`
+8. `008_profiles_module_permissions.sql`
 
 `007` must be validated in production:
 - `anon` can insert into `whatsapp_cta_attempts`,
 - authenticated admin can select from `whatsapp_cta_attempts`.
+
+`008` must be validated in production:
+- `public.profiles.allowed_modules` accepts only `productos`, `categorias`, `conversion`.
+- restricted admin profiles (e.g. `['conversion']`) can access only allowed admin modules.
+- legacy admins with `allowed_modules = null` retain temporary full access until migration hardening is completed.
 
 ---
 
@@ -258,6 +264,7 @@ Operational decision (2026-03-13):
 - [x] Resend domain status is `Verified`.
 - [x] Supabase Auth URLs updated for staging and production.
 - [x] Migration `007_whatsapp_cta_attempts.sql` applied in production.
+- [ ] Migration `008_profiles_module_permissions.sql` applied in production.
 - [x] Legacy image migration executed to Supabase Storage (`app/public/products` -> `product_images`).
 
 ### 11.2 Release validation
