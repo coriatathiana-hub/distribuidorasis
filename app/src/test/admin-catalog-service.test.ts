@@ -107,7 +107,7 @@ describe("updateCategory", () => {
 // ── Products ──────────────────────────────────────────────────────────────────
 
 describe("listProducts", () => {
-  it("maps categories.name to category_name and removes categories key", async () => {
+  it("maps pivot categories to category_name and category_ids", async () => {
     const raw = [
       {
         id: "p1",
@@ -120,7 +120,11 @@ describe("listProducts", () => {
         is_active: true,
         created_at: "2024-01-01",
         updated_at: "2024-01-01",
-        categories: { name: "EPP" },
+        legacy_category: { name: "EPP" },
+        product_categories: [
+          { category_id: "c1", categories: { name: "EPP" } },
+          { category_id: "c2", categories: { name: "Altura" } },
+        ],
       },
     ];
     const sb = await getSupabase();
@@ -128,7 +132,8 @@ describe("listProducts", () => {
 
     const result = await service.listProducts();
     expect(result[0].category_name).toBe("EPP");
-    expect(result[0]).not.toHaveProperty("categories");
+    expect(result[0].category_ids).toEqual(["c1", "c2"]);
+    expect(result[0].category_names).toEqual(["EPP", "Altura"]);
   });
 
   it("returns empty array when data is null", async () => {
@@ -141,7 +146,7 @@ describe("listProducts", () => {
 });
 
 describe("createProduct", () => {
-  const payload = { name: "Casco", slug: "casco", category_id: "c1" };
+  const payload = { name: "Casco", slug: "casco", category_ids: ["c1"] };
 
   it("throws friendly message on unique constraint (23505)", async () => {
     const sb = await getSupabase();

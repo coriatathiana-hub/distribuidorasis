@@ -26,6 +26,8 @@ const PRODUCTS: ProductWithCategory[] = [
     id: "p-1",
     category_id: "cat-1",
     category_name: "EPP",
+    category_ids: ["cat-1"],
+    category_names: ["EPP"],
     name: "Casco MSA",
     slug: "casco-msa",
     short_description: "Casco de seguridad",

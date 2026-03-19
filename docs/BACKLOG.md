@@ -68,7 +68,7 @@
 - **Esta epica:** provee mejoras post-MVP en control de acceso admin, UX transaccional de imagenes, taxonomia multi-categoria, correccion de navegacion y consistencia de marca
 - **Esperamos:** reducir errores de operacion en backoffice y mejorar visibilidad de conversiones para toma de decisiones
 - **Sabremos que hemos tenido exito cuando:** se reduzcan incidentes de edicion reportados y aumente la trazabilidad de conversiones email en dashboard admin
-- **Status:** In Progress 🚧 (2026-03-18)
+- **Status:** Delivered ✅ (2026-03-18)
 - **Stories:**
   - [x] HU-5.1: Restringir acceso admin por modulo para usuario de conversiones (`ventas@distribuidorasis.com.mx`) ✅ (2026-03-18, commits `076ba4f` + cierre docs, evidencias en `.spec/history/2026-03-18_HU-5.1_completed.md`)
     - Como: Administrador principal
@@ -87,7 +87,7 @@
       - Las imagenes marcadas para eliminar no se borran en DB/storage hasta `Guardar`.
       - Si el usuario cancela o abandona, el estado persistido no cambia.
       - El resumen de cambios muestra imagenes pendientes de eliminacion antes de confirmar.
-  - [ ] HU-5.3: Permitir relacion producto multi-categoria con migracion de modelo y UI admin/publica
+  - [x] HU-5.3: Permitir relacion producto multi-categoria con migracion de modelo y UI admin/publica ✅ (2026-03-18, commit `1a66f83` + cierre docs, evidencias en `.spec/history/2026-03-18_HU-5.3_completed.md`)
     - Como: Admin de catalogo
     - Quiero: asociar un producto a mas de una categoria
     - Para poder: representar mejor el catalogo y mejorar descubrimiento por distintos criterios
@@ -125,3 +125,4 @@
 - **Feature delivered:** `FEAT-2` — Admin real con Supabase, OTP y seguridad RLS (2026-03-10)
 - **Feature delivered:** `FEAT-3` — Gestion multi-imagen por producto y carrusel en catalogo (2026-03-11)
 - **Feature delivered:** `FEAT-4` — Contacto omnicanal con envio real (Email + WhatsApp) (2026-03-11)
+- **Feature delivered:** `FEAT-5` — Hardening post-MVP de conversion, edicion y taxonomia de catalogo (2026-03-18)

@@ -59,6 +59,14 @@
 | `created_at` | `timestamptz` | NOT NULL, default `now()` | Creation timestamp |
 | `updated_at` | `timestamptz` | NOT NULL, default `now()` | Last update timestamp |
 
+#### `product_categories`
+
+| Column | Type | Constraints | Description |
+|:-------|:-----|:------------|:------------|
+| `product_id` | `uuid` | PK (composite), FK -> `products.id`, ON DELETE CASCADE | Owner product |
+| `category_id` | `uuid` | PK (composite), FK -> `categories.id`, ON DELETE RESTRICT | Linked category |
+| `created_at` | `timestamptz` | NOT NULL, default `now()` | Link creation timestamp |
+
 #### `product_images`
 
 | Column | Type | Constraints | Description |
@@ -103,6 +111,8 @@
 ### Relationships
 
 - `products.category_id` -> `categories.id` (FK, ON DELETE RESTRICT)
+- `product_categories.product_id` -> `products.id` (FK, ON DELETE CASCADE)
+- `product_categories.category_id` -> `categories.id` (FK, ON DELETE RESTRICT)
 - `product_images.product_id` -> `products.id` (FK, ON DELETE CASCADE)
 - `profiles.id` -> `auth.users.id` (FK logical by same UUID key)
 
@@ -134,11 +144,13 @@
 |:------|:-----|:-------|:-------|:-------|:-------|:-------------|
 | `categories` | anon | Yes (`is_active=true`) | No | No | No | Catalog read-only for public users |
 | `products` | anon | Yes (`is_active=true`) | No | No | No | Public listing only active products |
+| `product_categories` | anon | Yes (active product/category only) | No | No | No | Public can read category assignments for active catalog entities |
 | `product_images` | anon | Yes | No | No | No | Public can read image metadata for active products |
 | `contact_requests` | anon | No | Yes | No | No | Public can create lead requests only |
 | `whatsapp_cta_attempts` | anon | No | Yes | No | No | Public can log minimal WhatsApp CTA attempts |
 | `categories` | authenticated admin | Yes | Yes | Yes | Yes | `exists(select 1 from profiles p where p.id=auth.uid() and p.role='admin' and p.is_active=true)` |
 | `products` | authenticated admin | Yes | Yes | Yes | Yes | Same admin policy check |
+| `product_categories` | authenticated admin | Yes | Yes | Yes | Yes | Same admin policy check |
 | `product_images` | authenticated admin | Yes | Yes | Yes | Yes | Same admin policy check |
 | `contact_requests` | authenticated admin | Yes | Yes | Yes | Yes | Admin can manage lead pipeline |
 | `whatsapp_cta_attempts` | authenticated admin | Yes | No | No | No | Admin can inspect conversion telemetry from WhatsApp CTA events |
@@ -238,7 +250,9 @@ supabase/
 │   ├── 004_fix_profiles_policy_recursion.sql # Removes recursive profiles policies (HU-2.2)
 │   ├── 005_products_name_unique.sql     # UNIQUE constraint on products.name (HU-2.3)
 │   ├── 006_product_images_gallery_rules.sql # Product gallery constraints and uniqueness guards (HU-3.1)
-│   └── 007_whatsapp_cta_attempts.sql    # WhatsApp CTA telemetry table + RLS (HU-4.3)
+│   ├── 007_whatsapp_cta_attempts.sql    # WhatsApp CTA telemetry table + RLS (HU-4.3)
+│   ├── 008_profiles_module_permissions.sql # Per-module admin authorization (HU-5.1)
+│   └── 009_product_categories_pivot.sql # Product multi-category pivot + RLS (HU-5.3)
 └── seed.sql                             # Development data seed (46 products, 4 categories)
 
 functions/
