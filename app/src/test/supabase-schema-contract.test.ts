@@ -25,6 +25,7 @@ import type {
   ProductCategory,
   ProductImage,
   Profile,
+  WhatsAppCtaAttempt,
   UpdateProduct,
   UpdateProductImage,
 } from "@/types/supabase";
@@ -244,6 +245,21 @@ describe("HU-2.1 TypeScript Database contract — all tables represented", () =>
     expect(row.status).toBe("new");
   });
 
+  it("Database type contains public.whatsapp_cta_attempts", () => {
+    const row: WhatsAppCtaAttempt = {
+      id: "uuid",
+      event_id: "evt-123",
+      source: "/contacto",
+      context_type: "contact_card",
+      product_slug: null,
+      product_name: null,
+      prefilled_message: "Hola, me interesa cotizar.",
+      opened_successfully: true,
+      created_at: "2026-03-19T12:00:00.000Z",
+    };
+    expect(row.event_id).toBe("evt-123");
+  });
+
   it("Insert types allow omitting auto-generated fields", () => {
     const insert: InsertCategory = { name: "EPP", slug: "epp" };
     expect(insert.name).toBe("EPP");
@@ -359,6 +375,27 @@ describe("HU-5.3 Scenario 1: SQL migration 009 — product_categories pivot + RL
     expect(sql).toMatch(/alter table public\.product_categories enable row level security/i);
     expect(sql).toMatch(/product_categories_anon_select_active/i);
     expect(sql).toMatch(/product_categories_admin_all/i);
+  });
+});
+
+describe("HU-5.6 Scenario 1: SQL migration 010 — WhatsApp CTA reliability", () => {
+  const sql = readFileSync(
+    resolve(__dirname, "../../..", "supabase/migrations/010_whatsapp_cta_reliability.sql"),
+    "utf-8",
+  );
+
+  it("adds event_id column to whatsapp_cta_attempts", () => {
+    expect(sql).toMatch(/add column if not exists event_id text/i);
+  });
+
+  it("backfills event_id from legacy id", () => {
+    expect(sql).toMatch(/set event_id = id::text/i);
+    expect(sql).toMatch(/where event_id is null/i);
+  });
+
+  it("creates unique index for event_id", () => {
+    expect(sql).toMatch(/whatsapp_cta_attempts_event_id_unique/i);
+    expect(sql).toMatch(/on public\.whatsapp_cta_attempts \(event_id\)/i);
   });
 });
 

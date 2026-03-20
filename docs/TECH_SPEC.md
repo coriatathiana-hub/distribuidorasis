@@ -100,6 +100,7 @@
 | Column | Type | Constraints | Description |
 |:-------|:-----|:------------|:------------|
 | `id` | `uuid` | PK, default `gen_random_uuid()` | Primary key |
+| `event_id` | `text` | NOT NULL, unique, default `gen_random_uuid()::text` | Idempotency key for retry-safe tracking |
 | `source` | `text` | NOT NULL | Origin route/context (`/`, `/contacto`, `/producto`) |
 | `context_type` | `text` | NOT NULL | CTA context (`floating_button`, `contact_card`, `product_detail`) |
 | `product_slug` | `text` | NULL | Product slug when CTA comes from detail |
@@ -252,7 +253,8 @@ supabase/
 │   ├── 006_product_images_gallery_rules.sql # Product gallery constraints and uniqueness guards (HU-3.1)
 │   ├── 007_whatsapp_cta_attempts.sql    # WhatsApp CTA telemetry table + RLS (HU-4.3)
 │   ├── 008_profiles_module_permissions.sql # Per-module admin authorization (HU-5.1)
-│   └── 009_product_categories_pivot.sql # Product multi-category pivot + RLS (HU-5.3)
+│   ├── 009_product_categories_pivot.sql # Product multi-category pivot + RLS (HU-5.3)
+│   └── 010_whatsapp_cta_reliability.sql # WhatsApp idempotency key for retry-safe inserts (HU-5.6)
 └── seed.sql                             # Development data seed (46 products, 4 categories)
 
 functions/
