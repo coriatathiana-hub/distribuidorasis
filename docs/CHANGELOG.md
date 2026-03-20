@@ -19,6 +19,20 @@
 
 ---
 
+## [2026-03-19] — HU-5.6: Hardening de trazabilidad para WhatsApp CTA con persistencia confiable en `whatsapp_cta_attempts`
+
+**Feature:** FEAT-5 — Hardening post-MVP de conversion, edicion y taxonomia de catalogo  
+**Benefit:** La telemetria de WhatsApp CTA ahora es resiliente ante fallos transitorios y cambios rapidos de contexto del navegador, reduciendo perdida de eventos y mejorando la calidad de KPIs de conversion para seguimiento comercial.  
+**Changes:**
+- Se implemento idempotencia por `event_id` en tracking WhatsApp con persistencia retry-safe y deduplicacion por unique key.
+- Se endurecio `whatsapp-intent-service` con estrategia de entrega en dos capas (keepalive REST + fallback Supabase), cola local y recuperacion en eventos `online`, `pagehide` y `visibilitychange`.
+- Se agrego migracion `010_whatsapp_cta_reliability.sql` para backfill de `event_id`, enforcement `NOT NULL` y indice unico `whatsapp_cta_attempts_event_id_unique`.
+- Se actualizaron contrato de tipos (`supabase.ts`), pruebas de esquema y nueva suite de confiabilidad (`whatsapp-intent-service.test.ts`).
+- Se actualizaron `TECH_SPEC.md` y `SETUP.md` con nuevo campo de modelo de datos y validaciones operativas para la migracion `010`.
+**Tests:** 6 tests nuevos (2 en `whatsapp-intent-service.test.ts` y 4 en `supabase-schema-contract.test.ts`); suite focal HU-5.6 en verde (56/56)
+
+---
+
 ## [2026-03-18] — HU-5.3: Permitir relacion producto multi-categoria con migracion de modelo y UI admin/publica
 
 **Feature:** FEAT-5 — Hardening post-MVP de conversion, edicion y taxonomia de catalogo  

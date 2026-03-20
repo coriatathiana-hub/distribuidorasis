@@ -76,9 +76,24 @@
 **Escenario de excepcion:**
 - Si existe una navegacion interna que requiere conservar posicion (anclas o retorno contextual), se documenta y excluye explicitamente para no romper UX esperada.
 
+### HU-5.6: Hardening de trazabilidad para WhatsApp CTA con persistencia confiable en `whatsapp_cta_attempts`
+
+- **Como:** Responsable comercial y administrador de conversiones
+- **Quiero:** que cada clic valido al CTA de WhatsApp quede trazado de forma confiable
+- **Para poder:** usar el dashboard de conversion con datos consistentes para seguimiento comercial
+
+**Criterios de aceptacion (BDD):**
+- **Dado que** un usuario hace clic en un CTA de WhatsApp desde el sitio, **cuando** se dispara el tracking del intento, **entonces** el evento se persiste en `whatsapp_cta_attempts` con `source`, `context_type`, `opened_successfully` y `created_at`.
+- **Dado que** existe un fallo transitorio de red o cambio inmediato de contexto del navegador, **cuando** falla el primer intento de persistencia, **entonces** el sistema ejecuta la estrategia de recuperacion definida sin bloquear la accion del usuario.
+- **Dado que** se ejecutan pruebas controladas de conversion, **cuando** se comparan clics instrumentados contra registros persistidos, **entonces** la desviacion permanece dentro del umbral operativo acordado.
+
+**Escenario de excepcion:**
+- Si el navegador no permite el mecanismo preferente de despacho del evento, el sistema debe degradar a una estrategia alternativa manteniendo idempotencia y sin degradar la apertura de WhatsApp.
+
 ## Riesgos y consideraciones iniciales
 
 - **HU-5.3 (Riesgo Alto):** impacto en modelo de datos, consultas DAL, filtros publicos y politicas RLS.
+- **HU-5.6 (Riesgo Medio):** confiabilidad de telemetria en navegacion de salida y consistencia de KPIs de conversion.
 - **HU-5.2 (Riesgo Medio):** consistencia transaccional entre estado de UI, DB y Storage.
 - **HU-5.1 (Riesgo Medio):** cambios en autorizacion por modulo y guards de rutas admin.
 - **HU-5.4/HU-5.5 (Riesgo Bajo):** ajustes de copy legal y comportamiento de navegacion.

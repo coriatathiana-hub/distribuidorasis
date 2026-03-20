@@ -198,6 +198,7 @@ export interface Database {
       whatsapp_cta_attempts: {
         Row: {
           id: string;
+          event_id: string;
           source: string;
           context_type: string;
           product_slug: string | null;
@@ -208,6 +209,7 @@ export interface Database {
         };
         Insert: {
           id?: string;
+          event_id?: string;
           source: string;
           context_type: string;
           product_slug?: string | null;
@@ -218,6 +220,7 @@ export interface Database {
         };
         Update: {
           id?: string;
+          event_id?: string;
           source?: string;
           context_type?: string;
           product_slug?: string | null;

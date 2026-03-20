@@ -153,6 +153,7 @@ Apply migrations in order from `supabase/migrations/`:
 7. `007_whatsapp_cta_attempts.sql`
 8. `008_profiles_module_permissions.sql`
 9. `009_product_categories_pivot.sql`
+10. `010_whatsapp_cta_reliability.sql`
 
 `007` must be validated in production:
 - `anon` can insert into `whatsapp_cta_attempts`,
@@ -168,6 +169,11 @@ Apply migrations in order from `supabase/migrations/`:
 - `anon` can read only active product/category relationships.
 - admin CRUD over `product_categories` works through authenticated profile guard.
 - app queries use explicit relationship embeds to avoid ambiguous FK resolution.
+
+`010` must be validated in production:
+- `whatsapp_cta_attempts.event_id` is populated for legacy rows.
+- unique index `whatsapp_cta_attempts_event_id_unique` exists and prevents duplicates.
+- retry-safe inserts keep a single row per logical CTA attempt.
 
 ---
 
@@ -273,6 +279,7 @@ Operational decision (2026-03-13):
 - [x] Migration `007_whatsapp_cta_attempts.sql` applied in production.
 - [ ] Migration `008_profiles_module_permissions.sql` applied in production.
 - [ ] Migration `009_product_categories_pivot.sql` applied in production.
+- [ ] Migration `010_whatsapp_cta_reliability.sql` applied in production.
 - [x] Legacy image migration executed to Supabase Storage (`app/public/products` -> `product_images`).
 
 ### 11.2 Release validation
