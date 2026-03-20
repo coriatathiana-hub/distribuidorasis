@@ -1,7 +1,7 @@
 # Product Requirements Document (PRD)
 
 > **Project:** distribuidorasis
-> **Last updated:** 2026-03-10
+> **Last updated:** 2026-03-19
 
 ---
 
@@ -67,10 +67,11 @@ Distribuidora SIS necesita evolucionar su sitio corporativo a una aplicacion mob
 
 | ID | Feature | Priority | Status |
 |:---|:--------|:---------|:-------|
-| FEAT-1 | Plataforma base mobile-first y experiencia de catalogo | High | Pending |
-| FEAT-2 | Administracion real con persistencia, autenticacion OTP y RLS | High | Pending |
-| FEAT-3 | Gestion avanzada de imagenes por producto y carrusel en listados | High | Pending |
-| FEAT-4 | Captura omnicanal de solicitudes (email + WhatsApp) | High | Pending |
+| FEAT-1 | Plataforma base mobile-first y experiencia de catalogo | High | Delivered |
+| FEAT-2 | Administracion real con persistencia, autenticacion OTP y RLS | High | Delivered |
+| FEAT-3 | Gestion avanzada de imagenes por producto y carrusel en listados | High | Delivered |
+| FEAT-4 | Captura omnicanal de solicitudes (email + WhatsApp) | High | Delivered |
+| FEAT-5 | Hardening post-MVP de conversion, edicion y taxonomia de catalogo | High | Delivered |
 
 ---
 

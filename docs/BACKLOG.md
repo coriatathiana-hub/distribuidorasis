@@ -1,7 +1,7 @@
 # Product Backlog
 
 > **Project:** distribuidorasis
-> **Last updated:** 2026-03-18
+> **Last updated:** 2026-03-19
 >
 > This is the **Single Source of Truth** for the SAFe hierarchy.
 > Structure: Epic → Feature (FEAT-N) → User Story (HU-N.M)
@@ -68,7 +68,7 @@
 - **Esta epica:** provee mejoras post-MVP en control de acceso admin, UX transaccional de imagenes, taxonomia multi-categoria, correccion de navegacion y consistencia de marca
 - **Esperamos:** reducir errores de operacion en backoffice y mejorar visibilidad de conversiones para toma de decisiones
 - **Sabremos que hemos tenido exito cuando:** se reduzcan incidentes de edicion reportados y aumente la trazabilidad de conversiones email en dashboard admin
-- **Status:** Delivered ✅ (2026-03-18)
+- **Status:** Delivered ✅ (2026-03-19)
 - **Stories:**
   - [x] HU-5.1: Restringir acceso admin por modulo para usuario de conversiones (`ventas@distribuidorasis.com.mx`) ✅ (2026-03-18, commits `076ba4f` + cierre docs, evidencias en `.spec/history/2026-03-18_HU-5.1_completed.md`)
     - Como: Administrador principal
@@ -114,6 +114,20 @@
       - Al navegar entre rutas del sitio (ej. desde Inicio hacia Aviso de Privacidad), la vista se posiciona en el top de la nueva pagina.
       - El comportamiento aplica de forma consistente en desktop y mobile.
       - Evitar regresiones de UX en paginas largas donde el usuario venga desde un scroll profundo.
+  - [x] HU-5.6: Hardening de trazabilidad para WhatsApp CTA con persistencia confiable en `whatsapp_cta_attempts` ✅ (2026-03-19)
+    - Como: Responsable comercial y administrador de conversiones
+    - Quiero: que cada clic valido al CTA de WhatsApp quede trazado de forma confiable
+    - Para poder: usar el dashboard de conversion con datos consistentes para seguimiento comercial
+    - Criterios iniciales:
+      - Asegurar trazabilidad confiable de intentos WhatsApp en escenarios reales de uso (incluyendo cambios rapidos de foco/pestaña).
+      - Mantener UX no bloqueante: la apertura de WhatsApp no debe depender del resultado de persistencia.
+      - Implementar tolerancia a fallos transitorios con estrategia de recuperacion (reintentos y/o cola local) sin duplicar eventos.
+      - Incorporar observabilidad minima para auditar brecha entre clics instrumentados y filas persistidas.
+    - BDD:
+      - Dado que un usuario hace clic en un CTA de WhatsApp desde el sitio, Cuando se dispara el tracking del intento, Entonces el evento se persiste en `whatsapp_cta_attempts` con `source`, `context_type`, `opened_successfully` y `created_at`.
+      - Dado que existe un fallo transitorio de red o cambio inmediato de contexto del navegador, Cuando falla el primer intento de persistencia, Entonces el sistema ejecuta la estrategia de recuperacion definida sin bloquear la accion del usuario.
+      - Dado que se ejecutan pruebas controladas de conversion, Cuando se comparan clics instrumentados contra registros persistidos, Entonces la desviacion permanece dentro del umbral operativo acordado.
+    - Riesgo: Medio 🟠 (impacta calidad de telemetria y KPIs comerciales; requiere balance entre confiabilidad y UX)
 
 ---
 
@@ -125,4 +139,4 @@
 - **Feature delivered:** `FEAT-2` — Admin real con Supabase, OTP y seguridad RLS (2026-03-10)
 - **Feature delivered:** `FEAT-3` — Gestion multi-imagen por producto y carrusel en catalogo (2026-03-11)
 - **Feature delivered:** `FEAT-4` — Contacto omnicanal con envio real (Email + WhatsApp) (2026-03-11)
-- **Feature delivered:** `FEAT-5` — Hardening post-MVP de conversion, edicion y taxonomia de catalogo (2026-03-18)
+- **Feature delivered:** `FEAT-5` — Hardening post-MVP de conversion, edicion y taxonomia de catalogo (2026-03-19)
